@@ -20,4 +20,9 @@ export default defineConfig({
     },
   },
   plugins: [react()],
+  resolve: {
+    alias: [
+      { find: "@lib", replacement: path.resolve(__dirname, "src", "lib") },
+    ],
+  },
 });
