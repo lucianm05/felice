@@ -2,13 +2,14 @@ import { keys } from '@lib/constants/keys'
 import useElementPosition from '@lib/hooks/useElementPosition'
 import Portal from '@lib/Portal'
 import { cn, isDefined } from '@lib/utils'
-import React, {
+import {
   CSSProperties,
   forwardRef,
   Fragment,
   HTMLProps,
   KeyboardEventHandler,
   useCallback,
+  useEffect,
   useRef,
   useState,
 } from 'react'
@@ -19,6 +20,8 @@ interface SelectStyleable<T> {
   trigger?: T
   list?: T
   option?: T
+  activeOption?: T
+  selectedOption?: T
 }
 
 export type SelectOption = { label: string; value: string }
@@ -49,7 +52,13 @@ export interface SelectOptionProps
     Required<
       Pick<
         HTMLProps<HTMLLIElement>,
-        'id' | 'role' | 'tabIndex' | 'aria-selected' | 'onClick' | 'onMouseDown'
+        | 'id'
+        | 'role'
+        | 'tabIndex'
+        | 'aria-selected'
+        | 'onClick'
+        | 'onMouseDown'
+        | 'onMouseEnter'
       >
     > {}
 
@@ -66,8 +75,13 @@ export interface SelectProps {
   ) => JSX.IntrinsicElements['button']
   renderOption?: (
     props: SelectOptionProps,
-    option: SelectOption
+    option: SelectOption,
+    index: number
   ) => JSX.IntrinsicElements['li']
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  selectedOption?: SelectOption
+  onOptionChange?: (option: SelectOption) => void
 }
 
 const Select = forwardRef<HTMLDivElement, SelectProps>(
@@ -81,12 +95,18 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
       styles,
       renderTrigger,
       renderOption,
+      open = false,
+      onOpenChange,
+      selectedOption,
+      onOptionChange,
     },
     ref
   ) => {
     const [internalIndex, setInternalIndex] = useState<number | undefined>()
-    const [internalOption, setInternalOption] = useState<SelectOption>()
-    const [internalOpen, setInternalOpen] = useState(false)
+    const [internalOption, setInternalOption] = useState<
+      SelectOption | undefined
+    >(selectedOption)
+    const [internalOpen, setInternalOpen] = useState(open)
     const ignoreBlur = useRef(false)
 
     const triggerRef = useRef<HTMLButtonElement | null>(null)
@@ -105,12 +125,20 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
       },
     }
 
-    const setInternalValueHandler = useCallback(
+    useEffect(() => {
+      if (!onOpenChange) return
+
+      onOpenChange(internalOpen)
+    }, [internalOpen])
+
+    const setInternalOptionValue = useCallback(
       (index: number) => {
-        setInternalOption(data[index])
+        const newOption = data[index]
+        setInternalOption(newOption)
+        onOptionChange?.(newOption)
         setInternalOpen(false)
       },
-      [data]
+      [data, onOptionChange]
     )
 
     const reset = useCallback(() => {
@@ -162,7 +190,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
 
         case keys.arrowUp: {
           if (altKey) {
-            if (internalIndex) setInternalValueHandler(internalIndex)
+            if (internalIndex) setInternalOptionValue(internalIndex)
             setInternalOpen(false)
             return
           }
@@ -199,7 +227,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
           if (!isDefined(internalIndex)) return
 
           setInternalIndex(internalIndex)
-          setInternalValueHandler(internalIndex)
+          setInternalOptionValue(internalIndex)
           return
         }
 
@@ -266,12 +294,16 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
       ignoreBlur.current = true
     }
 
+    const onOptionMouseEnter = (index: number) => {
+      setInternalIndex(index)
+    }
+
     const onOptionClick = useCallback(
       (index: number) => {
         setInternalIndex(index)
-        setInternalValueHandler(index)
+        setInternalOptionValue(index)
       },
-      [setInternalValueHandler]
+      [setInternalOptionValue]
     )
 
     const triggerProps: SelectTriggerProps = {
@@ -296,17 +328,27 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
       { value }: SelectOption,
       index: number
     ): SelectOptionProps => {
+      const isActive = internalIndex === index
+      const isSelected = internalOption?.value === value
+
       return {
         id: ids.getOption(index),
         role: 'option',
         tabIndex: -1,
         'aria-selected': value === internalOption?.value,
-        onClick: () => {
-          onOptionClick(index)
-        },
+        onClick: () => onOptionClick(index),
         onMouseDown: onOptionMouseDown,
-        className: classNames?.option,
-        style: styles?.option,
+        onMouseEnter: () => onOptionMouseEnter(index),
+        className: cn(
+          classNames?.option,
+          isActive && classNames?.activeOption,
+          isSelected && classNames?.selectedOption
+        ),
+        style: {
+          ...styles?.option,
+          ...(isActive ? styles?.activeOption : {}),
+          ...(isSelected ? styles?.selectedOption : {}),
+        },
       }
     }
 
@@ -334,7 +376,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
             role='listbox'
             tabIndex={-1}
             className={cn(
-              internalOpen ? 'select_listbox' : 'screenreaders-only',
+              internalOpen ? 'felice__select_listbox' : 'screenreaders-only',
               classNames?.list
             )}
             style={{
@@ -349,11 +391,24 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
             {data.map((option, index) => (
               <Fragment key={option.value}>
                 {!renderOption && (
-                  <li {...getListItemProps(option, index)}>{option.label}</li>
+                  <li
+                    {...getListItemProps(option, index)}
+                    onMouseEnter={() => {
+                      onOptionMouseEnter(index)
+                    }}
+                  >
+                    {option.label}
+                  </li>
                 )}
 
                 {renderOption && (
-                  <>{renderOption(getListItemProps(option, index), option)}</>
+                  <>
+                    {renderOption(
+                      getListItemProps(option, index),
+                      option,
+                      index
+                    )}
+                  </>
                 )}
               </Fragment>
             ))}

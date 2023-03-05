@@ -1,28 +1,28 @@
-import { createElement, PropsWithChildren, useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { PropsWithChildren, useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 const Portal = ({ children }: PropsWithChildren) => {
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true);
+    setMounted(true)
 
     return () => {
-      setMounted(false);
-    };
-  }, []);
+      setMounted(false)
+    }
+  }, [])
 
-  if (!mounted) return null;
+  if (!mounted) return null
 
-  let container = document.getElementById("felice-portal");
+  let container = document.getElementById('felice-portal')
 
   if (!container) {
-    container = document.createElement("div");
-    container.setAttribute("id", "felice-portal");
-    document.body.appendChild(container);
+    container = document.createElement('div')
+    container.setAttribute('id', 'felice-portal')
+    document.body.appendChild(container)
   }
 
-  return createPortal(children, container);
-};
+  return createPortal(children, container)
+}
 
-export default Portal;
+export default Portal

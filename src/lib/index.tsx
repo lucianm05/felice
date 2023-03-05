@@ -14,19 +14,7 @@ const HelloWorld = () => {
           { label: 'Twitter', value: 'twitter' },
         ]}
         placeholder='Social media'
-        renderTrigger={(props, selectedOption) => (
-          <button {...props}>
-            {selectedOption?.label || 'Social media'} <b>&darr;</b>
-          </button>
-        )}
-        renderOption={(props, { label, value }) => (
-          <li {...props}>
-            {label} - {value}
-          </li>
-        )}
       />
-
-      <button>test</button>
     </div>
   )
 }
