@@ -9,7 +9,6 @@ import {
   HTMLProps,
   KeyboardEventHandler,
   useCallback,
-  useEffect,
   useRef,
   useState,
 } from 'react'
@@ -24,7 +23,10 @@ interface SelectStyleable<T> {
   selectedOption?: T
 }
 
-export type SelectOption = { label: string; value: string }
+export interface SelectOption {
+  label: string
+  value: string
+}
 
 export interface SelectTriggerProps
   extends Pick<
@@ -107,6 +109,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
       SelectOption | undefined
     >(selectedOption)
     const [internalOpen, setInternalOpen] = useState(open)
+    const [internalSearch, setInternalSearch] = useState('')
     const ignoreBlur = useRef(false)
 
     const triggerRef = useRef<HTMLButtonElement | null>(null)
@@ -125,27 +128,40 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
       },
     }
 
-    useEffect(() => {
-      if (!onOpenChange) return
+    const clearSearchTimeout = useRef<NodeJS.Timeout | null>(null)
 
-      onOpenChange(internalOpen)
-    }, [internalOpen])
+    const setInternalOpenHandler = useCallback(
+      (open: boolean) => {
+        setInternalOpen(open)
+        onOpenChange?.(open)
+      },
+      [onOpenChange]
+    )
 
     const setInternalOptionValue = useCallback(
       (index: number) => {
         const newOption = data[index]
         setInternalOption(newOption)
         onOptionChange?.(newOption)
-        setInternalOpen(false)
+        setInternalOpenHandler(false)
       },
-      [data, onOptionChange]
+      [data, onOptionChange, setInternalOpenHandler]
     )
 
+    const setInternalIndexAfterSearch = useCallback((index?: number) => {
+      setInternalIndex(index)
+
+      // Clear internalSearch after the user stops typing
+      clearSearchTimeout.current = setTimeout(() => {
+        setInternalSearch('')
+      }, 500)
+    }, [])
+
     const reset = useCallback(() => {
-      setInternalOpen(false)
+      setInternalOpenHandler(false)
       const idx = data.findIndex(i => i.value === internalOption?.value)
       setInternalIndex(idx < 0 ? undefined : idx)
-    }, [data, internalOption])
+    }, [data, internalOption, setInternalOpenHandler])
 
     const onBlur = useCallback(() => {
       if (ignoreBlur.current) {
@@ -156,22 +172,22 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
       reset()
     }, [reset])
 
-    const onClick = useCallback(() => {
+    const onClick = () => {
       if (ignoreBlur.current) {
         ignoreBlur.current = false
         return
       }
 
-      setInternalOpen(prevState => !prevState)
-    }, [])
+      setInternalOpenHandler(!internalOpen)
+    }
 
     const onKeyDown: KeyboardEventHandler<HTMLButtonElement> = event => {
-      const { code, altKey } = event
+      const { code, altKey, key } = event
 
       switch (code) {
         case keys.arrowDown: {
           if (!internalOpen) {
-            setInternalOpen(true)
+            setInternalOpenHandler(true)
             return
           }
 
@@ -191,12 +207,12 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
         case keys.arrowUp: {
           if (altKey) {
             if (internalIndex) setInternalOptionValue(internalIndex)
-            setInternalOpen(false)
+            setInternalOpenHandler(false)
             return
           }
 
           if (!internalOpen) {
-            setInternalOpen(true)
+            setInternalOpenHandler(true)
             setInternalIndex(0)
             return
           }
@@ -220,7 +236,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
           ignoreBlur.current = true
 
           if (!internalOpen && code !== keys.tab) {
-            setInternalOpen(true)
+            setInternalOpenHandler(true)
             return
           }
 
@@ -232,13 +248,13 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
         }
 
         case keys.home: {
-          if (!internalOpen) setInternalOpen(true)
+          if (!internalOpen) setInternalOpenHandler(true)
           setInternalIndex(0)
           return
         }
 
         case keys.end: {
-          if (!internalOpen) setInternalOpen(true)
+          if (!internalOpen) setInternalOpenHandler(true)
           setInternalIndex(maxIndex)
           return
         }
@@ -285,6 +301,69 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
         }
 
         default: {
+          if (key.length !== 1) return
+
+          // Clearing timeout so multiple letters can be typed
+          if (clearSearchTimeout.current) {
+            clearTimeout(clearSearchTimeout.current)
+          }
+
+          setInternalOpenHandler(true)
+          const newSearch = (internalSearch + key).toLowerCase()
+          const newSearchLetters = newSearch.split('')
+          setInternalSearch(newSearch)
+
+          // Verifying if the same letter is typed multiple times
+          if (
+            newSearchLetters.every(letter => letter === newSearchLetters[0])
+          ) {
+            // Searching for the data indexes for the letter being typed so the focus cycles among the options
+            const validIndexes = data
+              .filter(
+                item => item.label[0].toLowerCase() === newSearchLetters[0]
+              )
+              .map(item => data.findIndex(i => i.label === item.label))
+
+            // If there is no internal index set, we can set it to the first valid index
+            if (!internalIndex) {
+              setInternalIndexAfterSearch(validIndexes[0])
+              return
+            }
+
+            // Verifying if the array has more than one option so we can cycle among the options
+            if (validIndexes.length > 1) {
+              const currValidIndex = validIndexes.findIndex(
+                i => internalIndex === i
+              )
+
+              const nextValidIndex = currValidIndex + 1
+
+              // If the next valid index is greater than the array length, set the internalIndex to the first valid index
+              if (nextValidIndex > validIndexes.length - 1) {
+                setInternalIndexAfterSearch(validIndexes[0])
+                return
+              }
+
+              setInternalIndexAfterSearch(validIndexes[nextValidIndex])
+            }
+
+            return
+          }
+
+          // If the user doesn't press the same key multiple times, find the item which starts with the search string
+          const targetIndex = data.findIndex(item =>
+            item.label.toLocaleLowerCase().startsWith(newSearch)
+          )
+
+          // No data item matches
+          if (targetIndex <= -1) {
+            setInternalIndexAfterSearch(undefined)
+            return
+          }
+
+          // Data item found
+          setInternalIndexAfterSearch(targetIndex)
+
           return
         }
       }
@@ -318,7 +397,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
       'aria-expanded': internalOpen,
       'aria-haspopup': 'listbox',
       'aria-labelledby': ids.label,
-      'aria-activedescendant': ids.getOption(internalIndex),
+      'aria-activedescendant': ids.getOption(internalIndex) || undefined,
       'aria-label': internalOption?.label,
       className: classNames?.trigger,
       style: styles?.trigger,
