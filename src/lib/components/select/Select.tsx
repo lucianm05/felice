@@ -1,17 +1,18 @@
+import Portal from '@lib/components/portal/Portal'
 import { keys } from '@lib/constants/keys'
 import useElementPosition from '@lib/hooks/useElementPosition'
-import Portal from '@lib/Portal'
 import { cn, isDefined } from '@lib/utils'
 import {
   CSSProperties,
-  forwardRef,
   Fragment,
   HTMLProps,
   KeyboardEventHandler,
+  forwardRef,
   useCallback,
   useRef,
   useState,
 } from 'react'
+import classes from './Select.module.css'
 
 interface SelectStyleable<T> {
   root?: T
@@ -455,7 +456,9 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
             role='listbox'
             tabIndex={-1}
             className={cn(
-              internalOpen ? 'felice__select_listbox' : 'screenreaders-only',
+              internalOpen
+                ? classes['felice__select_listbox']
+                : 'felice__sr-only',
               classNames?.list
             )}
             style={{

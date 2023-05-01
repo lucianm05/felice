@@ -1,4 +1,4 @@
-import Select from '@lib/components/Select'
+import Select from '@lib/components/select/Select'
 
 const HelloWorld = () => {
   return (
