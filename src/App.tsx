@@ -16,7 +16,18 @@ function App() {
           { label: 'TikTok', value: 'tiktok' },
         ]}
         placeholder='Social media'
-        styles={{ activeOption: { outline: '1px solid red' } }}
+        styles={{
+          root: {
+            border: '1px solid red',
+            width: 'max-content',
+          },
+          activeOption: {
+            color: 'red',
+          },
+          selectedOption: {
+            color: 'blue',
+          },
+        }}
       />
 
       <div
@@ -31,6 +42,14 @@ function App() {
           data={{
             header: 'Test single accordion',
             content: 'This is a single accordion',
+          }}
+          indicator={<span>^</span>}
+          styles={{
+            indicator: {
+              collapsed: {
+                transform: 'rotate(180deg)',
+              },
+            },
           }}
         />
 
