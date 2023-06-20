@@ -9,6 +9,7 @@ import {
   KeyboardEventHandler,
   forwardRef,
   useCallback,
+  useId,
   useRef,
   useState,
 } from 'react'
@@ -66,9 +67,9 @@ export interface SelectOptionProps
     > {}
 
 export interface SelectProps {
-  id: string
   label: string
   data: SelectOption[]
+  id?: string
   placeholder?: string
   classNames?: SelectStyleable<string>
   styles?: SelectStyleable<CSSProperties>
@@ -90,7 +91,7 @@ export interface SelectProps {
 const Select = forwardRef<HTMLDivElement, SelectProps>(
   (
     {
-      id,
+      id: externalId,
       data,
       label,
       placeholder,
@@ -115,6 +116,9 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
 
     const triggerRef = useRef<HTMLButtonElement | null>(null)
     const triggerPosition = useElementPosition(triggerRef)
+
+    const internalId = useId()
+    const id = externalId || internalId
 
     const maxIndex = data.length - 1
 
@@ -501,6 +505,6 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
   }
 )
 
-Select.displayName = 'Select'
+Select.displayName = 'FeliceSelect'
 
 export default Select
