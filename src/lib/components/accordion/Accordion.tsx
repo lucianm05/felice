@@ -9,7 +9,7 @@ import {
   getIsIndicatorStylesRelative,
 } from '@lib/components/accordion/utils'
 import { cn } from '@lib/utils'
-import { CSSProperties, ReactNode, forwardRef, useId, useState } from 'react'
+import { CSSProperties, ReactNode, forwardRef, useCallback, useId, useState } from 'react'
 import classes from './Accordion.module.css'
 
 interface AccordionItemProps extends AccordionItem {
@@ -30,9 +30,9 @@ const AccordionItem = ({
 
   const [expanded, setExpanded] = useState(false)
 
-  const onClick = () => {
+  const onClick = useCallback(() => {
     setExpanded(prev => !prev)
-  }
+  }, [])
 
   const isIndicatorRelative = getIsIndicatorRelative(indicator)
 
