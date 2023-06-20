@@ -12,6 +12,11 @@ import { cn } from '@lib/utils'
 import { CSSProperties, ReactNode, forwardRef, useCallback, useId, useState } from 'react'
 import classes from './Accordion.module.css'
 
+/** @todo
+ * extended/collapsed external prop
+ * multiple/single prop
+ */
+
 interface AccordionItemProps extends AccordionItem {
   classNames?: AccordionItemStyleable<string>
   styles?: AccordionItemStyleable<CSSProperties>
