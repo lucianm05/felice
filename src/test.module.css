@@ -1,0 +1,27 @@
+.switch {
+  width: 2rem;
+  border-radius: 16px;
+  padding: 0.125rem;
+  cursor: pointer;
+  transition: all 100ms ease-in-out;
+}
+
+.switch-checked {
+  background: blue;
+}
+
+.switch-unchecked {
+  background: gray;
+}
+
+.switch__thumb {
+  width: 1rem;
+  height: 1rem;
+  background: white;
+  border-radius: 99999px;
+  transition: transform 100ms ease-in-out;
+}
+
+.switch__thumb-checked {
+  transform: translateX(calc(100% - 0.25rem));
+}

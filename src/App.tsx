@@ -1,5 +1,9 @@
 import Accordion from '@lib/components/accordion/Accordion'
 import Select from '@lib/components/select/Select'
+import Switch from '@lib/components/switch/Switch'
+import { useState } from 'react'
+import classes from './test.module.css'
+import Checkbox from '@lib/components/checkbox/Checkbox'
 
 function App() {
   return (
@@ -65,6 +69,32 @@ function App() {
             },
           ]}
         />
+
+        <div style={{ marginBottom: '8rem' }}></div>
+
+        <Switch
+          label='Marketing e-mails'
+          style={{ marginLeft: '5rem' }}
+          classNames={{
+            switch: {
+              default: classes['switch'],
+              checked: classes['switch-checked'],
+              unchecked: classes['switch-unchecked'],
+            },
+            thumb: {
+              default: classes['switch__thumb'],
+              checked: classes['switch__thumb-checked'],
+            },
+          }}
+          checked={checked}
+          onCheckedChange={setChecked}
+        />
+
+        <Checkbox label='Terms and conditions' />
+
+        {/* <button type='button' onClick={() => setChecked(prev => !prev)}>
+          change switch
+        </button> */}
       </div>
     </div>
   )
