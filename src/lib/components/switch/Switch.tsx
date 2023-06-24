@@ -19,6 +19,12 @@ export interface SwitchProps
   onCheckedChange?: (value: boolean) => void
 }
 
+/**
+ * @todo
+ * event prevent onClick
+ * defaultChecked
+ */
+
 const Switch = ({
   children,
   label,
