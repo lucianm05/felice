@@ -1,5 +1,6 @@
 import Accordion from '@lib/components/accordion/Accordion'
 import Checkbox from '@lib/components/checkbox/Checkbox'
+import Progress from '@lib/components/progress/Progress'
 import Select from '@lib/components/select/Select'
 import Switch from '@lib/components/switch/Switch'
 import { useState } from 'react'
@@ -8,6 +9,11 @@ import classes from './test.module.css'
 function App() {
   const [switchChecked, setSwitchChecked] = useState(true)
   const [checkboxChecked, setCheckboxChecked] = useState(true)
+  const progressValues = {
+    value: 75,
+    min: 50,
+    max: 40,
+  }
 
   return (
     <div className='App'>
@@ -130,6 +136,28 @@ function App() {
             {!checkboxChecked && <span>✗</span>}
           </Checkbox>
         </div>
+
+        <Progress
+          label='Fetching data'
+          {...progressValues}
+          styles={{
+            root: {
+              width: '10rem',
+              height: '0.75rem',
+              background: 'gray',
+              borderRadius: '99999px',
+            },
+            indicator: {
+              width: `${
+                ((progressValues.value - progressValues.min) * 100) /
+                (progressValues.max - progressValues.min)
+              }%`,
+              height: '100%',
+              background: 'blue',
+              borderRadius: '99999px',
+            },
+          }}
+        ></Progress>
       </div>
     </div>
   )
