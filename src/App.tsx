@@ -1,7 +1,11 @@
 import Accordion from '@lib/components/accordion/Accordion'
 import Select from '@lib/components/select/Select'
+import Switch from '@lib/components/switch/Switch'
+import { useState } from 'react'
 
 function App() {
+  const [checked, setChecked] = useState(true)
+
   return (
     <div className='App'>
       <Select
@@ -65,6 +69,43 @@ function App() {
             },
           ]}
         />
+
+        <Switch
+          label='Lights switch'
+          styles={{
+            switch: {
+              width: '2rem',
+              borderRadius: '16px',
+              padding: '0.125rem',
+              cursor: 'pointer',
+              transition: 'all 100ms ease-in-out',
+              checked: {
+                background: 'blue',
+              },
+              unchecked: {
+                background: 'gray',
+              },
+            },
+            thumb: {
+              width: '1rem',
+              height: '1rem',
+              background: 'white',
+              borderRadius: '99999px',
+              transition: 'transform 100ms ease-in-out',
+              checked: {
+                transform: 'translateX(calc(100% - 0.25rem))',
+              },
+            },
+          }}
+          checked={checked}
+          onCheckedChange={checked => {
+            setChecked(checked)
+          }}
+        />
+
+        <button type='button' onClick={() => setChecked(prev => !prev)}>
+          change switch
+        </button>
       </div>
     </div>
   )
