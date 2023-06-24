@@ -1,10 +1,13 @@
 import Accordion from '@lib/components/accordion/Accordion'
+import Checkbox from '@lib/components/checkbox/Checkbox'
 import Select from '@lib/components/select/Select'
 import Switch from '@lib/components/switch/Switch'
 import { useState } from 'react'
+import classes from './test.module.css'
 
 function App() {
-  const [checked, setChecked] = useState(true)
+  const [switchChecked, setSwitchChecked] = useState(true)
+  const [checkboxChecked, setCheckboxChecked] = useState(true)
 
   return (
     <div className='App'>
@@ -70,42 +73,53 @@ function App() {
           ]}
         />
 
+        <div style={{ marginBottom: '8rem' }}></div>
+
         <Switch
-          label='Lights switch'
-          styles={{
+          label='Marketing e-mails'
+          style={{ marginLeft: '5rem' }}
+          classNames={{
             switch: {
-              width: '2rem',
-              borderRadius: '16px',
-              padding: '0.125rem',
-              cursor: 'pointer',
-              transition: 'all 100ms ease-in-out',
-              checked: {
-                background: 'blue',
-              },
-              unchecked: {
-                background: 'gray',
-              },
+              default: classes['switch'],
+              checked: classes['switch-checked'],
+              unchecked: classes['switch-unchecked'],
             },
             thumb: {
-              width: '1rem',
-              height: '1rem',
-              background: 'white',
-              borderRadius: '99999px',
-              transition: 'transform 100ms ease-in-out',
-              checked: {
-                transform: 'translateX(calc(100% - 0.25rem))',
-              },
+              default: classes['switch__thumb'],
+              checked: classes['switch__thumb-checked'],
             },
           }}
-          checked={checked}
-          onCheckedChange={checked => {
-            setChecked(checked)
-          }}
+          checked={switchChecked}
+          onCheckedChange={setSwitchChecked}
         />
 
-        <button type='button' onClick={() => setChecked(prev => !prev)}>
+        {/* <button type='button' onClick={() => setChecked(prev => !prev)}>
           change switch
-        </button>
+        </button> */}
+
+        <Checkbox
+          label='Terms and conditions'
+          style={{
+            width: '1.5rem',
+            height: '1.5rem',
+            borderRadius: '4px',
+            color: 'white',
+            cursor: 'pointer',
+            checked: { background: 'blue' },
+            unchecked: { background: 'gray' },
+          }}
+          className={{
+            default: 'checkbox',
+            checked: 'checkbox-checked',
+            unchecked: 'checkbox-unchecked',
+          }}
+          // indicator={{ checked: '✓', unchecked: '✗' }}
+          checked={checkboxChecked}
+          onCheckedChanged={setCheckboxChecked}
+        >
+          {checkboxChecked && '✓'}
+          {!checkboxChecked && '✗'}
+        </Checkbox>
       </div>
     </div>
   )
