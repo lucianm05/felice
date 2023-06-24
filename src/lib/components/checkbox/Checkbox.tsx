@@ -44,6 +44,7 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
       styles,
       className,
       classNames,
+      id: externalId,
       onCheckedChanged,
       onClick,
       ...props
@@ -52,7 +53,8 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
   ) => {
     const [internalChecked, setInternalChecked] = useState(defaultChecked)
 
-    const labelId = useId()
+    const internalId = useId()
+    const id = externalId || internalId
 
     const checked =
       typeof externalChecked === 'boolean' ? externalChecked : internalChecked
@@ -70,6 +72,7 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
       <div style={styles?.root}>
         <button
           {...props}
+          id={id}
           type='button'
           ref={ref}
           role='checkbox'
@@ -79,7 +82,6 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
             getClassNames(classNames?.checkbox, checked)
           )}
           onClick={onClickInternal}
-          aria-labelledby={labelId}
           aria-checked={checked}
           data-checked={checked}
         >
@@ -100,9 +102,13 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
         </button>
 
         <label
-          id={labelId}
+          htmlFor={id}
           style={hideLabel ? undefined : styles?.label}
-          className={cn(hideLabel ? 'felice__sr-only' : classNames?.label)}
+          className={
+            !hideLabel && !classNames?.label
+              ? undefined
+              : cn(hideLabel ? 'felice__sr-only' : classNames?.label)
+          }
         >
           {label}
         </label>
