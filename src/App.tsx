@@ -73,7 +73,7 @@ function App() {
           ]}
         />
 
-        <div style={{ marginBottom: '8rem' }}></div>
+        {/* <div style={{ marginBottom: '8rem' }}></div> */}
 
         <Switch
           label='Marketing e-mails'
@@ -97,29 +97,39 @@ function App() {
           change switch
         </button> */}
 
-        <Checkbox
-          label='Terms and conditions'
+        <div
           style={{
-            width: '1.5rem',
-            height: '1.5rem',
-            borderRadius: '4px',
-            color: 'white',
-            cursor: 'pointer',
-            checked: { background: 'blue' },
-            unchecked: { background: 'gray' },
+            marginLeft: '10rem',
+            display: 'flex',
+            flexDirection: 'column',
+            rowGap: '0.5rem',
+            marginTop: '8rem',
           }}
-          className={{
-            default: 'checkbox',
-            checked: 'checkbox-checked',
-            unchecked: 'checkbox-unchecked',
-          }}
-          // indicator={{ checked: '✓', unchecked: '✗' }}
-          checked={checkboxChecked}
-          onCheckedChanged={setCheckboxChecked}
         >
-          {checkboxChecked && '✓'}
-          {!checkboxChecked && '✗'}
-        </Checkbox>
+          <Checkbox
+            label='Terms and conditions'
+            className={{
+              default: classes['checkbox'],
+              checked: classes['checkbox-checked'],
+              unchecked: classes['checkbox-unchecked'],
+            }}
+            indicator={{ checked: <span>✓</span>, unchecked: <span>✗</span> }}
+          />
+
+          <Checkbox
+            label='Terms and conditions'
+            className={{
+              default: classes['checkbox'],
+              checked: classes['checkbox-checked'],
+              unchecked: classes['checkbox-unchecked'],
+            }}
+            checked={checkboxChecked}
+            onCheckedChanged={setCheckboxChecked}
+          >
+            {checkboxChecked && <span>✓</span>}
+            {!checkboxChecked && <span>✗</span>}
+          </Checkbox>
+        </div>
       </div>
     </div>
   )

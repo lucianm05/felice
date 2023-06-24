@@ -25,3 +25,19 @@
 .switch__thumb-checked {
   transform: translateX(calc(100% - 0.25rem));
 }
+
+.checkbox {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+
+.checkbox-checked {
+  background: blue;
+}
+
+.checkbox-unchecked {
+  background: gray;
+}
