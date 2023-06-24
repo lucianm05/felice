@@ -40,7 +40,9 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
     },
     ref
   ) => {
-    const [internalChecked, setInternalChecked] = useState(defaultChecked)
+    const [internalChecked, setInternalChecked] = useState(
+      typeof externalChecked === 'boolean' ? externalChecked : defaultChecked
+    )
 
     const checked =
       typeof externalChecked === 'boolean' ? externalChecked : internalChecked

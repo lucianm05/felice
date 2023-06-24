@@ -5,19 +5,22 @@ import {
   SwitchStyle,
 } from '@lib/components/switch/types'
 import { cn, mergeObjects } from '@lib/utils'
-import { CSSProperties } from 'react'
 
 export const getIsStyleRelative = (
-  style: SwitchStyle
+  style?: SwitchStyle
 ): style is SwitchRelativeStyle => {
+  if (!style) return false
+
   const relativeStyle = style as SwitchRelativeStyle
 
   return Boolean(relativeStyle?.checked || relativeStyle?.unchecked)
 }
 
 export const getIsClassNamesRelative = (
-  classNames: SwitchClassNames
+  classNames?: SwitchClassNames
 ): classNames is SwitchRelativeClassNames => {
+  if (!classNames) return false
+
   const relativeClassNames = classNames as SwitchRelativeClassNames
 
   return Boolean(
@@ -27,10 +30,7 @@ export const getIsClassNamesRelative = (
   )
 }
 
-export const getStyles = (
-  style?: SwitchStyle<CSSProperties>,
-  checked?: boolean
-) => {
+export const getStyles = (style?: SwitchStyle, checked?: boolean) => {
   return mergeObjects(
     style,
     getIsStyleRelative(style)
@@ -42,7 +42,7 @@ export const getStyles = (
 }
 
 export const getClassNames = (
-  classNames?: SwitchClassNames<string>,
+  classNames?: SwitchClassNames,
   checked?: boolean
 ) => {
   return getIsClassNamesRelative(classNames)
