@@ -6,6 +6,8 @@ import classes from './test.module.css'
 import Checkbox from '@lib/components/checkbox/Checkbox'
 
 function App() {
+  const [checked, setChecked] = useState(true)
+
   return (
     <div className='App'>
       <Select
@@ -90,11 +92,11 @@ function App() {
           onCheckedChange={setChecked}
         />
 
-        <Checkbox label='Terms and conditions' />
-
         {/* <button type='button' onClick={() => setChecked(prev => !prev)}>
           change switch
         </button> */}
+
+        <Checkbox label='Terms and conditions' />
       </div>
     </div>
   )
