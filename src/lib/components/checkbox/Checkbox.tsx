@@ -31,7 +31,7 @@ export interface CheckboxProps
   classNames?: CheckboxStyleable<string, CheckboxClassName>
 }
 
-const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
+export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
   (
     {
       children,
@@ -124,4 +124,3 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
 
 Checkbox.displayName = 'FeliceCheckbox'
 
-export default Checkbox
