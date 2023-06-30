@@ -24,7 +24,7 @@ export interface CheckboxProps
   className?: CheckboxClassNames
 }
 
-const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
+export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
   (
     {
       children,
@@ -90,4 +90,3 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
 
 Checkbox.displayName = 'FeliceCheckbox'
 
-export default Checkbox

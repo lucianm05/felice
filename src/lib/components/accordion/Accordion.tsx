@@ -9,7 +9,14 @@ import {
   getIsIndicatorStylesRelative,
 } from '@lib/components/accordion/utils'
 import { cn } from '@lib/utils'
-import { CSSProperties, ReactNode, forwardRef, useCallback, useId, useState } from 'react'
+import {
+  CSSProperties,
+  ReactNode,
+  forwardRef,
+  useCallback,
+  useId,
+  useState,
+} from 'react'
 import classes from './Accordion.module.css'
 
 /** @todo
@@ -115,7 +122,7 @@ export interface AccordionProps {
   indicator?: AccordionIndicator
 }
 
-const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
+export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
   ({ data, classNames, styles, indicator }, ref) => {
     const id = useId()
 
@@ -159,5 +166,3 @@ const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
 )
 
 Accordion.displayName = 'FeliceAccordion'
-
-export default Accordion

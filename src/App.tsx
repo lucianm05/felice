@@ -1,7 +1,7 @@
-import Accordion from '@lib/components/accordion/Accordion'
-import Checkbox from '@lib/components/checkbox/Checkbox'
-import Select from '@lib/components/select/Select'
-import Switch from '@lib/components/switch/Switch'
+import { Accordion } from '@lib/components/accordion/Accordion'
+import { Checkbox } from '@lib/components/checkbox/Checkbox'
+import { Select } from '@lib/components/select/Select'
+import { Switch } from '@lib/components/switch/Switch'
 import { useState } from 'react'
 import classes from './test.module.css'
 
