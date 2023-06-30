@@ -1,18 +1,18 @@
 import { Checkbox, CheckboxProps } from './Checkbox'
 import {
-  CheckboxClassName,
+  CheckboxClassNames,
   CheckboxIndicator,
-  CheckboxRelativeClassName,
+  CheckboxRelativeClassNames,
   CheckboxRelativeIndicator,
   CheckboxRelativeStyle,
   CheckboxStyle,
 } from './types'
 
 export type {
-  CheckboxClassName,
+  CheckboxClassNames,
   CheckboxIndicator,
   CheckboxProps,
-  CheckboxRelativeClassName,
+  CheckboxRelativeClassNames,
   CheckboxRelativeIndicator,
   CheckboxRelativeStyle,
   CheckboxStyle,
