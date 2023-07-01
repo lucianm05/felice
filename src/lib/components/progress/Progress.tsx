@@ -19,7 +19,7 @@ export interface ProgressProps
   classNames?: ProgressClassNames
 }
 
-const Progress = forwardRef<HTMLDivElement, ProgressProps>(
+export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
   (
     {
       children,
@@ -89,5 +89,3 @@ const Progress = forwardRef<HTMLDivElement, ProgressProps>(
 )
 
 Progress.displayName = 'FeliceProgress'
-
-export default Progress
