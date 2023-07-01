@@ -41,3 +41,35 @@
 .checkbox-unchecked {
   background: gray;
 }
+
+.slider-root {
+  width: 16rem;
+  height: 0.5rem;
+  margin-top: 5rem;
+  position: relative;
+}
+
+.slider-track {
+  width: 100%;
+  height: 100%;
+  background: gray;
+  border-radius: 99999px;
+}
+
+.slider-range {
+  background: blue;
+  height: 100%;
+  border-radius: 99999px;
+}
+
+.slider-thumb {
+  display: block;
+  width: 2rem;
+  height: 2rem;
+  background: white;
+  position: absolute;
+  top:50%;
+  transform: translateY(-50%);
+  border-radius: 99999px;
+  border: 1px solid gray;
+}

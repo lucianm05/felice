@@ -3,7 +3,8 @@ import { Checkbox } from '@lib/components/checkbox/Checkbox'
 import { Progress } from '@lib/components/progress/Progress'
 import { Select } from '@lib/components/select/Select'
 import { Switch } from '@lib/components/switch/Switch'
-import { useState } from 'react'
+import { Slider } from '@lib/components/slider/Slider'
+import { useRef, useState } from 'react'
 import classes from './test.module.css'
 
 function App() {
@@ -11,9 +12,11 @@ function App() {
   const [checkboxChecked, setCheckboxChecked] = useState(true)
   const progressValues = {
     value: 75,
-    min: 50,
-    max: 40,
+    min: 0,
+    max: 150,
   }
+
+  const sliderRef = useRef<HTMLDivElement | null>(null)
 
   return (
     <div className='App'>
@@ -162,6 +165,17 @@ function App() {
             },
           }}
         ></Progress>
+
+        <Slider
+          ref={sliderRef}
+          labels={['Minimum price', 'Maximum price']}
+          classNames={{
+            root: classes['slider-root'],
+            track: classes['slider-track'],
+            range: classes['slider-range'],
+            thumb: classes['slider-thumb'],
+          }}
+        />
       </div>
     </div>
   )
