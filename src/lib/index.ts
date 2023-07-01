@@ -48,6 +48,17 @@ export type {
 
 export { Select } from './components/select'
 
+/** Slider */
+export type {
+  SliderLabels,
+  SliderOrientation,
+  SliderProps,
+  SliderRef,
+  SliderValue,
+} from './components/slider'
+
+export { Slider } from './components/slider'
+
 /** Switch */
 
 export type {

@@ -3,17 +3,22 @@ import { Checkbox } from '@lib/components/checkbox/Checkbox'
 import { Progress } from '@lib/components/progress/Progress'
 import { Select } from '@lib/components/select/Select'
 import { Switch } from '@lib/components/switch/Switch'
-import { useState } from 'react'
+import { Slider } from '@lib/components/slider/Slider'
+import { useEffect, useRef, useState } from 'react'
 import classes from './test.module.css'
+import { SliderValue } from '@lib/components/slider/types'
 
 function App() {
   const [switchChecked, setSwitchChecked] = useState(true)
   const [checkboxChecked, setCheckboxChecked] = useState(true)
+  const [sliderValue, setSliderValue] = useState<SliderValue>([75, 100])
   const progressValues = {
     value: 75,
-    min: 50,
-    max: 40,
+    min: 0,
+    max: 150,
   }
+
+  const sliderRef = useRef<HTMLDivElement | null>(null)
 
   return (
     <div className='App'>
@@ -162,6 +167,44 @@ function App() {
             },
           }}
         ></Progress>
+
+        <Slider
+          ref={sliderRef}
+          labels={['Minimum price', 'Maximum price']}
+          min={50}
+          max={150}
+          defaultValue={[75, 125]}
+          value={sliderValue}
+          onValueChange={setSliderValue}
+          step={5}
+          multipleStep={15}
+          classNames={{
+            root: classes['slider-root'],
+            track: classes['slider-track'],
+            range: classes['slider-range'],
+            thumb: classes['slider-thumb'],
+          }}
+        />
+
+        <Slider
+          ref={sliderRef}
+          labels={['Minimum price', 'Maximum price']}
+          min={50}
+          max={150}
+          defaultValue={[75, 125]}
+          // value={sliderValue}
+          // onValueChange={setSliderValue}
+          step={5}
+          multipleStep={15}
+          classNames={{
+            root: classes['slider-root-vertical'],
+            track: classes['slider-track-vertical'],
+            range: classes['slider-range-vertical'],
+            thumb:
+              classes['slider-thumb'] + ' ' + classes['slider-thumb-vertical'],
+          }}
+          orientation='vertical'
+        />
       </div>
     </div>
   )
