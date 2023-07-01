@@ -111,7 +111,7 @@ export const Slider = forwardRef<Ref, SliderProps>(
 
       const { width: rootWidth } = internalRef.current.getBoundingClientRect()
       const { width: thumbWidth } = slider.getBoundingClientRect()
-      console.log('v', value)
+      
       slider.style.position = 'absolute'
       slider.style.left = `${
         ((value[index] - min) / (max - min)) * (rootWidth - thumbWidth)
