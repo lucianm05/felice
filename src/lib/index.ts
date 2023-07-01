@@ -12,10 +12,10 @@ export { Accordion } from './components/accordion'
 /** Checkbox */
 
 export type {
-  CheckboxClassNames,
+  CheckboxClassName,
   CheckboxIndicator,
   CheckboxProps,
-  CheckboxRelativeClassNames,
+  CheckboxRelativeClassName,
   CheckboxRelativeIndicator,
   CheckboxRelativeStyle,
   CheckboxStyle,
@@ -26,6 +26,16 @@ export { Checkbox } from './components/checkbox'
 /** Portal */
 
 export { Portal } from './components/portal'
+
+/** Progress */
+
+export type {
+  ProgressClassNames,
+  ProgressProps,
+  ProgressStyles,
+} from './components/progress'
+
+export { Progress } from './components/progress'
 
 /** Select */
 

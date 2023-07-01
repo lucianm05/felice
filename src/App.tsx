@@ -114,20 +114,24 @@ function App() {
         >
           <Checkbox
             label='Terms and conditions'
-            className={{
-              default: classes['checkbox'],
-              checked: classes['checkbox-checked'],
-              unchecked: classes['checkbox-unchecked'],
+            classNames={{
+              checkbox: {
+                default: classes['checkbox'],
+                checked: classes['checkbox-checked'],
+                unchecked: classes['checkbox-unchecked'],
+              },
             }}
             indicator={{ checked: <span>✓</span>, unchecked: <span>✗</span> }}
           />
 
           <Checkbox
             label='Terms and conditions'
-            className={{
-              default: classes['checkbox'],
-              checked: classes['checkbox-checked'],
-              unchecked: classes['checkbox-unchecked'],
+            classNames={{
+              checkbox: {
+                default: classes['checkbox'],
+                checked: classes['checkbox-checked'],
+                unchecked: classes['checkbox-unchecked'],
+              },
             }}
             checked={checkboxChecked}
             onCheckedChanged={setCheckboxChecked}
