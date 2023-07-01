@@ -4,12 +4,14 @@ import { Progress } from '@lib/components/progress/Progress'
 import { Select } from '@lib/components/select/Select'
 import { Switch } from '@lib/components/switch/Switch'
 import { Slider } from '@lib/components/slider/Slider'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import classes from './test.module.css'
+import { SliderValue } from '@lib/components/slider/types'
 
 function App() {
   const [switchChecked, setSwitchChecked] = useState(true)
   const [checkboxChecked, setCheckboxChecked] = useState(true)
+  const [sliderValue, setSliderValue] = useState<SliderValue>([75, 100])
   const progressValues = {
     value: 75,
     min: 0,
@@ -169,6 +171,13 @@ function App() {
         <Slider
           ref={sliderRef}
           labels={['Minimum price', 'Maximum price']}
+          min={50}
+          max={150}
+          defaultValue={[75, 125]}
+          value={sliderValue}
+          onValueChange={setSliderValue}
+          step={5}
+          multipleStep={15}
           classNames={{
             root: classes['slider-root'],
             track: classes['slider-track'],

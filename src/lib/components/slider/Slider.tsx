@@ -1,34 +1,60 @@
+import {
+  SliderLabels,
+  SliderStyleable,
+  SliderValue,
+} from '@lib/components/slider/types'
 import { keys } from '@lib/constants/keys'
-import { cn, isDefined, mergeObjects, range } from '@lib/utils'
+import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
   CSSProperties,
   HTMLProps,
   KeyboardEvent,
+  PointerEvent as ReactPointerEvent,
   forwardRef,
   useCallback,
+  useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react'
 
-interface SliderStyleable<T> {
-  root?: T
-  track?: T
-  range?: T
-  thumb?: T
+const getIntervalValues = ({
+  max,
+  min,
+  value,
+  index,
+}: {
+  min: number
+  max: number
+  value: SliderValue
+  index: number
+}) => {
+  let minValue = min
+  let maxValue = max
+
+  if (isDefined(value[0]) && isDefined(value[1])) {
+    if (index === 0) maxValue = value[1] - 1
+
+    if (index === 1) minValue = value[0] + 1
+  }
+
+  return { minValue, maxValue }
 }
 
 interface SliderProps
   extends Omit<HTMLProps<HTMLDivElement>, 'value' | 'defaultValue'> {
-  labels: string[]
-  defaultValue?: number[]
-  value?: number[]
-  onValueChange?: (value: number[]) => void
+  labels: SliderLabels
+  defaultValue?: SliderValue
+  value?: SliderValue
+  onValueChange?: (value: SliderValue) => void
   step?: number
+  multipleStep?: number
   min?: number
   max?: number
   classNames?: SliderStyleable<string>
   styles?: SliderStyleable<CSSProperties>
+  disabled?: boolean
 }
 
 type Ref = HTMLDivElement | null
@@ -41,104 +67,294 @@ export const Slider = forwardRef<Ref, SliderProps>(
       styles,
       className,
       classNames,
-      defaultValue = [0],
+      defaultValue = [1],
       value: externalValue,
       onValueChange,
       step = 1,
+      multipleStep = 10,
       min = 0,
       max = 150,
+      disabled = false,
       ...props
     },
     ref
   ) => {
-    const [internalValue, setInternalValue] = useState(defaultValue)
+    const [internalValue, setInternalValue] = useState<SliderValue>(() => {
+      if (isDefined(externalValue)) return externalValue
 
-    const movingSlider = useRef<number | null>(null)
+      let minValue = min
 
-    // console.log('movingSlider', movingSlider)
+      if (isDefined(defaultValue[0]) && isDefined(defaultValue[1])) {
+        let maxValue = max
 
-    const internalRef = useRef<Ref>(null)
+        if (defaultValue[0] > min) minValue = defaultValue[0]
+        if (defaultValue[1] < max) maxValue = defaultValue[1]
 
-    useImperativeHandle<Ref, Ref>(ref, () => internalRef.current, [])
+        return [minValue, maxValue]
+      } else {
+        if (defaultValue[0] > min) minValue = defaultValue[0]
+
+        return [minValue]
+      }
+    })
+    const [thumbWidths, setThumbWidths] = useState([0, 0])
 
     const value = isDefined(externalValue) ? externalValue : internalValue
 
+    const movingSlider = useRef<number | null>()
+
+    const internalRef = useRef<Ref>(null)
+    useImperativeHandle<Ref, Ref>(ref, () => internalRef.current, [])
+
+    const setSliderPosition = (slider: HTMLSpanElement, index: number) => {
+      if (!internalRef.current) return
+
+      const { width: rootWidth } = internalRef.current.getBoundingClientRect()
+      const { width: thumbWidth } = slider.getBoundingClientRect()
+      console.log('v', value)
+      slider.style.position = 'absolute'
+      slider.style.left = `${
+        ((value[index] - min) / (max - min)) * (rootWidth - thumbWidth)
+      }px`
+    }
+
     const setInternalValueHandler = useCallback(
-      (index: number, action: 'increase' | 'decrease') => {
+      (
+        index: number,
+        action: 'increase' | 'decrease' | 'min' | 'max',
+        s = step,
+        value?: number
+      ) => {
+        if (disabled) return
+
         setInternalValue(prev => {
-          const currentValue = prev[index]
-          let nextValue
+          const currentSliderValue = prev[index]
+          let newSliderValue
+          const { maxValue, minValue } = getIntervalValues({
+            max,
+            min,
+            value: prev,
+            index,
+          })
 
-          if (action === 'increase') {
-            nextValue = currentValue + step
-
-            if (nextValue >= max) nextValue = max
+          if (isDefined(value)) {
+            newSliderValue = value
           } else {
-            nextValue = currentValue - step
+            switch (action) {
+              case 'increase':
+                {
+                  newSliderValue = currentSliderValue + s
 
-            if (nextValue <= min) nextValue = min
+                  if (newSliderValue >= maxValue) newSliderValue = maxValue
+                }
+                break
+
+              case 'decrease':
+                {
+                  newSliderValue = currentSliderValue - s
+
+                  if (newSliderValue <= minValue) newSliderValue = minValue
+                }
+                break
+
+              case 'max':
+                {
+                  newSliderValue = maxValue
+                }
+                break
+
+              case 'min':
+                {
+                  newSliderValue = minValue
+                }
+                break
+            }
           }
 
-          return [
-            ...prev.slice(0, index),
-            nextValue,
-            ...prev.slice(index, prev.length - 1),
-          ]
+          const newValue: SliderValue = [...prev]
+          newValue[index] = newSliderValue
+
+          return newValue
         })
       },
-      [step, min, max]
+      [step, min, max, disabled]
     )
 
-    const onKeyDown = useCallback(
-      (event: KeyboardEvent<HTMLSpanElement>, index: number) => {
+    const onKeyDown = (
+      event: KeyboardEvent<HTMLSpanElement>,
+      index: number
+    ) => {
+      let prevent = false
+
+      switch (event.key) {
+        case keys.arrowRight:
+        case keys.arrowUp:
+          {
+            setInternalValueHandler(index, 'increase')
+            prevent = true
+          }
+          break
+
+        case keys.arrowLeft:
+        case keys.arrowDown:
+          {
+            setInternalValueHandler(index, 'decrease')
+            prevent = true
+          }
+          break
+
+        case keys.pageUp:
+          {
+            setInternalValueHandler(index, 'increase', multipleStep)
+            prevent = true
+          }
+          break
+
+        case keys.pageDown:
+          {
+            setInternalValueHandler(index, 'decrease', multipleStep)
+            prevent = true
+          }
+          break
+
+        case keys.home:
+          {
+            setInternalValueHandler(index, 'min')
+            prevent = true
+          }
+          break
+
+        case keys.end:
+          {
+            setInternalValueHandler(index, 'max')
+            prevent = true
+          }
+          break
+
+        default:
+          break
+      }
+
+      if (prevent) {
         event.preventDefault()
+        event.stopPropagation()
+      }
+    }
 
-        switch (event.key) {
-          case keys.arrowRight:
-          case keys.arrowUp:
-            {
-              console.log('increase value')
-              setInternalValueHandler(index, 'increase')
-            }
-            break
+    const onPointerMove = (event: PointerEvent) => {
+      if (!isDefined(movingSlider.current) || !internalRef.current || disabled)
+        return
 
-          case keys.arrowLeft:
-          case keys.arrowDown:
-            {
-              console.log('decrease value')
-              setInternalValueHandler(index, 'decrease')
-            }
-            break
+      const rect = internalRef.current.getBoundingClientRect()
+      const width = rect.width
 
-          case keys.pageUp:
-            {
-              console.log('increase value multiple steps')
-            }
-            break
+      const x = event.clientX - rect.left
+      const currentValue = value[movingSlider.current]
 
-          case keys.pageDown:
-            {
-              console.log('decrease value multiple steps')
-            }
-            break
+      let multiplier = 0
+      const { minValue, maxValue } = getIntervalValues({
+        min,
+        max,
+        value,
+        index: movingSlider.current,
+      })
 
-          case keys.home:
-            {
-              console.log('set to min val')
-            }
-            break
+      if (currentValue < (maxValue + minValue) / 2) {
+        multiplier = 2
+      } else {
+        multiplier = 0.5
+      }
 
-          case keys.end:
-            {
-              console.log('set to max val')
-            }
-            break
+      const newVal = Math.round(
+        ((x + (currentValue + thumbWidths[movingSlider.current] * multiplier)) *
+          100) /
+          width
+      )
+
+      setInternalValue(prev => {
+        if (!isDefined(movingSlider.current)) return prev
+
+        const newValue: SliderValue = [...prev]
+
+        if (newVal >= maxValue) {
+          newValue[movingSlider.current] = maxValue
+          return newValue
         }
 
-        event.currentTarget.focus()
-      },
-      [setInternalValueHandler]
-    )
+        if (newVal <= minValue) {
+          newValue[movingSlider.current] = minValue
+          return newValue
+        }
+
+        newValue[movingSlider.current] = newVal
+        return newValue
+      })
+    }
+
+    const onPointerDown = (
+      event: ReactPointerEvent<HTMLSpanElement>,
+      index: number
+    ) => {
+      movingSlider.current = index
+
+      event.preventDefault()
+      event.stopPropagation()
+      event.currentTarget.focus()
+
+      document.addEventListener('pointermove', onPointerMove)
+      document.addEventListener('pointerup', onPointerUp)
+    }
+
+    const onPointerUp = () => {
+      movingSlider.current = null
+      document.removeEventListener('pointermove', onPointerMove)
+      document.removeEventListener('pointermove', onPointerUp)
+    }
+
+    const getRangePosition = (): CSSProperties => {
+      if (isDefined(value[0]) && isDefined(value[1])) {
+        const left = ((value[0] - min) * 100) / (max - min)
+
+        return {
+          position: 'absolute',
+          left: `${left}%`,
+          width: `${((value[1] - min) * 100) / (max - min) - left}%`,
+        }
+      }
+
+      return {
+        position: 'absolute',
+        left: 0,
+        width: `${((value[0] - min) * 100) / (max - min)}%`,
+      }
+    }
+
+    useLayoutEffect(() => {
+      if (!internalRef.current) return
+
+      internalRef.current
+        .querySelectorAll<HTMLSpanElement>('span[role=slider]')
+        .forEach((slider, index) => {
+          setSliderPosition(slider, index)
+
+          const { width: thumbWidth } = slider.getBoundingClientRect()
+
+          setThumbWidths(prev => {
+            const next = [...prev]
+            next[index] = thumbWidth
+            return next
+          })
+        })
+
+      return () => {
+        document.removeEventListener('pointerup', onPointerUp)
+        document.removeEventListener('pointermove', onPointerMove)
+      }
+    }, [])
+
+    useEffect(() => {
+      onValueChange?.(internalValue)
+    }, [internalValue, onValueChange])
 
     return (
       <div
@@ -148,60 +364,31 @@ export const Slider = forwardRef<Ref, SliderProps>(
         className={cn(className, classNames?.root)}
       >
         <div style={styles?.track} className={classNames?.track}>
-          <div style={styles?.range} className={classNames?.range}></div>
+          <div
+            style={mergeObjects(getRangePosition(), styles?.range)}
+            className={classNames?.range}
+          ></div>
         </div>
 
-        {range(0, value.length)?.map(index => {
+        {value?.map((_, index) => {
           return (
             <span
               key={index}
-              ref={thumbRef => {
-                if (
-                  !thumbRef ||
-                  !internalRef.current ||
-                  styles?.thumb?.position ||
-                  styles?.thumb?.left ||
-                  styles?.thumb?.right
-                )
-                  return
-
-                const { width: rootWidth } =
-                  internalRef.current.getBoundingClientRect()
-                const { width: thumbWidth } = thumbRef.getBoundingClientRect()
-
-                thumbRef.style.position = 'absolute'
-                thumbRef.style.left = `${
-                  ((value[index] - min) / (max - min)) *
-                  (rootWidth - thumbWidth)
-                }px`
+              ref={sliderRef => {
+                if (!sliderRef) return
+                setSliderPosition(sliderRef, index)
               }}
               style={styles?.thumb}
               className={classNames?.thumb}
               role='slider'
               tabIndex={0}
               onKeyDown={e => onKeyDown(e, index)}
-              onPointerDown={e => {
-                console.log('onPointerDown', e)
-                movingSlider.current = index
-                console.log('movingSlider', movingSlider)
-              }}
-              onPointerUp={e => {
-                console.log('onPointerUp', e)
-                movingSlider.current = null
-                console.log('movingSlider', movingSlider)
-              }}
-              onPointerMove={e => {
-                // console.log('onPointerMove', e)
-                // console.log(movingSlider.current)
-
-                if (isDefined(movingSlider.current)) {
-                  setInternalValueHandler(index, 'increase')
-                }
-              }}
+              onPointerDown={e => onPointerDown(e, index)}
               aria-label={labels[index]}
               aria-valuemin={index === 0 ? min : undefined}
               aria-valuemax={index === value.length - 1 ? max : undefined}
               aria-valuenow={value[index]}
+              aria-disabled={disabled}
             />
           )
         })}
