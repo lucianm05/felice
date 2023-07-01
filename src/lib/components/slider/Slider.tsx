@@ -1,8 +1,14 @@
 import {
   SliderLabels,
+  SliderOrientation,
+  SliderRef,
   SliderStyleable,
   SliderValue,
 } from '@lib/components/slider/types'
+import {
+  getIntervalValues,
+  getRangeProperties,
+} from '@lib/components/slider/utils'
 import { keys } from '@lib/constants/keys'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
@@ -19,29 +25,6 @@ import {
   useState,
 } from 'react'
 
-const getIntervalValues = ({
-  max,
-  min,
-  value,
-  index,
-}: {
-  min: number
-  max: number
-  value: SliderValue
-  index: number
-}) => {
-  let minValue = min
-  let maxValue = max
-
-  if (isDefined(value[0]) && isDefined(value[1])) {
-    if (index === 0) maxValue = value[1] - 1
-
-    if (index === 1) minValue = value[0] + 1
-  }
-
-  return { minValue, maxValue }
-}
-
 interface SliderProps
   extends Omit<HTMLProps<HTMLDivElement>, 'value' | 'defaultValue'> {
   labels: SliderLabels
@@ -55,11 +38,10 @@ interface SliderProps
   classNames?: SliderStyleable<string>
   styles?: SliderStyleable<CSSProperties>
   disabled?: boolean
+  orientation?: SliderOrientation
 }
 
-type Ref = HTMLDivElement | null
-
-export const Slider = forwardRef<Ref, SliderProps>(
+export const Slider = forwardRef<SliderRef, SliderProps>(
   (
     {
       labels,
@@ -75,6 +57,7 @@ export const Slider = forwardRef<Ref, SliderProps>(
       min = 0,
       max = 150,
       disabled = false,
+      orientation = 'horizontal',
       ...props
     },
     ref
@@ -97,25 +80,41 @@ export const Slider = forwardRef<Ref, SliderProps>(
         return [minValue]
       }
     })
-    const [thumbWidths, setThumbWidths] = useState([0, 0])
+    const [thumbsSize, setThumbsSize] = useState([
+      { width: 0, height: 0 },
+      { width: 0, height: 0 },
+    ])
 
     const value = isDefined(externalValue) ? externalValue : internalValue
 
     const movingSlider = useRef<number | null>()
 
-    const internalRef = useRef<Ref>(null)
-    useImperativeHandle<Ref, Ref>(ref, () => internalRef.current, [])
+    const internalRef = useRef<SliderRef>(null)
+    useImperativeHandle<SliderRef, SliderRef>(
+      ref,
+      () => internalRef.current,
+      []
+    )
+
+    const isHorizontal = orientation === 'horizontal'
 
     const setSliderPosition = (slider: HTMLSpanElement, index: number) => {
       if (!internalRef.current) return
 
-      const { width: rootWidth } = internalRef.current.getBoundingClientRect()
-      const { width: thumbWidth } = slider.getBoundingClientRect()
-      
+      const { width: rootWidth, height: rootHeight } =
+        internalRef.current.getBoundingClientRect()
+      const { width: thumbWidth, height: thumbHeight } =
+        slider.getBoundingClientRect()
+
+      const baseValue = (value[index] - min) / (max - min)
+
       slider.style.position = 'absolute'
-      slider.style.left = `${
-        ((value[index] - min) / (max - min)) * (rootWidth - thumbWidth)
-      }px`
+
+      if (isHorizontal) {
+        slider.style.left = `${baseValue * (rootWidth - thumbWidth)}px`
+      } else {
+        slider.style.top = `${baseValue * (rootHeight - thumbHeight)}px`
+      }
     }
 
     const setInternalValueHandler = useCallback(
@@ -246,9 +245,10 @@ export const Slider = forwardRef<Ref, SliderProps>(
         return
 
       const rect = internalRef.current.getBoundingClientRect()
-      const width = rect.width
+      const { width, height } = rect
 
       const x = event.clientX - rect.left
+      const y = event.clientY - rect.top
       const currentValue = value[movingSlider.current]
 
       let multiplier = 0
@@ -265,11 +265,20 @@ export const Slider = forwardRef<Ref, SliderProps>(
         multiplier = 0.5
       }
 
-      const newVal = Math.round(
-        ((x + (currentValue + thumbWidths[movingSlider.current] * multiplier)) *
-          100) /
-          width
-      )
+      const { width: thumbWidth, height: thumbHeight } =
+        thumbsSize[movingSlider.current]
+
+      let newVal = 0
+
+      if (isHorizontal) {
+        newVal = Math.round(
+          ((x + (currentValue + thumbWidth * multiplier)) * 100) / width
+        )
+      } else {
+        newVal = Math.round(
+          ((y + (currentValue + thumbHeight * multiplier)) * 100) / height
+        )
+      }
 
       setInternalValue(prev => {
         if (!isDefined(movingSlider.current)) return prev
@@ -311,24 +320,6 @@ export const Slider = forwardRef<Ref, SliderProps>(
       document.removeEventListener('pointermove', onPointerUp)
     }
 
-    const getRangePosition = (): CSSProperties => {
-      if (isDefined(value[0]) && isDefined(value[1])) {
-        const left = ((value[0] - min) * 100) / (max - min)
-
-        return {
-          position: 'absolute',
-          left: `${left}%`,
-          width: `${((value[1] - min) * 100) / (max - min) - left}%`,
-        }
-      }
-
-      return {
-        position: 'absolute',
-        left: 0,
-        width: `${((value[0] - min) * 100) / (max - min)}%`,
-      }
-    }
-
     useLayoutEffect(() => {
       if (!internalRef.current) return
 
@@ -337,11 +328,11 @@ export const Slider = forwardRef<Ref, SliderProps>(
         .forEach((slider, index) => {
           setSliderPosition(slider, index)
 
-          const { width: thumbWidth } = slider.getBoundingClientRect()
+          const { width, height } = slider.getBoundingClientRect()
 
-          setThumbWidths(prev => {
+          setThumbsSize(prev => {
             const next = [...prev]
-            next[index] = thumbWidth
+            next[index] = { width, height }
             return next
           })
         })
@@ -360,17 +351,27 @@ export const Slider = forwardRef<Ref, SliderProps>(
       <div
         {...props}
         ref={internalRef}
-        style={mergeObjects(style, styles?.root)}
+        style={mergeObjects({ position: 'relative' }, style, styles?.root)}
         className={cn(className, classNames?.root)}
       >
         <div style={styles?.track} className={classNames?.track}>
           <div
-            style={mergeObjects(getRangePosition(), styles?.range)}
+            style={mergeObjects(
+              getRangeProperties({ min, max, value, orientation }),
+              styles?.range
+            )}
             className={classNames?.range}
           ></div>
         </div>
 
         {value?.map((_, index) => {
+          const { maxValue, minValue } = getIntervalValues({
+            max,
+            min,
+            value,
+            index,
+          })
+
           return (
             <span
               key={index}
@@ -385,10 +386,11 @@ export const Slider = forwardRef<Ref, SliderProps>(
               onKeyDown={e => onKeyDown(e, index)}
               onPointerDown={e => onPointerDown(e, index)}
               aria-label={labels[index]}
-              aria-valuemin={index === 0 ? min : undefined}
-              aria-valuemax={index === value.length - 1 ? max : undefined}
               aria-valuenow={value[index]}
+              aria-valuemin={minValue}
+              aria-valuemax={maxValue}
               aria-disabled={disabled}
+              aria-orientation={orientation}
             />
           )
         })}

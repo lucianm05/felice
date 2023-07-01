@@ -7,3 +7,5 @@ export interface SliderStyleable<T> {
 
 export type SliderLabels = [string] | [string, string]
 export type SliderValue = [number] | [number, number]
+export type SliderOrientation = 'horizontal' | 'vertical'
+export type SliderRef = HTMLDivElement | null

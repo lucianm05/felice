@@ -185,6 +185,26 @@ function App() {
             thumb: classes['slider-thumb'],
           }}
         />
+
+        <Slider
+          ref={sliderRef}
+          labels={['Minimum price', 'Maximum price']}
+          min={50}
+          max={150}
+          defaultValue={[75, 125]}
+          // value={sliderValue}
+          // onValueChange={setSliderValue}
+          step={5}
+          multipleStep={15}
+          classNames={{
+            root: classes['slider-root-vertical'],
+            track: classes['slider-track-vertical'],
+            range: classes['slider-range-vertical'],
+            thumb:
+              classes['slider-thumb'] + ' ' + classes['slider-thumb-vertical'],
+          }}
+          orientation='vertical'
+        />
       </div>
     </div>
   )
