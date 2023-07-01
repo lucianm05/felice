@@ -1,7 +1,7 @@
 import {
-  CheckboxClassNames,
+  CheckboxClassName,
   CheckboxIndicator,
-  CheckboxRelativeClassNames,
+  CheckboxRelativeClassName,
   CheckboxRelativeIndicator,
   CheckboxRelativeStyle,
   CheckboxStyle,
@@ -29,16 +29,16 @@ export const getIsStyleRelative = (
 }
 
 export const getIsClassNamesRelative = (
-  classNames?: CheckboxClassNames
-): classNames is CheckboxRelativeClassNames => {
-  if (!classNames) return false
+  className?: CheckboxClassName
+): className is CheckboxRelativeClassName => {
+  if (!className) return false
 
-  const relativeClassNames = classNames as CheckboxRelativeClassNames
+  const relativeClassName = className as CheckboxRelativeClassName
 
   return Boolean(
-    relativeClassNames?.default ||
-      relativeClassNames?.checked ||
-      relativeClassNames?.unchecked
+    relativeClassName?.default ||
+      relativeClassName?.checked ||
+      relativeClassName?.unchecked
   )
 }
 
@@ -54,13 +54,13 @@ export const getStyles = (style?: CheckboxStyle, checked?: boolean) => {
 }
 
 export const getClassNames = (
-  classNames?: CheckboxClassNames,
+  className?: CheckboxClassName,
   checked?: boolean
 ) => {
-  return getIsClassNamesRelative(classNames)
+  return getIsClassNamesRelative(className)
     ? cn(
-        classNames?.default,
-        checked ? classNames?.checked : classNames?.unchecked
+        className?.default,
+        checked ? className?.checked : className?.unchecked
       )
-    : classNames
+    : className
 }
