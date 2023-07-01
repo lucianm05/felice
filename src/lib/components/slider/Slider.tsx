@@ -25,7 +25,7 @@ import {
   useState,
 } from 'react'
 
-interface SliderProps
+export interface SliderProps
   extends Omit<HTMLProps<HTMLDivElement>, 'value' | 'defaultValue'> {
   labels: SliderLabels
   defaultValue?: SliderValue
