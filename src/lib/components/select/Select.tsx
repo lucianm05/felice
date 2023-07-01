@@ -1,4 +1,4 @@
-import Portal from '@lib/components/portal/Portal'
+import { Portal } from '@lib/components/portal/Portal'
 import { keys } from '@lib/constants/keys'
 import useElementPosition from '@lib/hooks/useElementPosition'
 import { cn, isDefined } from '@lib/utils'
@@ -14,21 +14,7 @@ import {
   useState,
 } from 'react'
 import classes from './Select.module.css'
-
-interface SelectStyleable<T> {
-  root?: T
-  label?: T
-  trigger?: T
-  list?: T
-  option?: T
-  activeOption?: T
-  selectedOption?: T
-}
-
-export interface SelectOption {
-  label: string
-  value: string
-}
+import { SelectOption, SelectStyleable } from './types'
 
 export interface SelectTriggerProps
   extends Pick<
@@ -88,7 +74,7 @@ export interface SelectProps {
   onOptionChange?: (option: SelectOption) => void
 }
 
-const Select = forwardRef<HTMLDivElement, SelectProps>(
+export const Select = forwardRef<HTMLDivElement, SelectProps>(
   (
     {
       id: externalId,
@@ -133,7 +119,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
       },
     }
 
-    const clearSearchTimeout = useRef<NodeJS.Timeout | null>(null)
+    const clearSearchTimeout = useRef<any | null>(null)
 
     const setInternalOpenHandler = useCallback(
       (open: boolean) => {
@@ -506,5 +492,3 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
 )
 
 Select.displayName = 'FeliceSelect'
-
-export default Select

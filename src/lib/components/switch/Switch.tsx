@@ -5,7 +5,7 @@ import {
 } from '@lib/components/switch/types'
 import { getClassNames, getStyles } from '@lib/components/switch/utils'
 import { cn, mergeObjects } from '@lib/utils'
-import { HTMLProps, MouseEvent, forwardRef, useState } from 'react'
+import { HTMLProps, forwardRef, useState } from 'react'
 
 export interface SwitchProps
   extends Omit<HTMLProps<HTMLButtonElement>, 'role' | 'type' | 'aria-checked'> {
@@ -17,7 +17,7 @@ export interface SwitchProps
   onCheckedChange?: (value: boolean) => void
 }
 
-const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
+export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
   (
     {
       children,
@@ -26,28 +26,24 @@ const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
       classNames,
       styles,
       style,
-      defaultChecked = false,
       checked: externalChecked,
       onCheckedChange,
-      onClick,
       ...props
     },
     ref
   ) => {
     const [internalChecked, setInternalChecked] = useState(
-      typeof externalChecked === 'boolean' ? externalChecked : defaultChecked
+      Boolean(externalChecked)
     )
 
     const checked =
       typeof externalChecked === 'boolean' ? externalChecked : internalChecked
 
-    const onClickInternal = (event: MouseEvent<HTMLButtonElement>) => {
-      onClick?.(event)
+    const onClickInternal = () => {
+      const newChecked = !checked
 
-      if (event.isDefaultPrevented()) return
-
-      setInternalChecked(!checked)
-      onCheckedChange?.(!checked)
+      setInternalChecked(newChecked)
+      onCheckedChange?.(newChecked)
     }
 
     return (
@@ -80,5 +76,3 @@ const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
 )
 
 Switch.displayName = 'FeliceSwitch'
-
-export default Switch

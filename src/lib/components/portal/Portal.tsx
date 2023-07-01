@@ -2,7 +2,7 @@ import { PropsWithChildren, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import classes from './Portal.module.css'
 
-const Portal = ({ children }: PropsWithChildren) => {
+export const Portal = ({ children }: PropsWithChildren) => {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -26,5 +26,3 @@ const Portal = ({ children }: PropsWithChildren) => {
 
   return createPortal(children, container)
 }
-
-export default Portal

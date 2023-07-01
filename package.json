@@ -1,11 +1,35 @@
 {
   "name": "felice",
-  "version": "0.0.0",
+  "private": false,
+  "version": "0.0.9",
   "type": "module",
   "description": "Unstyled accessible components",
   "license": "MIT",
   "author": "lucianmg05",
   "keywords": [],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.es.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.umd.js"
+      }
+    }
+  },
+  "source": "./src/lib/index.ts",
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "/dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -13,7 +37,8 @@
     "test": "vitest run",
     "watch": "vitest",
     "coverage": "vitest run --coverage",
-    "lint": "eslint . --ext .ts,.tsx"
+    "lint": "eslint . --ext .ts,.tsx",
+    "prepublish": "tsc && vite build"
   },
   "devDependencies": {
     "@testing-library/dom": "^8.20.0",
@@ -33,25 +58,13 @@
     "eslint-plugin-react": "^7.32.2",
     "jsdom": "^21.1.0",
     "prettier": "^2.8.4",
-    "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-test-renderer": "^18.2.0",
     "typescript": "^4.9.3",
     "vite": "^4.1.0",
+    "vite-plugin-dts": "^3.0.2",
     "vite-plugin-eslint": "^1.8.1",
     "vitest": "^0.28.5"
-  },
-  "files": [
-    "dist",
-    "README.md"
-  ],
-  "main": "./dist/my-component.umd.ts",
-  "module": "./dist/my-component.es.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/my-component.es.ts",
-      "require": "./dist/my-component.umd.ts"
-    }
   },
   "browserslist": {
     "production": [
@@ -78,5 +91,8 @@
     "parserOptions": {
       "sourceType": "module"
     }
+  },
+  "dependencies": {
+    "react": "^18.2.0"
   }
 }

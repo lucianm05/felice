@@ -16,10 +16,14 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
+    "declaration": true,
+    "declarationMap": true,
     "paths": {
-      "@lib/*": ["./src/lib/*"]
-    }
+      "@lib/*": ["./src/lib/*"],
+      "felice": ["src/lib/index.ts"]
+    },
+    "typeRoots": ["dist/index.d.ts"]
   },
-  "include": ["src"],
+  "include": ["src", "src/lib/index.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
