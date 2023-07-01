@@ -20,10 +20,10 @@
     "declarationMap": true,
     "paths": {
       "@lib/*": ["./src/lib/*"],
-      "felice": ["src/index.ts"]
+      "felice": ["src/lib/index.ts"]
     },
     "typeRoots": ["dist/index.d.ts"]
   },
-  "include": ["src", "src/index.ts"],
+  "include": ["src", "src/lib/index.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

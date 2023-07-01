@@ -7,7 +7,7 @@ import dts from 'vite-plugin-dts'
 export default defineConfig({
   build: {
     lib: {
-      entry: path.resolve(__dirname, 'src', 'index.ts'),
+      entry: path.resolve(__dirname, 'src', 'lib', 'index.ts'),
       name: 'felice',
       formats: ['es', 'umd'],
       fileName: format => `index.${format}.js`,
@@ -29,5 +29,5 @@ export default defineConfig({
       { find: '@lib', replacement: path.resolve(__dirname, 'src', 'lib') },
     ],
   },
-  plugins: [react(), dts()],
+  plugins: [react(), dts({ entryRoot: path.resolve(__dirname, 'src', 'lib') })],
 })

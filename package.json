@@ -1,21 +1,28 @@
 {
   "name": "felice",
   "private": false,
-  "version": "0.0.5",
+  "version": "0.0.9",
   "type": "module",
   "description": "Unstyled accessible components",
   "license": "MIT",
   "author": "lucianmg05",
   "keywords": [],
-  "main": "dist/index.umd.js",
-  "module": "dist/index.es.js",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.es.js",
-      "require": "./dist/index.umd.js"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.es.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.umd.js"
+      }
     }
   },
+  "source": "./src/lib/index.ts",
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "/dist",
     "README.md"
@@ -30,7 +37,8 @@
     "test": "vitest run",
     "watch": "vitest",
     "coverage": "vitest run --coverage",
-    "lint": "eslint . --ext .ts,.tsx"
+    "lint": "eslint . --ext .ts,.tsx",
+    "prepublish": "tsc && vite build"
   },
   "devDependencies": {
     "@testing-library/dom": "^8.20.0",
