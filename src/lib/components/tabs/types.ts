@@ -30,3 +30,5 @@ export interface TabsStyleable<T> {
 
 export type TabsStyles = TabsStyleable<CSSProperties>
 export type TabsClassNames = TabsStyleable<string>
+
+export type TabsOrientation = 'horizontal' | 'vertical'

@@ -4,8 +4,10 @@ import {
   TabItem,
   TabPanelProps,
   TabsClassNames,
+  TabsOrientation,
   TabsStyles,
 } from '@lib/components/tabs/types'
+import { getNextIndex, isItemDisabled } from '@lib/components/tabs/utils'
 import { keys } from '@lib/constants/keys'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
@@ -63,6 +65,7 @@ export interface TabsProps extends Omit<HTMLProps<HTMLDivElement>, 'data'> {
   onTabChange?: (tab: number) => void
   styles?: TabsStyles
   classNames?: TabsClassNames
+  orientation?: TabsOrientation
 }
 
 type TabsRef = HTMLDivElement | null
@@ -79,6 +82,7 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
       className,
       classNames,
       disabled,
+      orientation = 'horizontal',
       ...props
     },
     ref
@@ -96,12 +100,6 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
       setIds(prev => ({ ...prev, [item]: [...prev[item], id] }))
     }, [])
 
-    const isItemDisabled = (props?: TabElementProps | TabPanelProps) => {
-      if (isDefined(props?.disabled)) return Boolean(props?.disabled)
-
-      return Boolean(disabled)
-    }
-
     const setInternalTabHandler = ({
       index,
       event,
@@ -111,7 +109,7 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
       event?: FocusEvent<HTMLButtonElement> | MouseEvent<HTMLButtonElement>
       elementProps?: TabElementProps
     }) => {
-      const isDisabled = isItemDisabled(elementProps)
+      const isDisabled = isItemDisabled(disabled, elementProps)
 
       if (isDisabled || event?.defaultPrevented) return
 
@@ -120,52 +118,60 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
     }
 
     const onTabElementKeyDown = useCallback(
-      (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+      (
+        event: KeyboardEvent<HTMLButtonElement>,
+        index: number,
+        ids: string[]
+      ) => {
         if (event.defaultPrevented) return
 
-        let prevent = false
         let nextIndex = null
 
         switch (event.key) {
-          case keys.arrowLeft:
+          case keys.home:
             {
-              if (index === 0) {
-                nextIndex = ids.element.length - 1
-              } else {
-                nextIndex = index - 1
-              }
-
-              prevent = true
+              nextIndex = 0
             }
             break
 
-          case keys.arrowRight:
+          case keys.end:
             {
-              if (index === ids.element.length - 1) {
-                nextIndex = 0
-              } else {
-                nextIndex = index + 1
-              }
+              nextIndex = ids.length - 1
+            }
+            break
 
-              prevent = true
+          default:
+            {
+              const isForward =
+                (orientation === 'horizontal' &&
+                  event.key === keys.arrowRight) ||
+                (orientation === 'vertical' && event.key === keys.arrowDown)
+              const isBackward =
+                (orientation === 'horizontal' &&
+                  event.key === keys.arrowLeft) ||
+                (orientation === 'vertical' && event.key === keys.arrowUp)
+
+              if (!isForward && !isBackward) return
+
+              nextIndex = getNextIndex(
+                index,
+                ids,
+                isForward ? 'forward' : 'backward'
+              )
             }
             break
         }
 
         if (isDefined(nextIndex)) {
-          const targetElement = document.getElementById(
-            `${ids.element[nextIndex]}`
-          )
+          const targetElement = document.getElementById(`${ids[nextIndex]}`)
 
           if (targetElement) targetElement.focus()
-        }
 
-        if (prevent) {
           event.preventDefault()
           event.stopPropagation()
         }
       },
-      [ids]
+      []
     )
 
     return (
@@ -179,6 +185,7 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
           role='tablist'
           style={styles?.tablist}
           className={classNames?.tablist}
+          aria-orientation={orientation}
         >
           {data.map(({ element, elementProps }, index) => (
             <TabElement
@@ -196,14 +203,14 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
               }}
               onKeyDown={event => {
                 elementProps?.onKeyDown?.(event)
-                onTabElementKeyDown(event, index)
+                onTabElementKeyDown(event, index, ids.element)
               }}
               onFocus={event => {
                 elementProps?.onFocus?.(event)
                 setInternalTabHandler({ index, event, elementProps })
               }}
               tabIndex={currentTab !== index ? -1 : 0}
-              disabled={isItemDisabled(elementProps)}
+              disabled={isItemDisabled(disabled, elementProps)}
               aria-controls={ids.panel[index]}
               aria-selected={currentTab === index}
             >
@@ -224,7 +231,7 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
             }}
             hidden={currentTab !== index}
             tabIndex={0}
-            disabled={isItemDisabled(panelProps)}
+            disabled={isItemDisabled(disabled, panelProps)}
             aria-labelledby={ids.element[index]}
           >
             {panel}

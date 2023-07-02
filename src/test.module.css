@@ -134,3 +134,15 @@
   font-size: 1.25rem;
   background-color: azure;
 }
+
+
+.tabs-root-vertical {
+  display: flex;
+  column-gap: 1rem;
+}
+
+.tabs-tablist-vertical {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
