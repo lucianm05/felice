@@ -2,11 +2,13 @@ import { Accordion } from '@lib/components/accordion/Accordion'
 import { Checkbox } from '@lib/components/checkbox/Checkbox'
 import { Progress } from '@lib/components/progress/Progress'
 import { Select } from '@lib/components/select/Select'
-import { Switch } from '@lib/components/switch/Switch'
 import { Slider } from '@lib/components/slider/Slider'
-import { useEffect, useRef, useState } from 'react'
-import classes from './test.module.css'
 import { SliderValue } from '@lib/components/slider/types'
+import { Switch } from '@lib/components/switch/Switch'
+import { Tabs } from '@lib/components/tabs/Tabs'
+import { useRef, useState } from 'react'
+import classes from './test.module.css'
+import { cn } from '@lib/utils'
 
 function App() {
   const [switchChecked, setSwitchChecked] = useState(true)
@@ -202,6 +204,58 @@ function App() {
             range: classes['slider-range-vertical'],
             thumb:
               classes['slider-thumb'] + ' ' + classes['slider-thumb-vertical'],
+          }}
+          orientation='vertical'
+        />
+
+        <Tabs
+          data={[
+            {
+              element: 'Settings',
+              panel: <div>User settings</div>,
+              elementProps: { onClick: event => event.preventDefault() },
+            },
+            {
+              element: 'Account information',
+              panel: <>Account information</>,
+            },
+            {
+              element: 'My orders',
+              panel: <div>User orders</div>,
+            },
+          ]}
+          classNames={{
+            root: classes['tabs-root'],
+            element: classes['tabs-element'],
+            panel: classes['tabs-panel'],
+            tablist: classes['tabs-tablist'],
+          }}
+        />
+
+        <Tabs
+          data={[
+            {
+              element: 'Settings',
+              panel: <div>User settings</div>,
+              elementProps: { onClick: event => event.preventDefault() },
+            },
+            {
+              element: 'Account information',
+              panel: <>Account information</>,
+            },
+            {
+              element: 'My orders',
+              panel: <div>User orders</div>,
+            },
+          ]}
+          classNames={{
+            root: cn(classes['tabs-root-vertical']),
+            element: {
+              default: classes['tabs-element'],
+              selected: classes['tabs-element-selected'],
+            },
+            panel: classes['tabs-panel'],
+            tablist: classes['tabs-tablist-vertical'],
           }}
           orientation='vertical'
         />

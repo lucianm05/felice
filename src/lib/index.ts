@@ -4,7 +4,7 @@ export type {
   AccordionIndicator,
   AccordionItem,
   AccordionProps,
-  AccordionRelativeIndicator,
+  AccordionRelativeIndicator
 } from './components/accordion'
 
 export { Accordion } from './components/accordion'
@@ -18,7 +18,7 @@ export type {
   CheckboxRelativeClassName,
   CheckboxRelativeIndicator,
   CheckboxRelativeStyle,
-  CheckboxStyle,
+  CheckboxStyle
 } from './components/checkbox'
 
 export { Checkbox } from './components/checkbox'
@@ -32,7 +32,7 @@ export { Portal } from './components/portal'
 export type {
   ProgressClassNames,
   ProgressProps,
-  ProgressStyles,
+  ProgressStyles
 } from './components/progress'
 
 export { Progress } from './components/progress'
@@ -43,7 +43,7 @@ export type {
   SelectOption,
   SelectOptionProps,
   SelectProps,
-  SelectTriggerProps,
+  SelectTriggerProps
 } from './components/select'
 
 export { Select } from './components/select'
@@ -54,7 +54,7 @@ export type {
   SliderOrientation,
   SliderProps,
   SliderRef,
-  SliderValue,
+  SliderValue
 } from './components/slider'
 
 export { Slider } from './components/slider'
@@ -66,7 +66,24 @@ export type {
   SwitchProps,
   SwitchRelativeClassNames,
   SwitchRelativeStyle,
-  SwitchStyle,
+  SwitchStyle
 } from './components/switch'
 
 export { Switch } from './components/switch'
+
+/** Tabs */
+export type {
+  Tab,
+  TabElementClassNames,
+  TabElementProps,
+  TabElementRelativeClassNames,
+  TabElementRelativeStyles,
+  TabElementStyles,
+  TabItem,
+  TabPanelProps,
+  TabsClassNames,
+  TabsOrientation,
+  TabsStyles
+} from './components/tabs'
+
+export { Tabs } from './components/tabs'
