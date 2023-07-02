@@ -1,4 +1,11 @@
-import { TabElementProps, TabPanelProps } from '@lib/components/tabs/types'
+import {
+  TabElementClassNames,
+  TabElementProps,
+  TabElementRelativeClassNames,
+  TabElementRelativeStyles,
+  TabElementStyles,
+  TabPanelProps,
+} from '@lib/components/tabs/types'
 import { isDefined } from '@lib/utils'
 
 export const isItemDisabled = (
@@ -26,4 +33,24 @@ export const getNextIndex = (
     return ids.length - 1
   }
   return index - 1
+}
+
+export const isTabElementStylesRelative = (
+  classNames?: TabElementStyles
+): classNames is TabElementRelativeStyles => {
+  if (!classNames) return false
+
+  const relativeClassNames = classNames as TabElementRelativeStyles
+
+  return Boolean(relativeClassNames?.default || relativeClassNames?.selected)
+}
+
+export const isTabElementClassNamesRelative = (
+  classNames?: TabElementClassNames
+): classNames is TabElementRelativeClassNames => {
+  if (!classNames) return false
+
+  const relativeClassNames = classNames as TabElementRelativeClassNames
+
+  return Boolean(relativeClassNames?.default || relativeClassNames?.selected)
 }

@@ -7,7 +7,12 @@ import {
   TabsOrientation,
   TabsStyles,
 } from '@lib/components/tabs/types'
-import { getNextIndex, isItemDisabled } from '@lib/components/tabs/utils'
+import {
+  getNextIndex,
+  isItemDisabled,
+  isTabElementClassNamesRelative,
+  isTabElementStylesRelative,
+} from '@lib/components/tabs/utils'
 import { keys } from '@lib/constants/keys'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
@@ -187,56 +192,86 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
           className={classNames?.tablist}
           aria-orientation={orientation}
         >
-          {data.map(({ element, elementProps }, index) => (
-            <TabElement
-              {...elementProps}
-              key={index}
-              style={mergeObjects(styles?.element, elementProps?.style)}
-              className={cn(classNames?.element, elementProps?.className)}
-              onIdLoad={id => {
-                elementProps?.onIdLoad?.(id)
-                onIdLoad(id, 'element')
-              }}
-              onClick={event => {
-                elementProps?.onClick?.(event)
-                setInternalTabHandler({ index, event, elementProps })
-              }}
-              onKeyDown={event => {
-                elementProps?.onKeyDown?.(event)
-                onTabElementKeyDown(event, index, ids.element)
-              }}
-              onFocus={event => {
-                elementProps?.onFocus?.(event)
-                setInternalTabHandler({ index, event, elementProps })
-              }}
-              tabIndex={currentTab !== index ? -1 : 0}
-              disabled={isItemDisabled(disabled, elementProps)}
-              aria-controls={ids.panel[index]}
-              aria-selected={currentTab === index}
-            >
-              {element}
-            </TabElement>
-          ))}
+          {data.map(({ element, elementProps }, index) => {
+            const isSelected = index === currentTab
+            const isDisabled = isItemDisabled(disabled, elementProps)
+
+            return (
+              <TabElement
+                {...elementProps}
+                key={index}
+                style={mergeObjects(
+                  isTabElementStylesRelative(styles?.element)
+                    ? mergeObjects(
+                        styles?.element?.default,
+                        isSelected ? styles?.element?.selected : undefined
+                      )
+                    : styles?.element,
+                  elementProps?.style
+                )}
+                className={cn(
+                  isTabElementClassNamesRelative(classNames?.element)
+                    ? cn(
+                        classNames?.element?.default,
+                        isSelected && classNames?.element?.selected
+                      )
+                    : classNames?.element,
+                  elementProps?.className
+                )}
+                onIdLoad={id => {
+                  elementProps?.onIdLoad?.(id)
+                  onIdLoad(id, 'element')
+                }}
+                onClick={event => {
+                  elementProps?.onClick?.(event)
+                  setInternalTabHandler({ index, event, elementProps })
+                }}
+                onKeyDown={event => {
+                  elementProps?.onKeyDown?.(event)
+                  onTabElementKeyDown(event, index, ids.element)
+                }}
+                onFocus={event => {
+                  elementProps?.onFocus?.(event)
+                  setInternalTabHandler({ index, event, elementProps })
+                }}
+                tabIndex={!isSelected ? -1 : 0}
+                disabled={isDisabled}
+                aria-controls={ids.panel[index]}
+                aria-selected={isSelected}
+                data-selected={isSelected}
+                data-disabled={isDisabled}
+              >
+                {element}
+              </TabElement>
+            )
+          })}
         </div>
 
-        {data.map(({ panel, panelProps }, index) => (
-          <TabPanel
-            {...panelProps}
-            key={index}
-            style={mergeObjects(styles?.panel, panelProps?.style)}
-            className={cn(classNames?.panel, panelProps?.className)}
-            onIdLoad={id => {
-              panelProps?.onIdLoad?.(id)
-              onIdLoad(id, 'panel')
-            }}
-            hidden={currentTab !== index}
-            tabIndex={0}
-            disabled={isItemDisabled(disabled, panelProps)}
-            aria-labelledby={ids.element[index]}
-          >
-            {panel}
-          </TabPanel>
-        ))}
+        {data.map(({ panel, panelProps }, index) => {
+          const isSelected = index === currentTab
+          const isDisabled = isItemDisabled(disabled, panelProps)
+
+          return (
+            <TabPanel
+              {...panelProps}
+              key={index}
+              style={mergeObjects(styles?.panel, panelProps?.style)}
+              className={cn(classNames?.panel, panelProps?.className)}
+              onIdLoad={id => {
+                panelProps?.onIdLoad?.(id)
+                onIdLoad(id, 'panel')
+              }}
+              hidden={!isSelected}
+              tabIndex={0}
+              disabled={isItemDisabled(disabled, panelProps)}
+              aria-labelledby={ids.element[index]}
+              data-selected={isSelected}
+              data-disabled={isDisabled}
+            >
+              {panel}
+            </TabPanel>
+          )
+        })}
       </div>
     )
   }

@@ -21,10 +21,23 @@ export type Tab = {
 
 export type TabItem = 'element' | 'panel'
 
+export interface TabElementRelativeStyleable<T> {
+  default?: T
+  selected?: T
+}
+export type TabElementStyleable<T> = T | TabElementRelativeStyleable<T>
+
+export type TabElementRelativeStyles =
+  TabElementRelativeStyleable<CSSProperties>
+export type TabElementStyles = CSSProperties | TabElementRelativeStyles
+
+export type TabElementRelativeClassNames = TabElementRelativeStyleable<string>
+export type TabElementClassNames = string | TabElementRelativeClassNames
+
 export interface TabsStyleable<T> {
   root?: T
   tablist?: T
-  element?: T
+  element?: TabElementStyleable<T>
   panel?: T
 }
 

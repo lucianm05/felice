@@ -250,7 +250,10 @@ function App() {
           ]}
           classNames={{
             root: cn(classes['tabs-root-vertical']),
-            element: cn(classes['tabs-element']),
+            element: {
+              default: classes['tabs-element'],
+              selected: classes['tabs-element-selected'],
+            },
             panel: classes['tabs-panel'],
             tablist: classes['tabs-tablist-vertical'],
           }}

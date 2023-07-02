@@ -123,6 +123,10 @@
   cursor: pointer;
 }
 
+.tabs-element-selected {
+  background: blue
+}
+
 .tabs-element:disabled {
   cursor: not-allowed;
 }
@@ -134,7 +138,6 @@
   font-size: 1.25rem;
   background-color: azure;
 }
-
 
 .tabs-root-vertical {
   display: flex;
