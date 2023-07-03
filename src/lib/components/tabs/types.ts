@@ -12,7 +12,7 @@ export interface TabPanelProps
   extends TabItemProps,
     Omit<HTMLProps<HTMLDivElement>, 'id' | 'role' | 'ref'> {}
 
-export type Tab = {
+export interface Tab {
   element: ReactNode
   panel: ReactNode
   elementProps?: TabElementProps

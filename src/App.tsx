@@ -9,6 +9,7 @@ import { Tabs } from '@lib/components/tabs/Tabs'
 import { useRef, useState } from 'react'
 import classes from './test.module.css'
 import { cn } from '@lib/utils'
+import { RadioGroup } from '@lib/components/radio-group/RadioGroup'
 
 function App() {
   const [switchChecked, setSwitchChecked] = useState(true)
@@ -258,6 +259,27 @@ function App() {
             tablist: classes['tabs-tablist-vertical'],
           }}
           orientation='vertical'
+        />
+
+        <RadioGroup
+          label='Select payment method'
+          data={[
+            {
+              label: 'Card',
+              value: 'card',
+              description: 'Card payment for faster processing',
+            },
+            {
+              label: 'Cash',
+              value: 'cash',
+              // description: 'Cash payment in c'
+            },
+            {
+              label: 'Exchange',
+              value: 'exchange',
+              description: 'In case you dont have money but have something to give'
+            }
+          ]}
         />
       </div>
     </div>
