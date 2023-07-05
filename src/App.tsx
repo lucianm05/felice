@@ -275,10 +275,12 @@ function App() {
               // description: 'Cash payment in c'
             },
             {
-              label: 'Exchange',
-              value: 'exchange',
-              description: 'In case you dont have money but have something to give'
-            }
+              label: 'Trade',
+              value: 'trade',
+              description:
+                'In case you dont have money but have something to give',
+            },
+            { label: 'Another option', value: 'another_option' },
           ]}
         />
       </div>

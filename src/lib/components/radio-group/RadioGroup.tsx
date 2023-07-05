@@ -1,10 +1,17 @@
-import { isDefined } from '@lib/utils'
+import { Orientation } from '@lib/types'
+import {
+  getNextElementInSequence,
+  getSequenceDirection,
+  isDefined,
+} from '@lib/utils'
 import {
   HTMLProps,
+  KeyboardEvent,
   ReactNode,
   forwardRef,
   useId,
-  useLayoutEffect,
+  useImperativeHandle,
+  useRef,
   useState,
 } from 'react'
 
@@ -22,10 +29,11 @@ export interface RadioGroupProps
   defaultValue?: string
   value?: string
   onValueChange?: (value: string) => void
+  orientation?: Orientation
 }
 
 interface RadioButtonProps
-  extends Radio,
+  extends Omit<Radio, 'value'>,
     Omit<HTMLProps<HTMLDivElement>, 'value' | 'label' | 'content'> {
   onIdLoad?: (id: string) => void
 }
@@ -35,7 +43,6 @@ const RadioButton = ({
   description,
   content,
   id: externalId,
-  onIdLoad,
   ...props
 }: RadioButtonProps) => {
   const internalId = useId()
@@ -44,14 +51,11 @@ const RadioButton = ({
 
   const id = externalId || internalId
 
-  useLayoutEffect(() => {
-    onIdLoad?.(id)
-  }, [])
-
   return (
     <div
       {...props}
       id={id}
+      role='radio'
       aria-labelledby={labelId}
       aria-describedby={description ? descriptionId : undefined}
     >
@@ -66,7 +70,9 @@ const RadioButton = ({
   )
 }
 
-export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
+type RadioGroupRef = HTMLDivElement | null
+
+export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
   (
     {
       label,
@@ -74,50 +80,88 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
       defaultValue = '',
       value: externalValue,
       onValueChange,
+      orientation = 'horizontal',
       ...props
     },
     ref
   ) => {
-    const [ids, setIds] = useState<string[]>([])
     const [internalValue, setInternalValue] = useState(() => {
       if (isDefined(externalValue)) return externalValue
       return defaultValue
     })
 
+    useImperativeHandle<RadioGroupRef, RadioGroupRef>(
+      ref,
+      () => internalRef.current,
+      []
+    )
+
+    const internalRef = useRef<RadioGroupRef>(null)
+
     const groupValue = isDefined(externalValue) ? externalValue : internalValue
 
-    const setInternalValueHandler = (index: number, value: string) => {
+    const getCurrentIndex = () => {
+      const currentIndex = data.findIndex(
+        element => element.value === groupValue
+      )
+
+      return currentIndex < 0 ? 0 : currentIndex
+    }
+
+    const currentIndex = getCurrentIndex()
+
+    const setInternalValueHandler = (value: string) => {
       setInternalValue(value)
       onValueChange?.(value)
     }
 
-    const getTabIndex = (index: number, value: string) => {
-      if (!groupValue) {
-        return index === 0 ? 0 : -1
-      }
+    const onRadioButtonKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+      if (!internalRef.current) return
 
-      return groupValue === value ? 0 : -1
+      const elements =
+        internalRef.current.querySelectorAll<HTMLDivElement>('div[role=radio]')
+
+      const direction = getSequenceDirection(event.key, orientation)
+
+      if (!direction) return
+
+      const nextElement = getNextElementInSequence<HTMLDivElement>(
+        currentIndex,
+        elements,
+        direction
+      )
+
+      if (!nextElement) return
+
+      nextElement.focus()
     }
 
-    console.log(ids)
-
     return (
-      <div {...props} ref={ref} role='radiogroup' aria-label={label}>
+      <div {...props} ref={internalRef} role='radiogroup' aria-label={label}>
         {data.map((radio, index) => {
-          const { value } = radio
+          const { value, label, content, description } = radio
           const isChecked = groupValue === value
+          const isDisabled = index === 1
+          const tabIndex = currentIndex === index ? 0 : -1
 
           return (
             <RadioButton
               key={`${label}@${value}`}
-              {...radio}
-              onIdLoad={id => setIds(prev => [...prev, id])}
+              label={label}
+              description={description}
+              content={content}
               onClick={() => {
-                setInternalValueHandler(index, value)
+                setInternalValueHandler(value)
               }}
-              tabIndex={getTabIndex(index, value)}
+              onFocus={() => {
+                setInternalValueHandler(value)
+              }}
+              onKeyDown={onRadioButtonKeyDown}
+              tabIndex={tabIndex}
+              disabled={isDisabled}
               aria-checked={isChecked}
               data-checked={isChecked}
+              data-disabled={isDisabled}
             />
           )
         })}
