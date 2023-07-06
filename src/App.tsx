@@ -272,7 +272,6 @@ function App() {
             {
               label: 'Cash',
               value: 'cash',
-              // description: 'Cash payment in c'
             },
             {
               label: 'Trade',
@@ -280,7 +279,39 @@ function App() {
               description:
                 'In case you dont have money but have something to give',
             },
-            { label: 'Another option', value: 'another_option' },
+            {
+              value: 'another_option',
+              styles: {
+                root: {
+                  border: '1px solid red',
+                  padding: '1rem',
+                  checked: {
+                    border: '1px solid blue',
+                  },
+                },
+              },
+              classNames: {
+                root: {
+                  default: 'radio-button',
+                  checked: 'radio-button-checked',
+                  unchecked: 'radio-button-unchecked',
+                },
+              },
+              renderChildren: ({
+                labelProps,
+                descriptionProps,
+                state: { checked },
+              }) => (
+                <>
+                  <span {...labelProps}>Another option</span>
+
+                  <span {...descriptionProps}>test</span>
+
+                  {checked && <span>checked</span>}
+                  {!checked && <span>unchecked</span>}
+                </>
+              ),
+            },
           ]}
         />
       </div>
