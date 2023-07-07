@@ -9,6 +9,7 @@ import { Tabs } from '@lib/components/tabs/Tabs'
 import { useRef, useState } from 'react'
 import classes from './test.module.css'
 import { cn } from '@lib/utils'
+import { RadioGroup } from '@lib/components/radio-group/RadioGroup'
 
 function App() {
   const [switchChecked, setSwitchChecked] = useState(true)
@@ -256,6 +257,73 @@ function App() {
             },
             panel: classes['tabs-panel'],
             tablist: classes['tabs-tablist-vertical'],
+          }}
+          orientation='vertical'
+        />
+
+        <RadioGroup
+          label='Select payment method'
+          data={[
+            {
+              label: 'Card',
+              value: 'card',
+              description: 'Card payment for faster processing',
+              content: <div>my content</div>,
+            },
+            {
+              label: 'Cash',
+              value: 'cash',
+              content: ({ checked }) => {
+                return (
+                  <div>this radio is {checked ? 'checked' : 'unchecked'}</div>
+                )
+              },
+            },
+            {
+              label: 'Trade',
+              value: 'trade',
+              description:
+                'In case you dont have money but have something to give',
+              content: ({ checked }) => (
+                <div
+                  className={cn(
+                    classes['radio-button__indicator'],
+                    checked && classes['radio-button__indicator-checked']
+                  )}
+                />
+              ),
+              disabled: true,
+            },
+            {
+              value: 'another_option',
+              renderChildren: ({
+                labelProps,
+                descriptionProps,
+                state: { checked },
+              }) => (
+                <>
+                  <span {...labelProps}>Another option</span>
+
+                  <span {...descriptionProps}>test</span>
+
+                  {checked && <span>checked</span>}
+                  {!checked && <span>unchecked</span>}
+                </>
+              ),
+            },
+          ]}
+          classNames={{
+            root: classes['radio-group'],
+            radioButton: {
+              root: {
+                default: classes['radio-button'],
+                checked: classes['radio-button-checked'],
+                disabled: classes['radio-button-disabled'],
+              },
+              description: classes['radio-button__description'],
+              label: classes['radio-button__label'],
+              textContainer: classes['radio-button__text-container'],
+            },
           }}
           orientation='vertical'
         />

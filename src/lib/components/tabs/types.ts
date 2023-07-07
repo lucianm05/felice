@@ -1,3 +1,4 @@
+import { Orientation } from '@lib/types'
 import { CSSProperties, HTMLProps, ReactNode } from 'react'
 
 interface TabItemProps {
@@ -12,7 +13,7 @@ export interface TabPanelProps
   extends TabItemProps,
     Omit<HTMLProps<HTMLDivElement>, 'id' | 'role' | 'ref'> {}
 
-export type Tab = {
+export interface Tab {
   element: ReactNode
   panel: ReactNode
   elementProps?: TabElementProps
@@ -44,4 +45,4 @@ export interface TabsStyleable<T> {
 export type TabsStyles = TabsStyleable<CSSProperties>
 export type TabsClassNames = TabsStyleable<string>
 
-export type TabsOrientation = 'horizontal' | 'vertical'
+export type TabsOrientation = Orientation
