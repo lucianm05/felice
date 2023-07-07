@@ -1,18 +1,22 @@
 import { CSSProperties, HTMLProps, ReactNode } from 'react'
 
+export interface RadioButtonState {
+  checked: boolean
+}
+
 export interface RadioButton
-  extends Omit<HTMLProps<HTMLDivElement>, 'content' | 'label'> {
+  extends Omit<HTMLProps<HTMLDivElement>, 'content' | 'label' | 'checked'> {
   value: string
   label?: ReactNode
   description?: ReactNode
-  content?: ReactNode
+  content?: ReactNode | ((state: RadioButtonState) => JSX.Element)
   disabled?: boolean
   styles?: RadioButtonStyleable<CSSProperties, RadioButtonStyles>
   classNames?: RadioButtonStyleable<string, RadioButtonClassName>
   renderChildren?: (params: {
     labelProps: { id: string }
     descriptionProps: { id: string }
-    state: { checked: boolean }
+    state: RadioButtonState
   }) => JSX.Element
 }
 
@@ -26,6 +30,7 @@ export interface RadioButtonStyleable<T, R> {
 export interface RadioButtonRelative<T> {
   checked?: T
   unchecked?: T
+  disabled?: T
 }
 
 export type RadioButtonRelativeStyles = RadioButtonRelative<CSSProperties>

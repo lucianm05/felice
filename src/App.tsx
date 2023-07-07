@@ -268,35 +268,34 @@ function App() {
               label: 'Card',
               value: 'card',
               description: 'Card payment for faster processing',
+              content: <div>my content</div>,
             },
             {
               label: 'Cash',
               value: 'cash',
+              content: ({ checked }) => {
+                return (
+                  <div>this radio is {checked ? 'checked' : 'unchecked'}</div>
+                )
+              },
             },
             {
               label: 'Trade',
               value: 'trade',
               description:
                 'In case you dont have money but have something to give',
+              content: ({ checked }) => (
+                <div
+                  className={cn(
+                    classes['radio-button__indicator'],
+                    checked && classes['radio-button__indicator-checked']
+                  )}
+                />
+              ),
+              disabled: true,
             },
             {
               value: 'another_option',
-              styles: {
-                root: {
-                  border: '1px solid red',
-                  padding: '1rem',
-                  checked: {
-                    border: '1px solid blue',
-                  },
-                },
-              },
-              classNames: {
-                root: {
-                  default: 'radio-button',
-                  checked: 'radio-button-checked',
-                  unchecked: 'radio-button-unchecked',
-                },
-              },
               renderChildren: ({
                 labelProps,
                 descriptionProps,
@@ -313,6 +312,20 @@ function App() {
               ),
             },
           ]}
+          classNames={{
+            root: classes['radio-group'],
+            radioButton: {
+              root: {
+                default: classes['radio-button'],
+                checked: classes['radio-button-checked'],
+                disabled: classes['radio-button-disabled'],
+              },
+              description: classes['radio-button__description'],
+              label: classes['radio-button__label'],
+              textContainer: classes['radio-button__text-container'],
+            },
+          }}
+          orientation='vertical'
         />
       </div>
     </div>

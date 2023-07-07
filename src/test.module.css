@@ -124,7 +124,7 @@
 }
 
 .tabs-element-selected {
-  background: blue
+  background: blue;
 }
 
 .tabs-element:disabled {
@@ -149,3 +149,59 @@
   flex-direction: column;
   row-gap: 1rem;
 }
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+  margin: 2rem 1rem;
+  width: max-content;
+}
+
+.radio-button {
+  display: flex;
+  justify-content: space-between;
+  background-color: cornsilk;
+  border: 1px solid;
+  border-color: bisque;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.radio-button-disabled {
+  background-color: gray;
+  cursor: not-allowed;
+}
+
+.radio-button-checked {
+  background-color: bisque;
+}
+
+.radio-button__text-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.radio-button__label {
+  font-size: 2rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.radio-button__description {
+  font-size: 1.25rem;
+}
+
+.radio-button__indicator {
+  width: 1rem;
+  height: 1rem;
+  background-color: darkgray;
+  border-radius: 99999px;
+}
+
+.radio-button__indicator-checked {
+  background-color: honeydew;
+  border: 2px solid darkgray;
+}
+

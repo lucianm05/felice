@@ -1,6 +1,7 @@
 import {
   RadioButton as Radio,
   RadioButtonClassName,
+  RadioButtonState,
   RadioButtonStyles,
   RadioGroupStyleable,
 } from '@lib/components/radio-group/types'
@@ -24,17 +25,14 @@ import {
   KeyboardEvent,
   MouseEvent,
   forwardRef,
+  isValidElement,
   useId,
   useImperativeHandle,
   useRef,
   useState,
 } from 'react'
 
-interface RadioButtonProps
-  extends Radio,
-    Omit<HTMLProps<HTMLDivElement>, 'value' | 'label' | 'content'> {
-  checked: boolean
-}
+interface RadioButtonProps extends Radio, RadioButtonState {}
 
 const RadioButton = ({
   label,
@@ -48,6 +46,7 @@ const RadioButton = ({
   styles,
   className,
   classNames,
+  disabled,
   ...props
 }: RadioButtonProps) => {
   const internalId = useId()
@@ -65,9 +64,10 @@ const RadioButton = ({
         style,
         styles?.root,
         isRadioButtonStyleRelative(styles?.root)
-          ? checked
-            ? styles?.root?.checked
-            : styles?.root?.unchecked
+          ? mergeObjects(
+              checked ? styles?.root?.checked : styles?.root?.unchecked,
+              disabled ? styles?.root?.disabled : undefined
+            )
           : undefined
       )}
       className={cn(
@@ -75,7 +75,8 @@ const RadioButton = ({
         isRadioButtonClassNamesRelative(classNames?.root)
           ? cn(
               classNames?.root?.default,
-              checked ? classNames?.root?.checked : classNames?.root?.unchecked
+              checked ? classNames?.root?.checked : classNames?.root?.unchecked,
+              disabled && classNames?.root?.disabled
             )
           : classNames?.root
       )}
@@ -96,6 +97,7 @@ const RadioButton = ({
                 id={labelId}
                 style={styles?.label}
                 className={classNames?.label}
+                data-checked={checked}
               >
                 {label}
               </span>
@@ -106,13 +108,22 @@ const RadioButton = ({
                 id={descriptionId}
                 style={styles?.description}
                 className={classNames?.description}
+                data-checked={checked}
               >
                 {description}
               </span>
             )}
           </div>
 
-          {content}
+          {content && (
+            <>
+              {isValidElement(content) && content}
+
+              {!isValidElement(content) &&
+                typeof content === 'function' &&
+                content({ checked })}
+            </>
+          )}
         </>
       )}
 
@@ -236,14 +247,17 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
             ...rest,
             value,
             onClick: (event: MouseEvent<HTMLDivElement>) => {
+              if (isDisabled) return
               rest?.onClick?.(event)
               setInternalValueHandler(value, event)
             },
             onFocus: (event: FocusEvent<HTMLDivElement>) => {
+              if (isDisabled) return
               rest?.onFocus?.(event)
               setInternalValueHandler(value, event)
             },
             onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => {
+              if (isDisabled) return
               rest?.onKeyDown?.(event)
               onRadioButtonKeyDown(event)
             },
@@ -254,6 +268,7 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
             'data-checked': isChecked,
             'data-disabled': isDisabled,
             checked: isChecked,
+            classNames: mergeObjects(classNames?.radioButton, rest.classNames),
           }
 
           return (
