@@ -1,14 +1,11 @@
 import {
   RadioButton as Radio,
-  RadioButtonClassName,
+  RadioButtonClassNames,
   RadioButtonState,
   RadioButtonStyles,
   RadioGroupStyleable,
 } from '@lib/components/radio-group/types'
-import {
-  isRadioButtonClassNamesRelative,
-  isRadioButtonStyleRelative,
-} from '@lib/components/radio-group/utils'
+import { getClassNames, getStyles } from '@lib/components/radio-group/utils'
 import { Orientation } from '@lib/types'
 import {
   cn,
@@ -25,7 +22,6 @@ import {
   KeyboardEvent,
   MouseEvent,
   forwardRef,
-  isValidElement,
   useId,
   useImperativeHandle,
   useRef,
@@ -37,11 +33,10 @@ interface RadioButtonProps extends Radio, RadioButtonState {}
 const RadioButton = ({
   label,
   description,
-  content,
   value,
   id: externalId,
   checked,
-  renderChildren,
+  render,
   style,
   styles,
   className,
@@ -55,84 +50,73 @@ const RadioButton = ({
 
   const id = externalId || internalId
 
+  const rootProps = {
+    style: getStyles(styles?.root, disabled, checked),
+    className: getClassNames(classNames?.root, disabled, checked),
+    'data-disabled': disabled,
+    'data-checked': checked,
+  } as const
+
+  const buttonProps = {
+    ...props,
+    type: 'button',
+    id,
+    role: 'radio',
+    style: mergeObjects(style, getStyles(styles?.button, disabled, checked)),
+    className: cn(
+      className,
+      getClassNames(classNames?.button, disabled, checked)
+    ),
+    disabled,
+    'aria-labelledby': label ? labelId : undefined,
+    'aria-describedby': description ? descriptionId : undefined,
+    'aria-label': label ? undefined : value,
+    'aria-checked': checked,
+    'aria-disabled': disabled,
+    'data-disabled': disabled,
+    'data-checked': checked,
+  } as const
+
+  const textContainerProps = {
+    style: styles?.textContainer,
+    className: classNames?.textContainer,
+  } as const
+
+  const labelProps = {
+    id: labelId,
+    htmlFor: id,
+    style: styles?.label,
+    className: classNames?.label,
+  } as const
+
+  const descriptionProps = {
+    id: descriptionId,
+    style: styles?.description,
+    className: classNames?.description,
+  } as const
+
+  if (render) {
+    return render({
+      state: { checked, disabled },
+      rootProps,
+      buttonProps,
+      textContainerProps,
+      labelProps,
+      descriptionProps,
+    })
+  }
+
   return (
-    <div
-      {...props}
-      id={id}
-      role='radio'
-      style={mergeObjects(
-        style,
-        styles?.root,
-        isRadioButtonStyleRelative(styles?.root)
-          ? mergeObjects(
-              checked ? styles?.root?.checked : styles?.root?.unchecked,
-              disabled ? styles?.root?.disabled : undefined
-            )
-          : undefined
+    <div {...rootProps}>
+      <button {...buttonProps} />
+
+      {(label || description) && (
+        <div {...textContainerProps}>
+          {label && <label {...labelProps}>{label}</label>}
+
+          {description && <p {...descriptionProps}>{description}</p>}
+        </div>
       )}
-      className={cn(
-        className,
-        isRadioButtonClassNamesRelative(classNames?.root)
-          ? cn(
-              classNames?.root?.default,
-              checked ? classNames?.root?.checked : classNames?.root?.unchecked,
-              disabled && classNames?.root?.disabled
-            )
-          : classNames?.root
-      )}
-      aria-labelledby={label || renderChildren ? labelId : undefined}
-      aria-describedby={
-        description || renderChildren ? descriptionId : undefined
-      }
-      aria-label={label || renderChildren ? undefined : value}
-    >
-      {!renderChildren && (
-        <>
-          <div
-            style={styles?.textContainer}
-            className={classNames?.textContainer}
-          >
-            {label && (
-              <span
-                id={labelId}
-                style={styles?.label}
-                className={classNames?.label}
-                data-checked={checked}
-              >
-                {label}
-              </span>
-            )}
-
-            {description && (
-              <span
-                id={descriptionId}
-                style={styles?.description}
-                className={classNames?.description}
-                data-checked={checked}
-              >
-                {description}
-              </span>
-            )}
-          </div>
-
-          {content && (
-            <>
-              {isValidElement(content) && content}
-
-              {!isValidElement(content) &&
-                typeof content === 'function' &&
-                content({ checked })}
-            </>
-          )}
-        </>
-      )}
-
-      {renderChildren &&
-        renderChildren({
-          labelProps: { id: labelId },
-          descriptionProps: { id: descriptionId },
-          state: { checked },
-        })}
     </div>
   )
 }
@@ -147,7 +131,7 @@ export interface RadioGroupProps
   orientation?: Orientation
   disabled?: boolean
   styles?: RadioGroupStyleable<CSSProperties, RadioButtonStyles>
-  classNames?: RadioGroupStyleable<string, RadioButtonClassName>
+  classNames?: RadioGroupStyleable<string, RadioButtonClassNames>
 }
 
 type RadioGroupRef = HTMLDivElement | null
@@ -205,11 +189,13 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
       onValueChange?.(value)
     }
 
-    const onRadioButtonKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const onRadioButtonKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
       if (!internalRef.current || event.defaultPrevented) return
 
       const elements =
-        internalRef.current.querySelectorAll<HTMLDivElement>('div[role=radio]')
+        internalRef.current.querySelectorAll<HTMLDivElement>(
+          'button[role=radio]'
+        )
 
       const direction = getSequenceDirection(event.key, orientation)
 
@@ -243,32 +229,71 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
           const isDisabled = isDefined(disabled) ? disabled : groupDisabled
           const tabIndex = currentIndex === index ? 0 : -1
 
+          const getClassNamesHandler = (classNames?: RadioButtonClassNames) =>
+            getClassNames(classNames, isDisabled, isChecked)
+
           const radioButtonProps = {
             ...rest,
             value,
-            onClick: (event: MouseEvent<HTMLDivElement>) => {
+            onClick: (event: MouseEvent<HTMLButtonElement>) => {
               if (isDisabled) return
               rest?.onClick?.(event)
               setInternalValueHandler(value, event)
             },
-            onFocus: (event: FocusEvent<HTMLDivElement>) => {
+            onFocus: (event: FocusEvent<HTMLButtonElement>) => {
               if (isDisabled) return
               rest?.onFocus?.(event)
               setInternalValueHandler(value, event)
             },
-            onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => {
+            onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => {
               if (isDisabled) return
               rest?.onKeyDown?.(event)
               onRadioButtonKeyDown(event)
             },
             tabIndex,
             disabled: isDisabled,
-            'aria-checked': isChecked,
-            'aria-disabled': isDisabled,
-            'data-checked': isChecked,
-            'data-disabled': isDisabled,
             checked: isChecked,
-            classNames: mergeObjects(classNames?.radioButton, rest.classNames),
+            styles: {
+              root: mergeObjects(styles?.radioButton?.root, rest?.styles?.root),
+              button: mergeObjects(
+                styles?.radioButton?.button,
+                rest?.styles?.button
+              ),
+              description: mergeObjects(
+                styles?.radioButton?.description,
+                rest?.styles?.description
+              ),
+              label: mergeObjects(
+                styles?.radioButton?.label,
+                rest?.styles?.label
+              ),
+              textContainer: mergeObjects(
+                styles?.radioButton?.textContainer,
+                rest?.styles?.textContainer
+              ),
+            },
+            classNames: {
+              root: cn(
+                getClassNamesHandler(classNames?.radioButton?.root),
+                getClassNamesHandler(rest?.classNames?.root)
+              ),
+              button: cn(
+                getClassNamesHandler(classNames?.radioButton?.button),
+                getClassNamesHandler(rest?.classNames?.button)
+              ),
+              description: cn(
+                classNames?.radioButton?.description,
+                rest?.classNames?.description
+              ),
+              label: cn(
+                classNames?.radioButton?.label,
+                rest?.classNames?.label
+              ),
+              textContainer: cn(
+                classNames?.radioButton?.textContainer,
+                rest?.classNames?.textContainer
+              ),
+            },
           }
 
           return (

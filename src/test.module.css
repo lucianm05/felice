@@ -158,15 +158,35 @@
   width: max-content;
 }
 
-.radio-button {
+.radio-button__root {
   display: flex;
-  justify-content: space-between;
-  background-color: cornsilk;
-  border: 1px solid;
-  border-color: bisque;
-  padding: 1rem 1.5rem;
+  flex-direction: row;
+  column-gap: 1rem;
+  padding: 0.5rem 1rem;
   border-radius: 8px;
+}
+
+.radio-button__root-disabled {
+  background-color: lightslategray;
+  cursor: not-allowed;
+}
+
+.radio-button__root-checked {
+  background-color: aliceblue;
+}
+
+.radio-button__root-unchecked {
+  background-color: antiquewhite;
+}
+
+.radio-button {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  margin-top: 0.5rem;
   cursor: pointer;
+  border-radius: 99999px;
+  border: 2px solid;
 }
 
 .radio-button-disabled {
@@ -174,8 +194,14 @@
   cursor: not-allowed;
 }
 
+.radio-button-unchecked {
+  background-color: lightblue;
+  border-color: darkcyan;
+}
+
 .radio-button-checked {
-  background-color: bisque;
+  background-color: hotpink;
+  border-color: deeppink;
 }
 
 .radio-button__text-container {

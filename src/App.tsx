@@ -263,7 +263,7 @@ function App() {
             tablist: classes['tabs-tablist-vertical'],
           }}
           orientation='vertical'
-        />
+        /> */}
 
         <RadioGroup
           label='Select payment method'
@@ -272,56 +272,49 @@ function App() {
               label: 'Card',
               value: 'card',
               description: 'Card payment for faster processing',
-              content: <div>my content</div>,
             },
             {
               label: 'Cash',
               value: 'cash',
-              content: ({ checked }) => {
-                return (
-                  <div>this radio is {checked ? 'checked' : 'unchecked'}</div>
-                )
-              },
+              description: 'Cash payment',
             },
             {
               label: 'Trade',
               value: 'trade',
               description:
                 'In case you dont have money but have something to give',
-              content: ({ checked }) => (
-                <div
-                  className={cn(
-                    classes['radio-button__indicator'],
-                    checked && classes['radio-button__indicator-checked']
-                  )}
-                />
-              ),
               disabled: true,
             },
             {
               value: 'another_option',
-              renderChildren: ({
-                labelProps,
-                descriptionProps,
-                state: { checked },
-              }) => (
-                <>
-                  <span {...labelProps}>Another option</span>
+              render: ({ state, buttonProps, rootProps, labelProps }) => {
+                return (
+                  <div {...rootProps} className=''>
+                    <button {...buttonProps} className=''>
+                      {state.checked ? 'checked' : 'unchecked'}
+                    </button>
 
-                  <span {...descriptionProps}>test</span>
-
-                  {checked && <span>checked</span>}
-                  {!checked && <span>unchecked</span>}
-                </>
-              ),
+                    <label {...labelProps} className=''>
+                      whatever
+                    </label>
+                  </div>
+                )
+              },
             },
           ]}
           classNames={{
             root: classes['radio-group'],
             radioButton: {
               root: {
+                default: classes['radio-button__root'],
+                checked: classes['radio-button__root-checked'],
+                unchecked: classes['radio-button__root-unchecked'],
+                disabled: classes['radio-button__root-disabled'],
+              },
+              button: {
                 default: classes['radio-button'],
                 checked: classes['radio-button-checked'],
+                unchecked: classes['radio-button-unchecked'],
                 disabled: classes['radio-button-disabled'],
               },
               description: classes['radio-button__description'],
@@ -330,7 +323,7 @@ function App() {
             },
           }}
           orientation='vertical'
-        /> */}
+        />
 
         <div
           style={{
