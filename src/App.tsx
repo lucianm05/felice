@@ -12,6 +12,7 @@ import { cn } from '@lib/utils'
 import { RadioGroup } from '@lib/components/radio-group/RadioGroup'
 import { Tooltip } from '@lib/components/tooltip/Tooltip'
 import { TooltipTriggerRef } from '@lib/components/tooltip/types'
+import { Dialog } from '@lib/components/dialog/Dialog'
 
 function App() {
   const [switchChecked, setSwitchChecked] = useState(true)
@@ -265,7 +266,7 @@ function App() {
           orientation='vertical'
         /> */}
 
-        <RadioGroup
+        {/* <RadioGroup
           label='Select payment method'
           data={[
             {
@@ -323,9 +324,9 @@ function App() {
             },
           }}
           orientation='vertical'
-        />
+        /> */}
 
-        <div
+        {/*  <div
           style={{
             display: 'flex',
             padding: '10rem',
@@ -361,7 +362,30 @@ function App() {
               )
             }}
           </Tooltip>
-        </div>
+        </div> */}
+
+        <Dialog
+          title='Dialog title'
+          description='Dialog description'
+          content={
+            <div>
+              <input type='text' placeholder='your address' name='address' />
+            </div>
+          }
+          closeButton={({ buttonProps }) => <button {...buttonProps}>X</button>}
+          styles={{
+            overlay: {
+              position: 'fixed',
+              background: 'rgba(0,0,0,0.25)',
+              width: '100%',
+              height: '100%',
+              top: 0,
+              left: 0,
+            },
+          }}
+        >
+          Dialog Trigger
+        </Dialog>
       </div>
     </div>
   )
