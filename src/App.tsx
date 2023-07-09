@@ -6,10 +6,12 @@ import { Slider } from '@lib/components/slider/Slider'
 import { SliderValue } from '@lib/components/slider/types'
 import { Switch } from '@lib/components/switch/Switch'
 import { Tabs } from '@lib/components/tabs/Tabs'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import classes from './test.module.css'
 import { cn } from '@lib/utils'
 import { RadioGroup } from '@lib/components/radio-group/RadioGroup'
+import { Tooltip } from '@lib/components/tooltip/Tooltip'
+import { TooltipTriggerRef } from '@lib/components/tooltip/types'
 
 function App() {
   const [switchChecked, setSwitchChecked] = useState(true)
@@ -23,43 +25,45 @@ function App() {
 
   const sliderRef = useRef<HTMLDivElement | null>(null)
 
+  const tooltipRef = useRef<TooltipTriggerRef>(null)
+
   return (
     <div className='App'>
-      <Select
-        label='Preferred social media'
-        data={[
-          { label: 'Facebook', value: 'facebook' },
-          { label: 'Instagram', value: 'instagram' },
-          { label: 'YouTube', value: 'youtube' },
-          { label: 'Reddit', value: 'reddit' },
-          { label: 'Twitter', value: 'twitter' },
-          { label: 'Tumblr', value: 'tumblr' },
-          { label: 'TikTok', value: 'tiktok' },
-        ]}
-        placeholder='Social media'
-        styles={{
-          root: {
-            border: '1px solid red',
-            width: 'max-content',
-          },
-          activeOption: {
-            color: 'red',
-          },
-          selectedOption: {
-            color: 'blue',
-          },
-        }}
-      />
-
       <div
         style={{
           display: 'flex',
           flexDirection: 'column',
           rowGap: '16px',
-          margin: '16px 0',
+          // margin: '16px 0',
         }}
       >
-        <Accordion
+        {/* <Select
+          label='Preferred social media'
+          data={[
+            { label: 'Facebook', value: 'facebook' },
+            { label: 'Instagram', value: 'instagram' },
+            { label: 'YouTube', value: 'youtube' },
+            { label: 'Reddit', value: 'reddit' },
+            { label: 'Twitter', value: 'twitter' },
+            { label: 'Tumblr', value: 'tumblr' },
+            { label: 'TikTok', value: 'tiktok' },
+          ]}
+          placeholder='Social media'
+          styles={{
+            root: {
+              border: '1px solid red',
+              width: 'max-content',
+            },
+            activeOption: {
+              color: 'red',
+            },
+            selectedOption: {
+              color: 'blue',
+            },
+          }}
+        /> */}
+
+        {/* <Accordion
           data={{
             header: 'Test single accordion',
             content: 'This is a single accordion',
@@ -85,11 +89,11 @@ function App() {
               content: 'This is the second accordion',
             },
           ]}
-        />
+        /> */}
 
         {/* <div style={{ marginBottom: '8rem' }}></div> */}
 
-        <Switch
+        {/* <Switch
           label='Marketing e-mails'
           style={{ marginLeft: '5rem' }}
           classNames={{
@@ -105,13 +109,13 @@ function App() {
           }}
           checked={switchChecked}
           onCheckedChange={setSwitchChecked}
-        />
+        /> */}
 
         {/* <button type='button' onClick={() => setChecked(prev => !prev)}>
           change switch
         </button> */}
 
-        <div
+        {/*  <div
           style={{
             marginLeft: '10rem',
             display: 'flex',
@@ -147,9 +151,9 @@ function App() {
             {checkboxChecked && <span>✓</span>}
             {!checkboxChecked && <span>✗</span>}
           </Checkbox>
-        </div>
+        </div> */}
 
-        <Progress
+        {/*  <Progress
           label='Fetching data'
           {...progressValues}
           styles={{
@@ -326,7 +330,45 @@ function App() {
             },
           }}
           orientation='vertical'
-        />
+        /> */}
+
+        <div
+          style={{
+            display: 'flex',
+            padding: '10rem',
+            flexDirection: 'column',
+            rowGap: '2rem',
+          }}
+        >
+          <Tooltip
+            content={<>My tooltip content</>}
+            side='right'
+            sideOffset={8}
+            classNames={{
+              trigger: classes['tooltip-trigger'],
+              content: classes['tooltip-content'],
+            }}
+          >
+            My tooltip
+          </Tooltip>
+
+          <Tooltip
+            ref={tooltipRef}
+            content={<>My tooltip with custom trigger</>}
+            side='bottom'
+            classNames={{
+              content: classes['tooltip-content'],
+            }}
+          >
+            {({ triggerProps, state: { open } }) => {
+              return (
+                <button {...triggerProps}>
+                  My tooltip is {open ? 'open' : 'closed'}
+                </button>
+              )
+            }}
+          </Tooltip>
+        </div>
       </div>
     </div>
   )
