@@ -72,7 +72,7 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
     }
 
     return (
-      <div style={styles?.root}>
+      <div style={styles?.root} className={classNames?.root}>
         <button
           {...props}
           id={id}
@@ -123,4 +123,3 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
 )
 
 Checkbox.displayName = 'FeliceCheckbox'
-
