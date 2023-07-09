@@ -1,11 +1,4 @@
-import {
-  CSSProperties,
-  FocusEvent,
-  HTMLProps,
-  KeyboardEvent,
-  MouseEvent,
-  ReactNode,
-} from 'react'
+import { CSSProperties, HTMLProps, ReactNode } from 'react'
 
 export interface RadioButtonState {
   checked?: boolean
