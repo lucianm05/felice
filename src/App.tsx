@@ -10,6 +10,7 @@ import { useRef, useState } from 'react'
 import classes from './test.module.css'
 import { cn } from '@lib/utils'
 import { RadioGroup } from '@lib/components/radio-group/RadioGroup'
+import { Tooltip } from '@lib/components/tooltip/Tooltip'
 
 function App() {
   const [switchChecked, setSwitchChecked] = useState(true)
@@ -25,41 +26,41 @@ function App() {
 
   return (
     <div className='App'>
-      <Select
-        label='Preferred social media'
-        data={[
-          { label: 'Facebook', value: 'facebook' },
-          { label: 'Instagram', value: 'instagram' },
-          { label: 'YouTube', value: 'youtube' },
-          { label: 'Reddit', value: 'reddit' },
-          { label: 'Twitter', value: 'twitter' },
-          { label: 'Tumblr', value: 'tumblr' },
-          { label: 'TikTok', value: 'tiktok' },
-        ]}
-        placeholder='Social media'
-        styles={{
-          root: {
-            border: '1px solid red',
-            width: 'max-content',
-          },
-          activeOption: {
-            color: 'red',
-          },
-          selectedOption: {
-            color: 'blue',
-          },
-        }}
-      />
-
       <div
         style={{
           display: 'flex',
           flexDirection: 'column',
           rowGap: '16px',
-          margin: '16px 0',
+          // margin: '16px 0',
         }}
       >
-        <Accordion
+        {/*  <Select
+           label='Preferred social media'
+           data={[
+             { label: 'Facebook', value: 'facebook' },
+             { label: 'Instagram', value: 'instagram' },
+             { label: 'YouTube', value: 'youtube' },
+             { label: 'Reddit', value: 'reddit' },
+             { label: 'Twitter', value: 'twitter' },
+             { label: 'Tumblr', value: 'tumblr' },
+             { label: 'TikTok', value: 'tiktok' },
+           ]}
+           placeholder='Social media'
+           styles={{
+             root: {
+               border: '1px solid red',
+               width: 'max-content',
+             },
+             activeOption: {
+               color: 'red',
+             },
+             selectedOption: {
+               color: 'blue',
+             },
+           }}
+         /> */}
+
+        {/* <Accordion
           data={{
             header: 'Test single accordion',
             content: 'This is a single accordion',
@@ -85,11 +86,11 @@ function App() {
               content: 'This is the second accordion',
             },
           ]}
-        />
+        /> */}
 
         {/* <div style={{ marginBottom: '8rem' }}></div> */}
 
-        <Switch
+        {/* <Switch
           label='Marketing e-mails'
           style={{ marginLeft: '5rem' }}
           classNames={{
@@ -105,13 +106,13 @@ function App() {
           }}
           checked={switchChecked}
           onCheckedChange={setSwitchChecked}
-        />
+        /> */}
 
         {/* <button type='button' onClick={() => setChecked(prev => !prev)}>
           change switch
         </button> */}
 
-        <div
+        {/*  <div
           style={{
             marginLeft: '10rem',
             display: 'flex',
@@ -147,9 +148,9 @@ function App() {
             {checkboxChecked && <span>✓</span>}
             {!checkboxChecked && <span>✗</span>}
           </Checkbox>
-        </div>
+        </div> */}
 
-        <Progress
+        {/*  <Progress
           label='Fetching data'
           {...progressValues}
           styles={{
@@ -326,7 +327,30 @@ function App() {
             },
           }}
           orientation='vertical'
-        />
+        /> */}
+
+        <div
+          style={{
+            display: 'flex',
+            // padding: '10rem',
+            // paddingLeft: '10rem',
+            // alignItems: 'flex-end',
+            justifyContent: 'center',
+            width: '100%',
+            // height: '100vh'
+          }}
+        >
+          <Tooltip
+            content={<>My tooltip content</>}
+            side='bottom'
+            classNames={{
+              trigger: classes['tooltip-trigger'],
+              content: classes['tooltip-content'],
+            }}
+          >
+            My tooltip
+          </Tooltip>
+        </div>
       </div>
     </div>
   )
