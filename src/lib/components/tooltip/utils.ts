@@ -1,67 +1,23 @@
 import {
   HasEnoughSpaceMap,
-  TooltipContentPosition,
-  TooltipContentRef,
+  TooltipContainerRef,
+  TooltipPosition,
   TooltipSide,
   TooltipTriggerRef,
 } from '@lib/components/tooltip/types'
 import { isDefined } from '@lib/utils'
 
-const getHasEnoughSpace = (
-  side: TooltipSide,
-  contentRef: TooltipContentRef,
-  position: TooltipContentPosition
-): HasEnoughSpaceMap | null => {
-  if (!contentRef || !isDefined(position.top) || !isDefined(position.left))
-    return null
-
-  const contentRect = contentRef.getBoundingClientRect()
-
-  const result: HasEnoughSpaceMap = {
-    top: true,
-    bottom: true,
-    right: true,
-    left: true,
-  }
-
-  switch (side) {
-    case 'top':
-      {
-        result.top = contentRect.height + position.top > contentRect.height
-      }
-      break
-
-    case 'bottom':
-      {
-        result.bottom = window.innerHeight > position.top + contentRect.height
-      }
-      break
-
-    case 'right':
-      {
-        result.right = window.innerWidth - position.left > contentRect.width
-      }
-      break
-
-    case 'left':
-      {
-        result.left = position.left > contentRect.width
-      }
-      break
-  }
-
-  return result
-}
+const numberToPixelString = (input: number) => `${input}px`
 
 export const getInitialContentPosition = (
   side: TooltipSide,
   triggerRef: TooltipTriggerRef,
-  contentRef: TooltipContentRef
-): TooltipContentPosition => {
-  if (!triggerRef || !contentRef) return {}
+  containerRef: TooltipContainerRef
+): TooltipPosition => {
+  if (!triggerRef || !containerRef) return {}
 
   const triggerRect = triggerRef.getBoundingClientRect()
-  const contentRect = contentRef.getBoundingClientRect()
+  const contentRect = containerRef.getBoundingClientRect()
 
   const {
     width: triggerWidth,
@@ -74,7 +30,7 @@ export const getInitialContentPosition = (
   const ySideLeft = triggerX + triggerWidth / 2 - contentWidth / 2
   const xSideTop = triggerY + triggerHeight / 2 - contentHeight / 2
 
-  const position: TooltipContentPosition = {}
+  const position: TooltipPosition = {}
 
   switch (side) {
     case 'top':
@@ -109,25 +65,43 @@ export const getInitialContentPosition = (
   return position
 }
 
-export const getFinalContentPosition = (
+const getHasEnoughSpace = (
+  containerRef: TooltipContainerRef,
+  position: TooltipPosition
+): HasEnoughSpaceMap | null => {
+  if (!containerRef || !isDefined(position.top) || !isDefined(position.left))
+    return null
+
+  const containerRect = containerRef.getBoundingClientRect()
+
+  const result: HasEnoughSpaceMap = {
+    top: containerRect.height + position.top > containerRect.height,
+    bottom: window.innerHeight > position.top + containerRect.height,
+    right: window.innerWidth - position.left > containerRect.width,
+    left: position.left > 0,
+  }
+
+  return result
+}
+
+export const getFinalTooltipSide = (
   side: TooltipSide,
   triggerRef: TooltipTriggerRef,
-  contentRef: TooltipContentRef
-): TooltipContentPosition => {
-  if (!triggerRef || !contentRef) return {}
+  containerRef: TooltipContainerRef
+): TooltipSide => {
+  if (!triggerRef || !containerRef) {
+    return side
+  }
 
   const initialPosition = getInitialContentPosition(
     side,
     triggerRef,
-    contentRef
+    containerRef
   )
 
-  const hasEnoughSpace = getHasEnoughSpace(side, contentRef, initialPosition)
+  const hasEnoughSpace = getHasEnoughSpace(containerRef, initialPosition)
   console.log(hasEnoughSpace)
-  if (!hasEnoughSpace) return initialPosition
-
-  if (hasEnoughSpace[side])
-    return getInitialContentPosition(side, triggerRef, contentRef)
+  if (!hasEnoughSpace || hasEnoughSpace[side]) return side
 
   const firstAvailableSide = Object.entries(hasEnoughSpace).find(
     entry => entry[1]
@@ -169,9 +143,56 @@ export const getFinalContentPosition = (
       break
   }
 
-  if (!finalSide) return {}
+  if (!finalSide) return side
 
-  console.log(finalSide)
+  return finalSide
+}
 
-  return getInitialContentPosition(finalSide, triggerRef, contentRef)
+export const getFinalContentPosition = (
+  side: TooltipSide,
+  triggerRef: TooltipTriggerRef,
+  containerRef: TooltipContainerRef
+): TooltipPosition => {
+  const finalSide = getFinalTooltipSide(side, triggerRef, containerRef)
+
+  if (!finalSide)
+    return getInitialContentPosition(side, triggerRef, containerRef)
+
+  return getInitialContentPosition(finalSide, triggerRef, containerRef)
+}
+
+export const getOffsetProperties = (
+  side: TooltipSide,
+  offset: number,
+  triggerRef: TooltipTriggerRef,
+  containerRef: TooltipContainerRef
+): Omit<TooltipPosition, 'left' | 'top'> => {
+  const finalSide = getFinalTooltipSide(side, triggerRef, containerRef)
+
+  const output = numberToPixelString(offset)
+  const negatedOutput = numberToPixelString(-offset)
+
+  switch (finalSide) {
+    case 'top': {
+      if (offset > 0) return { paddingBottom: output }
+      return { marginTop: negatedOutput }
+    }
+
+    case 'bottom': {
+      if (offset > 0) return { paddingTop: output }
+      return { marginTop: output }
+    }
+
+    case 'left': {
+      if (offset > 0) return { paddingRight: output }
+      return { marginLeft: negatedOutput }
+    }
+
+    case 'right': {
+      if (offset > 0) return { paddingLeft: output }
+      return { marginLeft: output }
+    }
+  }
+
+  return {}
 }
