@@ -1,13 +1,14 @@
 import {
   DialogClassNames,
   DialogCloseButton,
+  DialogContent,
   DialogStyleable,
   DialogStyles,
   DialogTriggerRef,
 } from '@lib/components/dialog/types'
 import { Portal } from '@lib/components/portal'
 import { keys } from '@lib/constants/keys'
-import { isDefined, mergeObjects } from '@lib/utils'
+import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
   HTMLProps,
   MouseEvent,
@@ -15,6 +16,8 @@ import {
   forwardRef,
   useEffect,
   useId,
+  useImperativeHandle,
+  useRef,
   useState,
 } from 'react'
 
@@ -25,7 +28,7 @@ interface DialogProps
   onOpenChange?: (open: boolean) => void
   title?: ReactNode
   description?: ReactNode
-  content?: ReactNode
+  content?: DialogContent
   closeButton?: DialogCloseButton
   styles?: DialogStyleable<DialogStyles>
   classNames?: DialogStyleable<DialogClassNames>
@@ -58,10 +61,6 @@ export const Dialog = forwardRef<DialogTriggerRef, DialogProps>(
 
     const open = isDefined(externalOpen) ? externalOpen : internalOpen
 
-    const titleId = useId()
-    const descriptionId = useId()
-
-    // const onTriggerClick =
     const setInternalOpenHandler = (value: boolean, event?: MouseEvent) => {
       if (event?.defaultPrevented) return
 
@@ -69,12 +68,70 @@ export const Dialog = forwardRef<DialogTriggerRef, DialogProps>(
       onOpenChange?.(value)
     }
 
-    const buttonProps = {
-      ...props,
+    const internalRef = useRef<DialogTriggerRef>(null)
+
+    useImperativeHandle<DialogTriggerRef, DialogTriggerRef>(
       ref,
+      () => internalRef.current,
+      []
+    )
+
+    const titleId = useId()
+    const descriptionId = useId()
+
+    const triggerProps = {
+      ...props,
+      ref: internalRef,
       type: 'button',
       onClick: (event: MouseEvent<HTMLButtonElement>) =>
         setInternalOpenHandler(true, event),
+      style: mergeObjects(style, styles?.trigger),
+      className: cn(className, classNames?.trigger),
+    } as const
+
+    const rootProps = {
+      role: 'dialog',
+      style: styles?.root,
+      className: classNames?.root,
+      'aria-modal': true,
+      'aria-labelledby': title ? titleId : undefined,
+      'aria-describedby': description ? descriptionId : undefined,
+    } as const
+
+    const overlayProps = {
+      type: 'button',
+      style: styles?.overlay,
+      className: classNames?.overlay,
+      onClick: (event: MouseEvent<HTMLButtonElement>) =>
+        setInternalOpenHandler(false, event),
+      'aria-hidden': true,
+      'data-overlay': true,
+      tabIndex: -1,
+    } as const
+
+    const headerProps = {
+      style: styles?.header,
+      className: classNames?.header,
+    } as const
+
+    const closeButtonProps = {
+      type: 'button',
+      onClick: (event: MouseEvent<HTMLButtonElement>) =>
+        setInternalOpenHandler(false, event),
+      style: styles?.closeButton,
+      className: classNames?.closeButton,
+    } as const
+
+    const titleProps = {
+      id: titleId,
+      style: styles?.title,
+      className: classNames?.title,
+    } as const
+
+    const descriptionProps = {
+      id: descriptionId,
+      style: styles?.description,
+      className: classNames?.description,
     } as const
 
     useEffect(() => {
@@ -95,46 +152,47 @@ export const Dialog = forwardRef<DialogTriggerRef, DialogProps>(
 
     return (
       <>
-        <button {...buttonProps}>{children}</button>
+        <button {...triggerProps}>{children}</button>
 
         <Portal>
           {open && (
             <div>
-              <button
-                type='button'
-                style={mergeObjects({ position: 'absolute' }, styles?.overlay)}
-                onClick={event => setInternalOpenHandler(false, event)}
-                data-overlay
-              />
+              <button {...overlayProps} />
 
-              <div
-                role='dialog'
-                aria-modal
-                aria-labelledby={title ? titleId : undefined}
-                aria-describedby={description ? descriptionId : undefined}
-              >
-                <div>
-                  {title && <h2 id={titleId}>{title}</h2>}
+              <div {...rootProps}>
+                <div {...headerProps}>
+                  {title && <h2 {...titleProps}>{title}</h2>}
 
                   {closeButton && (
                     <>
                       {typeof closeButton === 'function' &&
                         closeButton({
-                          buttonProps: {
-                            type: 'button',
-                            onClick: event =>
-                              setInternalOpenHandler(false, event),
-                          },
+                          buttonProps: closeButtonProps,
                         })}
 
                       {typeof closeButton !== 'function' && (
-                        <button type='button'>closeButton</button>
+                        <button {...closeButtonProps}>{closeButton}</button>
                       )}
                     </>
                   )}
                 </div>
-                {description && <p id={descriptionId}>{description}</p>}
-                {content}
+
+                {description && <p {...descriptionProps}>{description}</p>}
+
+                {content && (
+                  <>
+                    {typeof content === 'function' &&
+                      content({
+                        state: { open },
+                        actions: {
+                          open: () => setInternalOpenHandler(true),
+                          close: () => setInternalOpenHandler(false),
+                        },
+                      })}
+
+                    {typeof content !== 'function' && content}
+                  </>
+                )}
               </div>
             </div>
           )}
