@@ -250,22 +250,35 @@ function App() {
             {
               element: 'Settings',
               panel: <div>User settings</div>,
-              elementProps: { onClick: event => event.preventDefault() },
+              elementProps: {
+                onClick: event => event.preventDefault(),
+                disabled: true,
+                className: 'test1'
+              },
             },
             {
               element: 'Account information',
               panel: <>Account information</>,
+              elementProps: {
+                className: 'test2'
+              },
             },
             {
               element: 'My orders',
               panel: <div>User orders</div>,
+              elementProps: {
+                disabled: true,
+                className: 'test3'
+              },
             },
           ]}
+          defaultTab={2}
           classNames={{
             root: cn(classes['tabs-root-vertical']),
             element: {
               default: classes['tabs-element'],
               selected: classes['tabs-element-selected'],
+              disabled: classes['tabs-element-disabled']
             },
             panel: classes['tabs-panel'],
             tablist: classes['tabs-tablist-vertical'],

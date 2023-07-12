@@ -127,8 +127,10 @@
   background: blue;
 }
 
-.tabs-element:disabled {
+.tabs-element-disabled {
   cursor: not-allowed;
+  background: gray;
+  
 }
 
 .tabs-panel {

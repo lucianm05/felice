@@ -41,7 +41,7 @@ export const getStyles = (
     styles,
     getIsRadioButtonStyleRelative(styles)
       ? mergeObjects(
-          disabled
+          disabled && styles?.disabled
             ? styles?.disabled
             : checked
             ? styles?.checked
@@ -61,7 +61,7 @@ export const getClassNames = (
   return getIsRadioButtonClassNamesRelative(classNames)
     ? cn(
         classNames?.default,
-        disabled
+        disabled && classNames.disabled
           ? classNames.disabled
           : checked
           ? classNames?.checked
