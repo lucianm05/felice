@@ -1,36 +1,30 @@
 import {
-  AccordionIndicator,
-  AccordionItemStyleable,
-  AccordionRelativeIndicator,
-  AccordionRelativeIndicatorStyleable,
+  AccordionIndicatorClassNames,
+  AccordionIndicatorRelativeClassNames,
+  AccordionIndicatorRelativeStyles,
+  AccordionIndicatorStyles,
 } from '@lib/components/accordion/types'
-import { CSSProperties } from 'react'
-
-export const getIsIndicatorRelative = (
-  indicator?: AccordionIndicator
-): indicator is AccordionRelativeIndicator => {
-  if (!indicator) return false
-
-  const relativeIndicator = indicator as AccordionRelativeIndicator
-
-  return Boolean(
-    typeof indicator === 'object' &&
-      relativeIndicator.expanded &&
-      relativeIndicator.collapsed
-  )
-}
 
 export const getIsIndicatorStylesRelative = (
-  style?: AccordionItemStyleable<CSSProperties>['indicator']
-): style is AccordionRelativeIndicatorStyleable<CSSProperties> => {
-  if (!style) return false
+  styles?: AccordionIndicatorStyles
+): styles is AccordionIndicatorRelativeStyles => {
+  if (!styles) return false
 
-  const relativeStyleable =
-    style as AccordionRelativeIndicatorStyleable<CSSProperties>
+  const relativeStyles = styles as AccordionIndicatorRelativeStyles
+
+  return Boolean(relativeStyles?.collapsed || relativeStyles?.expanded)
+}
+
+export const getIsIndicatorClassNamesRelative = (
+  classNames?: AccordionIndicatorClassNames
+): classNames is AccordionIndicatorRelativeClassNames => {
+  if (!classNames) return false
+
+  const relativeClassNames = classNames as AccordionIndicatorRelativeClassNames
 
   return Boolean(
-    relativeStyleable?.default ||
-      relativeStyleable?.collapsed ||
-      relativeStyleable?.expanded
+    relativeClassNames?.default ||
+      relativeClassNames?.collapsed ||
+      relativeClassNames?.expanded
   )
 }

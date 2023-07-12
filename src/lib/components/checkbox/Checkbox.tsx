@@ -1,5 +1,5 @@
 import {
-  CheckboxClassName,
+  CheckboxClassNames,
   CheckboxIndicator,
   CheckboxStyle,
   CheckboxStyleable,
@@ -28,7 +28,7 @@ export interface CheckboxProps
   onCheckedChanged?: (value: boolean) => void
   indicator?: CheckboxIndicator
   styles?: CheckboxStyleable<CSSProperties, CheckboxStyle>
-  classNames?: CheckboxStyleable<string, CheckboxClassName>
+  classNames?: CheckboxStyleable<string, CheckboxClassNames>
 }
 
 export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(

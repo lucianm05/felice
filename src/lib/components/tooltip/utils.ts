@@ -100,7 +100,7 @@ export const getFinalTooltipSide = (
   )
 
   const hasEnoughSpace = getHasEnoughSpace(containerRef, initialPosition)
-  console.log(hasEnoughSpace)
+  
   if (!hasEnoughSpace || hasEnoughSpace[side]) return side
 
   const firstAvailableSide = Object.entries(hasEnoughSpace).find(

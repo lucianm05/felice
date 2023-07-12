@@ -82,7 +82,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
     const internalRef = useRef<DialogRef>(null)
 
     useImperativeHandle<DialogRef, DialogRef>(ref, () => internalRef.current, [
-      internalRef.current,
+      open,
     ])
 
     const titleId = useId()

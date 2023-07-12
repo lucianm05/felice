@@ -13,10 +13,10 @@ export interface CheckboxRelative<T> {
 export type CheckboxRelativeStyle = CheckboxRelative<CSSProperties>
 export type CheckboxStyle = CSSProperties | CheckboxRelativeStyle
 
-export interface CheckboxRelativeClassName extends CheckboxRelative<string> {
+export interface CheckboxRelativeClassNames extends CheckboxRelative<string> {
   default?: string
 }
-export type CheckboxClassName = string | CheckboxRelativeClassName
+export type CheckboxClassNames = string | CheckboxRelativeClassNames
 
 export type CheckboxRelativeIndicator = CheckboxRelative<ReactNode>
 export type CheckboxIndicator = CheckboxRelativeIndicator | Omit<ReactNode, ''>

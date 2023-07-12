@@ -1,31 +1,57 @@
-import { ReactNode } from 'react'
+import { CSSProperties, ReactNode } from 'react'
+
+export type AccordionRef = HTMLDivElement | null
+
+interface AccordionItemState {
+  expanded: boolean
+}
 
 export interface AccordionItem {
   header: ReactNode
   content: ReactNode
 }
 
-export interface AccordionItemStyleable<T> {
+export interface AccordionItemStyleable<T, R> {
   item?: T
   header?: T
   trigger?: T
   content?: T
-  indicator?: T | AccordionRelativeIndicatorStyleable<T>
+  indicator?: R
 }
 
-export interface AccordionStyleable<T> extends AccordionItemStyleable<T> {
+export interface AccordionStyleable<T, R> extends AccordionItemStyleable<T, R> {
   root?: T
 }
 
-export interface AccordionRelativeIndicatorStyleable<T> {
-  default?: T
+export interface AccordionIndicatorRelative<T> {
   expanded?: T
   collapsed?: T
 }
-export type AccordionRelativeIndicator = {
-  expanded: ReactNode
-  collapsed: ReactNode
+
+export type AccordionIndicatorRelativeStyles =
+  AccordionIndicatorRelative<CSSProperties>
+export type AccordionIndicatorStyles =
+  | CSSProperties
+  | AccordionIndicatorRelativeStyles
+
+export interface AccordionIndicatorRelativeClassNames
+  extends AccordionIndicatorRelative<string> {
+  default?: string
+}
+export type AccordionIndicatorClassNames =
+  | string
+  | AccordionIndicatorRelativeClassNames
+
+interface AccordionIndicatorRenderProps {
+  className?: string
+  styles?: CSSProperties
+  'aria-hidden': true
+  'data-expanded': boolean
+}
+interface AccordionIndicatorRenderParams {
+  state: AccordionItemState
+  indicatorProps: AccordionIndicatorRenderProps
 }
 export type AccordionIndicator =
-  | AccordionRelativeIndicator
-  | Omit<ReactNode, ''>
+  | ReactNode
+  | ((params: AccordionIndicatorRenderParams) => ReactNode)

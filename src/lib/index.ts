@@ -12,10 +12,10 @@ export { Accordion } from './components/accordion'
 /** Checkbox */
 
 export type {
-  CheckboxClassName,
+  CheckboxClassNames,
   CheckboxIndicator,
   CheckboxProps,
-  CheckboxRelativeClassName,
+  CheckboxRelativeClassNames,
   CheckboxRelativeIndicator,
   CheckboxRelativeStyle,
   CheckboxStyle,
@@ -130,6 +130,7 @@ export type {
   TooltipStyles,
   TooltipTriggerProps,
   TooltipTriggerRef,
+  TooltipStyleable,
 } from './components/tooltip'
 
 export { Tooltip } from './components/tooltip'

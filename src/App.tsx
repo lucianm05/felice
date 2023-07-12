@@ -12,7 +12,7 @@ import { Tabs } from '@lib/components/tabs/Tabs'
 import { Tooltip } from '@lib/components/tooltip/Tooltip'
 import { TooltipTriggerRef } from '@lib/components/tooltip/types'
 import { cn } from '@lib/utils'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import classes from './test.module.css'
 
 function App() {
@@ -30,10 +30,6 @@ function App() {
   const tooltipRef = useRef<TooltipTriggerRef>(null)
 
   const dialogRef = useRef<DialogRef>(null)
-
-  useEffect(() => {
-    console.log(dialogRef)
-  }, [dialogRef])
 
   return (
     <div className='App'>
@@ -76,7 +72,7 @@ function App() {
             header: 'Test single accordion',
             content: 'This is a single accordion',
           }}
-          indicator={<span>^</span>}
+          indicator={({ indicatorProps }) => <span {...indicatorProps}>^</span>}
           styles={{
             indicator: {
               collapsed: {
@@ -84,6 +80,7 @@ function App() {
               },
             },
           }}
+          value={[0]}
         />
 
         <Accordion
@@ -253,14 +250,14 @@ function App() {
               elementProps: {
                 onClick: event => event.preventDefault(),
                 disabled: true,
-                className: 'test1'
+                className: 'test1',
               },
             },
             {
               element: 'Account information',
               panel: <>Account information</>,
               elementProps: {
-                className: 'test2'
+                className: 'test2',
               },
             },
             {
@@ -268,7 +265,7 @@ function App() {
               panel: <div>User orders</div>,
               elementProps: {
                 disabled: true,
-                className: 'test3'
+                className: 'test3',
               },
             },
           ]}
@@ -278,7 +275,7 @@ function App() {
             element: {
               default: classes['tabs-element'],
               selected: classes['tabs-element-selected'],
-              disabled: classes['tabs-element-disabled']
+              disabled: classes['tabs-element-disabled'],
             },
             panel: classes['tabs-panel'],
             tablist: classes['tabs-tablist-vertical'],
@@ -369,9 +366,11 @@ function App() {
           <Tooltip
             ref={tooltipRef}
             content={<>My tooltip with custom trigger</>}
+            open
             side='bottom'
             classNames={{
               content: classes['tooltip-content'],
+              container: classes['tooltip-container'],
             }}
           >
             {({ triggerProps, state: { open } }) => {
