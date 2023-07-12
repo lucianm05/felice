@@ -19,6 +19,9 @@ export const Portal = ({ children }: PropsWithChildren) => {
   if (!container) {
     container = document.createElement('div')
     container.setAttribute('id', 'felice-portal')
+    container.style.position = 'fixed'
+    container.style.top = '0'
+    container.style.left = '0'
     document.body.appendChild(container)
   }
 

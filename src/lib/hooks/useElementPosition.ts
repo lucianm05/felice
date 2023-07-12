@@ -1,9 +1,9 @@
-import { MutableRefObject } from "react";
+import { MutableRefObject } from 'react'
 
-const useElementPosition = (ref?: MutableRefObject<HTMLElement | null>) => {
-  if (!ref?.current) return null;
+export const useElementPosition = (
+  ref?: MutableRefObject<HTMLElement | null>
+) => {
+  if (!ref?.current) return null
 
-  return ref.current.getBoundingClientRect();
-};
-
-export default useElementPosition;
+  return ref.current.getBoundingClientRect()
+}

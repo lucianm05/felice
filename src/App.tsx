@@ -1,17 +1,19 @@
 import { Accordion } from '@lib/components/accordion/Accordion'
 import { Checkbox } from '@lib/components/checkbox/Checkbox'
+import { Dialog } from '@lib/components/dialog/Dialog'
+import { DialogRef } from '@lib/components/dialog/types'
 import { Progress } from '@lib/components/progress/Progress'
+import { RadioGroup } from '@lib/components/radio-group/RadioGroup'
 import { Select } from '@lib/components/select/Select'
 import { Slider } from '@lib/components/slider/Slider'
 import { SliderValue } from '@lib/components/slider/types'
 import { Switch } from '@lib/components/switch/Switch'
 import { Tabs } from '@lib/components/tabs/Tabs'
-import { useEffect, useRef, useState } from 'react'
-import classes from './test.module.css'
-import { cn } from '@lib/utils'
-import { RadioGroup } from '@lib/components/radio-group/RadioGroup'
 import { Tooltip } from '@lib/components/tooltip/Tooltip'
 import { TooltipTriggerRef } from '@lib/components/tooltip/types'
+import { cn } from '@lib/utils'
+import { useEffect, useRef, useState } from 'react'
+import classes from './test.module.css'
 
 function App() {
   const [switchChecked, setSwitchChecked] = useState(true)
@@ -27,6 +29,12 @@ function App() {
 
   const tooltipRef = useRef<TooltipTriggerRef>(null)
 
+  const dialogRef = useRef<DialogRef>(null)
+
+  useEffect(() => {
+    console.log(dialogRef)
+  }, [dialogRef])
+
   return (
     <div className='App'>
       <div
@@ -37,7 +45,7 @@ function App() {
           // margin: '16px 0',
         }}
       >
-        {/* <Select
+        <Select
           label='Preferred social media'
           data={[
             { label: 'Facebook', value: 'facebook' },
@@ -61,9 +69,9 @@ function App() {
               color: 'blue',
             },
           }}
-        /> */}
+        />
 
-        {/* <Accordion
+        <Accordion
           data={{
             header: 'Test single accordion',
             content: 'This is a single accordion',
@@ -89,11 +97,11 @@ function App() {
               content: 'This is the second accordion',
             },
           ]}
-        /> */}
+        />
 
         {/* <div style={{ marginBottom: '8rem' }}></div> */}
 
-        {/* <Switch
+        <Switch
           label='Marketing e-mails'
           style={{ marginLeft: '5rem' }}
           classNames={{
@@ -109,13 +117,13 @@ function App() {
           }}
           checked={switchChecked}
           onCheckedChange={setSwitchChecked}
-        /> */}
+        />
 
         {/* <button type='button' onClick={() => setChecked(prev => !prev)}>
           change switch
         </button> */}
 
-        {/*  <div
+        <div
           style={{
             marginLeft: '10rem',
             display: 'flex',
@@ -151,9 +159,9 @@ function App() {
             {checkboxChecked && <span>✓</span>}
             {!checkboxChecked && <span>✗</span>}
           </Checkbox>
-        </div> */}
+        </div>
 
-        {/*  <Progress
+        <Progress
           label='Fetching data'
           {...progressValues}
           styles={{
@@ -263,7 +271,7 @@ function App() {
             tablist: classes['tabs-tablist-vertical'],
           }}
           orientation='vertical'
-        /> */}
+        />
 
         <RadioGroup
           label='Select payment method'
@@ -362,6 +370,83 @@ function App() {
             }}
           </Tooltip>
         </div>
+
+        <Dialog
+          ref={dialogRef}
+          classNames={{
+            root: classes['dialog'],
+            header: classes['dialog__header'],
+            overlay: classes['dialog__overlay'],
+            title: classes['dialog__title'],
+            description: classes['dialog__description'],
+            closeButton: classes['dialog__close-button'],
+            trigger: classes['dialog__trigger'],
+          }}
+          title='Add your shipping info'
+          description='Fill the details below to proceed with your order'
+          closeButton={'X'}
+          content={({ actions }) => (
+            <form className={classes['dialog__content']}>
+              <input type='text' placeholder='Full name' name='name' />
+
+              <input type='text' placeholder='Address' name='address' />
+
+              <input type='text' placeholder='City' name='city' />
+
+              <button
+                type='submit'
+                onClick={event => {
+                  event.preventDefault()
+                  actions.close()
+                }}
+              >
+                Save Address
+              </button>
+            </form>
+          )}
+          // render={({
+          //   descriptionProps,
+          //   rootProps,
+          //   titleProps,
+          //   overlayProps,
+          //   actions,
+          // }) => (
+          //   <>
+          //     <button {...overlayProps}></button>
+          //     <div {...rootProps}>
+          //       <h2 {...titleProps}>My own dialog</h2>
+
+          //       <p {...descriptionProps}>My own description</p>
+
+          //       <form className={classes['dialog__content']}>
+          //         <input type='text' placeholder='Full name' name='name' />
+
+          //         <input type='text' placeholder='Address' name='address' />
+
+          //         <input type='text' placeholder='City' name='city' />
+
+          //         <button
+          //           type='submit'
+          //           onClick={event => {
+          //             event.preventDefault()
+          //             actions.close()
+          //           }}
+          //         >
+          //           Save Address
+          //         </button>
+          //       </form>
+          //     </div>
+          //   </>
+          // )}
+        >
+          {/* Add your shipping info */}
+          {({ state, triggerProps }) => (
+            <button {...triggerProps}>
+              {state.open && 'Adding shipping info...'}
+              {!state.open && 'Add your shipping info'}
+            </button>
+          )}
+        </Dialog>
       </div>
     </div>
   )
