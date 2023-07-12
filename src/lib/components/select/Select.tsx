@@ -1,6 +1,6 @@
 import { Portal } from '@lib/components/portal/Portal'
 import { keys } from '@lib/constants/keys'
-import useElementPosition from '@lib/hooks/useElementPosition'
+import { useElementPosition } from '@lib/hooks/useElementPosition'
 import { cn, isDefined } from '@lib/utils'
 import {
   CSSProperties,
@@ -177,6 +177,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
 
       switch (code) {
         case keys.arrowDown: {
+          event.preventDefault()
+
           if (!internalOpen) {
             setInternalOpenHandler(true)
             return
@@ -196,6 +198,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         }
 
         case keys.arrowUp: {
+          event.preventDefault()
+
           if (altKey) {
             if (internalIndex) setInternalOptionValue(internalIndex)
             setInternalOpenHandler(false)
@@ -239,12 +243,16 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         }
 
         case keys.home: {
+          event.preventDefault()
+
           if (!internalOpen) setInternalOpenHandler(true)
           setInternalIndex(0)
           return
         }
 
         case keys.end: {
+          event.preventDefault()
+
           if (!internalOpen) setInternalOpenHandler(true)
           setInternalIndex(maxIndex)
           return
@@ -257,6 +265,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
 
         case keys.pageUp: {
           if (!internalOpen) return
+
+          event.preventDefault()
 
           if (!isDefined(internalIndex)) {
             setInternalIndex(0)
@@ -275,6 +285,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
 
         case keys.pageDown: {
           if (!internalOpen) return
+
+          event.preventDefault()
 
           if (!isDefined(internalIndex)) {
             setInternalIndex(0)

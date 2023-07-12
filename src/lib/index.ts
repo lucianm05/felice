@@ -23,6 +23,23 @@ export type {
 
 export { Checkbox } from './components/checkbox'
 
+/** Dialog */
+
+export type {
+  DialogChildren,
+  DialogClassNames,
+  DialogCloseButton,
+  DialogContent,
+  DialogProps,
+  DialogRef,
+  DialogRenderFunction,
+  DialogStyleable,
+  DialogStyles,
+  DialogTriggerRef,
+} from './components/dialog'
+
+export { Dialog } from './components/dialog'
+
 /** Portal */
 
 export { Portal } from './components/portal'
