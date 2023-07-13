@@ -164,13 +164,16 @@ function App() {
           <Checkbox
             label='Terms and conditions'
             classNames={{
+              root: classes['checkbox-root'],
               checkbox: {
                 default: classes['checkbox'],
                 checked: classes['checkbox-checked'],
                 unchecked: classes['checkbox-unchecked'],
+                disabled: classes['checkbox-disabled'],
               },
             }}
-            indicator={{ checked: <span>✓</span>, unchecked: <span>✗</span> }}
+            indicator={({ state }) => <span>{state.checked ? '✓' : '✗'}</span>}
+            disabled
           />
 
           <Checkbox

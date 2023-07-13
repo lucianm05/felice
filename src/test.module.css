@@ -55,6 +55,10 @@
   transform: translateX(calc(100% - 0.25rem));
 }
 
+.checkbox-root[data-disabled='true'] {
+  opacity: 0.5;
+}
+
 .checkbox {
   width: 1.5rem;
   height: 1.5rem;
@@ -69,6 +73,11 @@
 
 .checkbox-unchecked {
   background: gray;
+}
+
+.checkbox-disabled {
+  background-color: darkslateblue;
+  cursor: not-allowed;
 }
 
 .slider-root {

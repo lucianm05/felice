@@ -1,22 +1,10 @@
 import {
   CheckboxClassNames,
-  CheckboxIndicator,
   CheckboxRelativeClassNames,
-  CheckboxRelativeIndicator,
   CheckboxRelativeStyle,
   CheckboxStyle,
 } from '@lib/components/checkbox/types'
 import { cn, mergeObjects } from '@lib/utils'
-
-export const getIsIndicatorRelative = (
-  indicator?: CheckboxIndicator
-): indicator is CheckboxRelativeIndicator => {
-  if (!indicator) return false
-
-  const relativeIndicator = indicator as CheckboxRelativeIndicator
-
-  return Boolean(relativeIndicator?.checked || relativeIndicator?.unchecked)
-}
 
 export const getIsStyleRelative = (
   style?: CheckboxStyle
@@ -42,11 +30,17 @@ export const getIsClassNamesRelative = (
   )
 }
 
-export const getStyles = (style?: CheckboxStyle, checked?: boolean) => {
+export const getStyles = (
+  style?: CheckboxStyle,
+  checked?: boolean,
+  disabled?: boolean
+) => {
   return mergeObjects(
     style,
     getIsStyleRelative(style)
-      ? checked
+      ? disabled && style?.disabled
+        ? style.disabled
+        : checked
         ? style?.checked
         : style?.unchecked
       : undefined
@@ -55,12 +49,17 @@ export const getStyles = (style?: CheckboxStyle, checked?: boolean) => {
 
 export const getClassNames = (
   className?: CheckboxClassNames,
-  checked?: boolean
+  checked?: boolean,
+  disabled?: boolean
 ) => {
   return getIsClassNamesRelative(className)
     ? cn(
         className?.default,
-        checked ? className?.checked : className?.unchecked
+        disabled && className?.disabled
+          ? className.disabled
+          : checked
+          ? className?.checked
+          : className?.unchecked
       )
     : className
 }

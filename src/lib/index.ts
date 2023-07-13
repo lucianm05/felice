@@ -4,7 +4,17 @@ export type {
   AccordionIndicator,
   AccordionItem,
   AccordionProps,
-  AccordionRelativeIndicator,
+  AccordionItemClassNames,
+  AccordionItemRelative,
+  AccordionItemRelativeClassNames,
+  AccordionItemRelativeStyles,
+  AccordionItemRenderFunction,
+  AccordionItemStyleable,
+  AccordionItemStyles,
+  AccordionRef,
+  AccordionStyleable,
+  AccordionItemState,
+  AccordionType,
 } from './components/accordion'
 
 export { Accordion } from './components/accordion'

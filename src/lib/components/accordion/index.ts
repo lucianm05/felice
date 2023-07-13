@@ -11,6 +11,8 @@ import {
   AccordionItemStyles,
   AccordionRef,
   AccordionStyleable,
+  AccordionItemState,
+  AccordionType,
 } from './types'
 
 export type {
@@ -26,6 +28,8 @@ export type {
   AccordionItemStyles,
   AccordionRef,
   AccordionStyleable,
+  AccordionItemState,
+  AccordionType,
 }
 
 export { Accordion }

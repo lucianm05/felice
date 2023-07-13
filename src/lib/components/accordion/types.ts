@@ -3,7 +3,7 @@ import { CSSProperties, MouseEvent, ReactNode } from 'react'
 
 export type AccordionRef = HTMLDivElement | null
 
-interface AccordionItemState {
+export interface AccordionItemState {
   expanded: boolean
 }
 
@@ -46,9 +46,9 @@ export interface AccordionItemRelativeClassNames
 }
 export type AccordionItemClassNames = string | AccordionItemRelativeClassNames
 
-interface AccordionIndicatorRenderProps extends AccordionItemDataAttributes {
-  className?: string
-  styles?: CSSProperties
+interface AccordionIndicatorRenderProps
+  extends CommonRenderParams,
+    AccordionItemDataAttributes {
   'aria-hidden': true
 }
 interface AccordionIndicatorRenderParams {
