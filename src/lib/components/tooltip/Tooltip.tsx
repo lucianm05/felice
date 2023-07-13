@@ -264,7 +264,7 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
                 containerRef.current = ref
               }}
               style={{
-                position: 'absolute',
+                position: 'fixed',
                 width: 'max-content',
                 ...(styles?.container || {}),
               }}

@@ -1,7 +1,13 @@
 import { Portal } from '@lib/components/portal/Portal'
+import {
+  getIsOptionClassNamesRelative,
+  getIsOptionStylesRelative,
+  getIsVisibilityStylesRelative,
+  getIsVisiblityClassNamesRelative,
+} from '@lib/components/select/utils'
 import { keys } from '@lib/constants/keys'
 import { useElementPosition } from '@lib/hooks/useElementPosition'
-import { cn, isDefined } from '@lib/utils'
+import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
   CSSProperties,
   Fragment,
@@ -13,8 +19,14 @@ import {
   useRef,
   useState,
 } from 'react'
-import classes from './Select.module.css'
-import { SelectOption, SelectStyleable } from './types'
+import {
+  SelectOption,
+  SelectOptionClassNames,
+  SelectOptionStyles,
+  SelectStyleable,
+  SelectVisibilityClassNames,
+  SelectVisibilityStyles,
+} from './types'
 
 export interface SelectTriggerProps
   extends Pick<
@@ -52,13 +64,20 @@ export interface SelectOptionProps
       >
     > {}
 
-export interface SelectProps {
+export interface SelectProps extends Omit<HTMLProps<HTMLDivElement>, 'data'> {
   label: string
   data: SelectOption[]
-  id?: string
   placeholder?: string
-  classNames?: SelectStyleable<string>
-  styles?: SelectStyleable<CSSProperties>
+  styles?: SelectStyleable<
+    CSSProperties,
+    SelectOptionStyles,
+    SelectVisibilityStyles
+  >
+  classNames?: SelectStyleable<
+    string,
+    SelectOptionClassNames,
+    SelectVisibilityClassNames
+  >
   renderTrigger?: (
     props: SelectTriggerProps,
     selectedOption?: SelectOption
@@ -68,10 +87,12 @@ export interface SelectProps {
     option: SelectOption,
     index: number
   ) => JSX.IntrinsicElements['li']
+  defaultOpen?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
-  selectedOption?: SelectOption
-  onOptionChange?: (option: SelectOption) => void
+  defaultValue?: string
+  value?: string
+  onValueChange?: (option: SelectOption) => void
 }
 
 export const Select = forwardRef<HTMLDivElement, SelectProps>(
@@ -81,23 +102,39 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       data,
       label,
       placeholder,
-      classNames,
+      style,
       styles,
+      className,
+      classNames,
       renderTrigger,
       renderOption,
-      open = false,
+      defaultOpen = false,
+      open: externalOpen,
       onOpenChange,
-      selectedOption,
-      onOptionChange,
+      defaultValue,
+      value: externalValue,
+      onValueChange,
+      ...props
     },
     ref
   ) => {
+    // Used for accessibility reasons (setting activedescendant)
     const [internalIndex, setInternalIndex] = useState<number | undefined>()
-    const [internalOption, setInternalOption] = useState<
-      SelectOption | undefined
-    >(selectedOption)
-    const [internalOpen, setInternalOpen] = useState(open)
+    const [internalValue, setInternalValue] = useState<string | undefined>(
+      () => {
+        if (isDefined(externalValue)) return externalValue
+        return defaultValue
+      }
+    )
+    const [internalOpen, setInternalOpen] = useState(() => {
+      if (isDefined(externalOpen)) return externalOpen
+      return defaultOpen
+    })
     const [internalSearch, setInternalSearch] = useState('')
+    
+    const open = isDefined(externalOpen) ? externalOpen : internalOpen
+    const value = isDefined(externalValue) ? externalValue : internalValue
+
     const ignoreBlur = useRef(false)
 
     const triggerRef = useRef<HTMLButtonElement | null>(null)
@@ -119,25 +156,21 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       },
     }
 
-    const clearSearchTimeout = useRef<any | null>(null)
+    const clearSearchTimeout = useRef<ReturnType<typeof setTimeout>>()
 
-    const setInternalOpenHandler = useCallback(
-      (open: boolean) => {
-        setInternalOpen(open)
-        onOpenChange?.(open)
-      },
-      [onOpenChange]
-    )
+    const setInternalOpenHandler = (open: boolean) => {
+      setInternalOpen(open)
+      onOpenChange?.(open)
+    }
 
-    const setInternalOptionValue = useCallback(
-      (index: number) => {
-        const newOption = data[index]
-        setInternalOption(newOption)
-        onOptionChange?.(newOption)
-        setInternalOpenHandler(false)
-      },
-      [data, onOptionChange, setInternalOpenHandler]
-    )
+    const setInternalOptionValue = (index: number) => {
+      const newOption = data[index]
+      // setInternalOption(newOption)
+      setInternalValue(newOption.value)
+      // onOptionChange?.(newOption)
+      onValueChange?.(newOption)
+      setInternalOpenHandler(false)
+    }
 
     const setInternalIndexAfterSearch = useCallback((index?: number) => {
       setInternalIndex(index)
@@ -148,20 +181,24 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       }, 500)
     }, [])
 
-    const reset = useCallback(() => {
+    const reset = () => {
       setInternalOpenHandler(false)
-      const idx = data.findIndex(i => i.value === internalOption?.value)
+      const idx = data.findIndex(i => i.value === value)
       setInternalIndex(idx < 0 ? undefined : idx)
-    }, [data, internalOption, setInternalOpenHandler])
+    }
 
-    const onBlur = useCallback(() => {
+    const getCurrentOption = () => {
+      return data?.find(option => option.value === value)
+    }
+
+    const onBlur = () => {
       if (ignoreBlur.current) {
         ignoreBlur.current = false
         return
       }
 
       reset()
-    }, [reset])
+    }
 
     const onClick = () => {
       if (ignoreBlur.current) {
@@ -309,6 +346,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
           // Clearing timeout so multiple letters can be typed
           if (clearSearchTimeout.current) {
             clearTimeout(clearSearchTimeout.current)
+            clearSearchTimeout.current = undefined
           }
 
           setInternalOpenHandler(true)
@@ -380,13 +418,21 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       setInternalIndex(index)
     }
 
-    const onOptionClick = useCallback(
-      (index: number) => {
-        setInternalIndex(index)
-        setInternalOptionValue(index)
-      },
-      [setInternalOptionValue]
-    )
+    const onOptionClick = (index: number) => {
+      setInternalIndex(index)
+      setInternalOptionValue(index)
+    }
+
+    const getListPosition = (): CSSProperties => {
+      return {
+        position: 'absolute',
+        left: (open && triggerPosition?.left) || undefined,
+        top:
+          open && triggerPosition
+            ? `${triggerPosition.top + triggerPosition.height}px`
+            : undefined,
+      }
+    }
 
     const triggerProps: SelectTriggerProps = {
       id: ids.trigger,
@@ -401,41 +447,60 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       'aria-haspopup': 'listbox',
       'aria-labelledby': ids.label,
       'aria-activedescendant': ids.getOption(internalIndex) || undefined,
-      'aria-label': internalOption?.label,
-      className: classNames?.trigger,
-      style: styles?.trigger,
+      'aria-label': getCurrentOption()?.label,
+      className: getIsVisiblityClassNamesRelative(classNames?.trigger)
+        ? cn(
+            classNames?.trigger?.default,
+            open ? classNames?.trigger?.open : classNames?.trigger?.closed
+          )
+        : classNames?.trigger,
+      style: getIsVisibilityStylesRelative(styles?.trigger)
+        ? mergeObjects(
+            styles?.trigger,
+            open ? styles?.trigger?.open : styles?.trigger?.closed
+          )
+        : styles?.trigger,
     }
 
     const getListItemProps = (
-      { value }: SelectOption,
+      { value: optionValue }: SelectOption,
       index: number
     ): SelectOptionProps => {
       const isActive = internalIndex === index
-      const isSelected = internalOption?.value === value
+      const isSelected = optionValue === value
 
       return {
         id: ids.getOption(index),
         role: 'option',
         tabIndex: -1,
-        'aria-selected': value === internalOption?.value,
+        'aria-selected': isSelected,
         onClick: () => onOptionClick(index),
         onMouseDown: onOptionMouseDown,
         onMouseEnter: () => onOptionMouseEnter(index),
-        className: cn(
-          classNames?.option,
-          isActive && classNames?.activeOption,
-          isSelected && classNames?.selectedOption
-        ),
-        style: {
-          ...styles?.option,
-          ...(isActive ? styles?.activeOption : {}),
-          ...(isSelected ? styles?.selectedOption : {}),
-        },
+        className: getIsOptionClassNamesRelative(classNames?.option)
+          ? cn(
+              classNames?.option?.default,
+              isSelected && classNames?.option?.selected,
+              isActive && classNames?.option?.active
+            )
+          : classNames?.option,
+        style: getIsOptionStylesRelative(styles?.option)
+          ? mergeObjects(
+              styles?.option,
+              isSelected ? styles?.option?.selected : undefined,
+              isActive ? styles?.option?.active : undefined
+            )
+          : styles?.option,
       }
     }
 
     return (
-      <div ref={ref} className={classNames?.root} style={styles?.root}>
+      <div
+        {...props}
+        ref={ref}
+        style={mergeObjects(style, styles?.root)}
+        className={cn(className, classNames?.root)}
+      >
         <label
           id={ids.label}
           className={classNames?.label}
@@ -446,57 +511,45 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
 
         {!renderTrigger && (
           <button {...triggerProps}>
-            {internalOption?.label || placeholder}
+            {getCurrentOption()?.label || placeholder}
           </button>
         )}
 
-        {renderTrigger && <>{renderTrigger(triggerProps, internalOption)}</>}
+        {renderTrigger && (
+          <>{renderTrigger(triggerProps, getCurrentOption())}</>
+        )}
 
         <Portal>
-          <ul
-            id={ids.list}
-            role='listbox'
-            tabIndex={-1}
-            className={cn(
-              internalOpen
-                ? classes['felice__select_listbox']
-                : 'felice__sr-only',
-              classNames?.list
-            )}
-            style={{
-              left: (internalOpen && triggerPosition?.left) || undefined,
-              top:
-                internalOpen && triggerPosition
-                  ? `${triggerPosition.top + triggerPosition.height}px`
-                  : undefined,
-              ...styles?.list,
-            }}
-          >
-            {data.map((option, index) => (
-              <Fragment key={option.value}>
-                {!renderOption && (
-                  <li
-                    {...getListItemProps(option, index)}
-                    onMouseEnter={() => {
-                      onOptionMouseEnter(index)
-                    }}
-                  >
-                    {option.label}
-                  </li>
-                )}
+          {open && (
+            <ul
+              id={ids.list}
+              role='listbox'
+              tabIndex={-1}
+              className={classNames?.list}
+              style={{
+                ...getListPosition(),
+                ...styles?.list,
+              }}
+            >
+              {data.map((option, index) => (
+                <Fragment key={option.value}>
+                  {!renderOption && (
+                    <li {...getListItemProps(option, index)}>{option.label}</li>
+                  )}
 
-                {renderOption && (
-                  <>
-                    {renderOption(
-                      getListItemProps(option, index),
-                      option,
-                      index
-                    )}
-                  </>
-                )}
-              </Fragment>
-            ))}
-          </ul>
+                  {renderOption && (
+                    <>
+                      {renderOption(
+                        getListItemProps(option, index),
+                        option,
+                        index
+                      )}
+                    </>
+                  )}
+                </Fragment>
+              ))}
+            </ul>
+          )}
         </Portal>
       </div>
     )

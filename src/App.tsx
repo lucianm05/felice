@@ -57,13 +57,21 @@ function App() {
             root: {
               border: '1px solid red',
               width: 'max-content',
+              marginTop: '5rem',
             },
-            activeOption: {
-              color: 'red',
+            option: {
+              active: {
+                color: 'red',
+              },
+              selected: {
+                color: 'blue',
+              },
             },
-            selectedOption: {
-              color: 'blue',
-            },
+          }}
+          // open
+          defaultValue='twitter'
+          onValueChange={({ value, label }) => {
+            console.log(value, label)
           }}
         />
 
@@ -392,6 +400,8 @@ function App() {
               trigger: classes['tooltip-trigger'],
               content: classes['tooltip-content'],
             }}
+            // open
+            delay={0}
           >
             My tooltip
           </Tooltip>
