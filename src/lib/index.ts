@@ -3,17 +3,17 @@
 export type {
   AccordionIndicator,
   AccordionItem,
-  AccordionProps,
   AccordionItemClassNames,
   AccordionItemRelative,
   AccordionItemRelativeClassNames,
   AccordionItemRelativeStyles,
   AccordionItemRenderFunction,
+  AccordionItemState,
   AccordionItemStyleable,
   AccordionItemStyles,
+  AccordionProps,
   AccordionRef,
   AccordionStyleable,
-  AccordionItemState,
   AccordionType,
 } from './components/accordion'
 
@@ -23,12 +23,11 @@ export { Accordion } from './components/accordion'
 
 export type {
   CheckboxClassNames,
-  CheckboxIndicator,
-  CheckboxProps,
+  CheckboxRelative,
   CheckboxRelativeClassNames,
-  CheckboxRelativeIndicator,
   CheckboxRelativeStyle,
-  CheckboxStyle,
+  CheckboxStyleable,
+  CheckboxStyles,
 } from './components/checkbox'
 
 export { Checkbox } from './components/checkbox'
@@ -59,6 +58,7 @@ export { Portal } from './components/portal'
 export type {
   ProgressClassNames,
   ProgressProps,
+  ProgressStyleable,
   ProgressStyles,
 } from './components/progress'
 
@@ -73,8 +73,10 @@ export type {
   RadioButtonRelativeClassNames,
   RadioButtonRelativeStyles,
   RadioButtonState,
+  RadioButtonStyleable,
   RadioButtonStyles,
   RadioGroupProps,
+  RadioGroupStyleable,
 } from './components/radio-group'
 
 export { RadioGroup } from './components/radio-group'
@@ -96,6 +98,7 @@ export type {
   SliderOrientation,
   SliderProps,
   SliderRef,
+  SliderStyleable,
   SliderValue,
 } from './components/slider'
 
@@ -106,9 +109,11 @@ export { Slider } from './components/slider'
 export type {
   SwitchClassNames,
   SwitchProps,
+  SwitchRelative,
   SwitchRelativeClassNames,
   SwitchRelativeStyle,
   SwitchStyle,
+  SwitchStyleable,
 } from './components/switch'
 
 export { Switch } from './components/switch'
@@ -119,12 +124,16 @@ export type {
   TabElementClassNames,
   TabElementProps,
   TabElementRelativeClassNames,
+  TabElementRelativeStyleable,
   TabElementRelativeStyles,
+  TabElementStyleable,
   TabElementStyles,
   TabItem,
   TabPanelProps,
   TabsClassNames,
   TabsOrientation,
+  TabsProps,
+  TabsStyleable,
   TabsStyles,
 } from './components/tabs'
 
@@ -137,10 +146,20 @@ export type {
   TooltipProps,
   TooltipSide,
   TooltipState,
+  TooltipStyleable,
   TooltipStyles,
   TooltipTriggerProps,
   TooltipTriggerRef,
-  TooltipStyleable,
 } from './components/tooltip'
 
 export { Tooltip } from './components/tooltip'
+
+/** Misc */
+
+export type {
+  CheckableChildren,
+  CheckableState,
+  CommonRenderParams,
+  Orientation,
+  SequenceDirection,
+} from './types'

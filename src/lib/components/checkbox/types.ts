@@ -1,9 +1,4 @@
-import { CSSProperties, ReactNode } from 'react'
-
-export interface CheckboxState {
-  checked: boolean
-  disabled: boolean
-}
+import { CSSProperties } from 'react'
 
 export interface CheckboxStyleable<T, R> {
   root?: R
@@ -17,13 +12,9 @@ export interface CheckboxRelative<T> {
 }
 
 export type CheckboxRelativeStyle = CheckboxRelative<CSSProperties>
-export type CheckboxStyle = CSSProperties | CheckboxRelativeStyle
+export type CheckboxStyles = CSSProperties | CheckboxRelativeStyle
 
 export interface CheckboxRelativeClassNames extends CheckboxRelative<string> {
   default?: string
 }
 export type CheckboxClassNames = string | CheckboxRelativeClassNames
-
-export type CheckboxIndicator =
-  | ReactNode
-  | ((params: { state: CheckboxState }) => ReactNode)

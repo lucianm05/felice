@@ -43,6 +43,12 @@
   background: gray;
 }
 
+.switch-disabled {
+  background-color: midnightblue;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .switch__thumb {
   width: 1rem;
   height: 1rem;

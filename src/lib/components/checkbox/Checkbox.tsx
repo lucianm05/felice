@@ -1,10 +1,10 @@
 import {
   CheckboxClassNames,
-  CheckboxIndicator,
-  CheckboxStyle,
+  CheckboxStyles,
   CheckboxStyleable,
 } from '@lib/components/checkbox/types'
 import { getClassNames, getStyles } from '@lib/components/checkbox/utils'
+import { CheckableChildren } from '@lib/types'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
   CSSProperties,
@@ -16,14 +16,18 @@ import {
 } from 'react'
 
 export interface CheckboxProps
-  extends Omit<HTMLProps<HTMLButtonElement>, 'type' | 'aria-checked' | 'role'> {
+  extends Omit<
+    HTMLProps<HTMLButtonElement>,
+    'type' | 'aria-checked' | 'role' | 'children'
+  > {
+  children?: CheckableChildren
   label: string
   hideLabel?: boolean
   defaultChecked?: boolean
   checked?: boolean
   onCheckedChanged?: (value: boolean) => void
-  indicator?: CheckboxIndicator
-  styles?: CheckboxStyleable<CSSProperties, CheckboxStyle>
+  indicator?: CheckableChildren
+  styles?: CheckboxStyleable<CSSProperties, CheckboxStyles>
   classNames?: CheckboxStyleable<string, CheckboxClassNames>
 }
 
@@ -65,6 +69,11 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
       'data-disabled': disabled,
     }
 
+    const state = {
+      checked,
+      disabled,
+    }
+
     const onClickInternal = (event: MouseEvent<HTMLButtonElement>) => {
       if (disabled) return
 
@@ -104,14 +113,19 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
         >
           {!children && (
             <>
-              {typeof indicator === 'function' &&
-                indicator({ state: { checked, disabled } })}
+              {typeof indicator === 'function' && indicator({ state })}
 
               {typeof indicator !== 'function' && indicator}
             </>
           )}
 
-          {children}
+          {children && (
+            <>
+              {typeof children === 'function' && children({ state })}
+
+              {typeof children !== 'function' && children}
+            </>
+          )}
         </button>
 
         <label

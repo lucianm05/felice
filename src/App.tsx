@@ -138,6 +138,7 @@ function App() {
               default: classes['switch'],
               checked: classes['switch-checked'],
               unchecked: classes['switch-unchecked'],
+              disabled: classes['switch-disabled']
             },
             thumb: {
               default: classes['switch__thumb'],
@@ -146,6 +147,7 @@ function App() {
           }}
           checked={switchChecked}
           onCheckedChange={setSwitchChecked}
+          disabled
         />
 
         {/* <button type='button' onClick={() => setChecked(prev => !prev)}>
@@ -173,7 +175,6 @@ function App() {
               },
             }}
             indicator={({ state }) => <span>{state.checked ? '✓' : '✗'}</span>}
-            disabled
           />
 
           <Checkbox
@@ -185,11 +186,8 @@ function App() {
                 unchecked: classes['checkbox-unchecked'],
               },
             }}
-            checked={checkboxChecked}
-            onCheckedChanged={setCheckboxChecked}
           >
-            {checkboxChecked && <span>✓</span>}
-            {!checkboxChecked && <span>✗</span>}
+            {({ state: { checked } }) => <span>{checked ? '✓' : '✗'}</span>}
           </Checkbox>
         </div>
 

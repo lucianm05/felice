@@ -2,18 +2,22 @@ import {
   CheckboxClassNames,
   CheckboxRelativeClassNames,
   CheckboxRelativeStyle,
-  CheckboxStyle,
+  CheckboxStyles,
 } from '@lib/components/checkbox/types'
 import { cn, mergeObjects } from '@lib/utils'
 
 export const getIsStyleRelative = (
-  style?: CheckboxStyle
+  style?: CheckboxStyles
 ): style is CheckboxRelativeStyle => {
   if (!style) return false
 
   const relativeStyle = style as CheckboxRelativeStyle
 
-  return Boolean(relativeStyle?.checked || relativeStyle?.unchecked)
+  return Boolean(
+    relativeStyle?.checked ||
+      relativeStyle?.unchecked ||
+      relativeStyle?.disabled
+  )
 }
 
 export const getIsClassNamesRelative = (
@@ -26,40 +30,37 @@ export const getIsClassNamesRelative = (
   return Boolean(
     relativeClassName?.default ||
       relativeClassName?.checked ||
-      relativeClassName?.unchecked
+      relativeClassName?.unchecked ||
+      relativeClassName?.disabled
   )
 }
 
 export const getStyles = (
-  style?: CheckboxStyle,
+  styles?: CheckboxStyles,
   checked?: boolean,
   disabled?: boolean
 ) => {
   return mergeObjects(
-    style,
-    getIsStyleRelative(style)
-      ? disabled && style?.disabled
-        ? style.disabled
-        : checked
-        ? style?.checked
-        : style?.unchecked
+    styles,
+    getIsStyleRelative(styles)
+      ? mergeObjects(
+          disabled ? styles?.disabled : undefined,
+          checked ? styles?.checked : styles?.unchecked
+        )
       : undefined
   )
 }
 
 export const getClassNames = (
-  className?: CheckboxClassNames,
+  classNames?: CheckboxClassNames,
   checked?: boolean,
   disabled?: boolean
 ) => {
-  return getIsClassNamesRelative(className)
+  return getIsClassNamesRelative(classNames)
     ? cn(
-        className?.default,
-        disabled && className?.disabled
-          ? className.disabled
-          : checked
-          ? className?.checked
-          : className?.unchecked
+        classNames?.default,
+        disabled && classNames?.disabled,
+        checked ? classNames?.checked : classNames?.unchecked
       )
-    : className
+    : classNames
 }
