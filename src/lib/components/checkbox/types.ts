@@ -6,7 +6,7 @@ export interface CheckboxState {
 }
 
 export interface CheckboxStyleable<T, R> {
-  root?: T
+  root?: R
   checkbox?: R
   label?: T
 }

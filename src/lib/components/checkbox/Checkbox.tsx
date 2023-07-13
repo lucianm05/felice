@@ -78,8 +78,8 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
 
     return (
       <div
-        style={styles?.root}
-        className={classNames?.root}
+        style={getStyles(styles?.root, checked, disabled)}
+        className={getClassNames(classNames?.root, checked, disabled)}
         {...dataAttributes}
       >
         <button
