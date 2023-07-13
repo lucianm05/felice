@@ -22,6 +22,7 @@ import {
   MouseEvent,
   ReactNode,
   forwardRef,
+  useCallback,
   useEffect,
   useId,
   useImperativeHandle,
@@ -74,6 +75,7 @@ export interface TooltipProps
   sideOffset?: number
   classNames?: TooltipStyleable<TooltipClassNames>
   styles?: TooltipStyleable<TooltipStyles>
+  delay?: number
 }
 
 export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
@@ -90,6 +92,7 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
       styles,
       className,
       classNames,
+      delay = 1000,
       ...props
     },
     ref
@@ -113,6 +116,24 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
       []
     )
 
+    const timeout = useRef<ReturnType<typeof setTimeout>>()
+
+    const setTimeoutHandler = useCallback(
+      (cb: VoidFunction) => {
+        timeout.current = setTimeout(() => {
+          cb()
+          clearTimeoutHandler()
+        }, delay)
+      },
+      [delay]
+    )
+
+    const clearTimeoutHandler = useCallback(() => {
+      if (!timeout.current) return
+      clearTimeout(timeout.current)
+      timeout.current = undefined
+    }, [])
+
     const setInternalOpenHandler = (
       value: boolean,
       event?: FocusEvent | MouseEvent
@@ -124,10 +145,11 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
     }
 
     const onMouseEnter = (event: MouseEvent) => {
-      setInternalOpenHandler(true, event)
+      setTimeoutHandler(() => setInternalOpenHandler(true, event))
     }
 
     const onMouseLeave = (event: MouseEvent) => {
+      clearTimeoutHandler()
       setInternalOpenHandler(false, event)
     }
 

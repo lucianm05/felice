@@ -138,7 +138,7 @@ function App() {
               default: classes['switch'],
               checked: classes['switch-checked'],
               unchecked: classes['switch-unchecked'],
-              disabled: classes['switch-disabled']
+              disabled: classes['switch-disabled'],
             },
             thumb: {
               default: classes['switch__thumb'],
@@ -399,7 +399,6 @@ function App() {
           <Tooltip
             ref={tooltipRef}
             content={<>My tooltip with custom trigger</>}
-            open
             side='bottom'
             classNames={{
               content: classes['tooltip-content'],
