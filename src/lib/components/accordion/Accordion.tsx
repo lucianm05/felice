@@ -1,30 +1,23 @@
 import {
   AccordionIndicator,
-  AccordionIndicatorClassNames,
-  AccordionIndicatorStyles,
   AccordionItem,
+  AccordionItemClassNames,
   AccordionItemStyleable,
+  AccordionItemStyles,
   AccordionRef,
   AccordionStyleable,
+  AccordionType,
 } from '@lib/components/accordion/types'
-import {
-  getIsIndicatorClassNamesRelative,
-  getIsIndicatorStylesRelative,
-} from '@lib/components/accordion/utils'
+import { getClassNames, getStyles } from '@lib/components/accordion/utils'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
 import { CSSProperties, HTMLProps, forwardRef, useId, useState } from 'react'
 
-/** @todo
- * extended/collapsed external prop
- * multiple/single prop
- */
-
 interface AccordionItemProps extends AccordionItem {
-  classNames?: AccordionItemStyleable<string, AccordionIndicatorClassNames>
-  styles?: AccordionItemStyleable<CSSProperties, AccordionIndicatorStyles>
+  classNames?: AccordionItemStyleable<string, AccordionItemClassNames>
+  styles?: AccordionItemStyleable<CSSProperties, AccordionItemStyles>
   indicator?: AccordionIndicator
   expanded?: boolean
-  onClick?: VoidFunction
+  onClick: VoidFunction
 }
 
 const AccordionItem = ({
@@ -35,66 +28,84 @@ const AccordionItem = ({
   indicator,
   expanded = false,
   onClick,
+  render,
 }: AccordionItemProps) => {
   const headerId = useId()
   const contentId = useId()
 
+  const dataAttributes = {
+    'data-expanded': expanded,
+    'data-disabled': false,
+  } as const
+
   const indicatorProps = {
     style: mergeObjects(
       { display: 'inline-block' },
-      styles?.indicator,
-      getIsIndicatorStylesRelative(styles?.indicator)
-        ? expanded
-          ? styles?.indicator?.expanded
-          : styles?.indicator?.collapsed
-        : undefined
+      getStyles(styles?.indicator, expanded)
     ),
-    className: getIsIndicatorClassNamesRelative(classNames?.indicator)
-      ? cn(
-          classNames?.indicator?.default,
-          expanded
-            ? classNames?.indicator?.expanded
-            : classNames?.indicator?.collapsed
-        )
-      : classNames?.indicator,
+    className: getClassNames(classNames?.indicator, expanded),
     'aria-hidden': true,
-    'data-expanded': expanded,
+    ...dataAttributes,
   } as const
 
+  const rootProps = {
+    style: styles?.item,
+    className: classNames?.item,
+  } as const
+
+  const headerProps = {
+    id: headerId,
+    className: classNames?.header,
+    style: styles?.header,
+    ...dataAttributes,
+  } as const
+
+  const triggerProps = {
+    className: getClassNames(classNames?.trigger, expanded),
+    style: getStyles(styles?.trigger, expanded),
+    onClick: onClick,
+    'aria-expanded': expanded,
+    'aria-controls': contentId,
+    'aria-disabled': false,
+    ...dataAttributes,
+  } as const
+
+  const contentProps = {
+    id: contentId,
+    className: classNames?.content,
+    style: styles?.content,
+    role: 'region',
+    hidden: !expanded,
+    'aria-hidden': !expanded,
+    'aria-labelledby': headerId,
+    ...dataAttributes,
+  } as const
+
+  const state = { expanded }
+
+  if (render) {
+    return (
+      <>
+        {render({ contentProps, headerProps, state, triggerProps, rootProps })}
+      </>
+    )
+  }
+
   return (
-    <div className={classNames?.item} style={styles?.item}>
-      <h3 id={headerId} className={classNames?.header} style={styles?.header}>
-        <button
-          className={classNames?.trigger}
-          style={styles?.trigger}
-          onClick={onClick}
-          aria-expanded={expanded}
-          aria-controls={contentId}
-          aria-disabled={false}
-          data-expanded={false}
-          data-disabled={false}
-        >
+    <div {...rootProps}>
+      <h3 {...headerProps}>
+        <button {...triggerProps}>
           <span>{header}</span>
 
           {typeof indicator === 'function' &&
-            indicator({ state: { expanded }, indicatorProps })}
+            indicator({ state, indicatorProps })}
 
           {typeof indicator !== 'function' && (
             <span {...indicatorProps}>{indicator}</span>
           )}
         </button>
       </h3>
-      <div
-        id={contentId}
-        className={classNames?.content}
-        style={styles?.content}
-        role='region'
-        hidden={!expanded}
-        aria-hidden={!expanded}
-        aria-labelledby={headerId}
-      >
-        {content}
-      </div>
+      <div {...contentProps}>{content}</div>
     </div>
   )
 }
@@ -102,12 +113,13 @@ const AccordionItem = ({
 export interface AccordionProps
   extends Omit<HTMLProps<HTMLDivElement>, 'data' | 'defaultValue' | 'value'> {
   data: AccordionItem | AccordionItem[]
-  classNames?: AccordionStyleable<string, AccordionIndicatorClassNames>
-  styles?: AccordionStyleable<CSSProperties, AccordionIndicatorStyles>
+  classNames?: AccordionStyleable<string, AccordionItemClassNames>
+  styles?: AccordionStyleable<CSSProperties, AccordionItemStyles>
   indicator?: AccordionIndicator
   defaultValue?: number[]
   value?: number[]
   onValueChange?: (value: number[]) => void
+  type?: AccordionType
 }
 
 export const Accordion = forwardRef<AccordionRef, AccordionProps>(
@@ -123,6 +135,7 @@ export const Accordion = forwardRef<AccordionRef, AccordionProps>(
       defaultValue = [],
       value: externalValue,
       onValueChange,
+      type = 'multiple',
       ...props
     },
     ref
@@ -151,7 +164,11 @@ export const Accordion = forwardRef<AccordionRef, AccordionProps>(
         return
       }
 
-      setInternalValueHandler([...value, index])
+      if (type === 'multiple') {
+        setInternalValueHandler([...value, index])
+      } else {
+        setInternalValueHandler([index])
+      }
     }
 
     const getItemProps = (

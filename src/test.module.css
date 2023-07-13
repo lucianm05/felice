@@ -1,3 +1,32 @@
+.accordion__root {
+  padding: 1rem;
+  max-width: 20rem;
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
+.accordion__trigger {
+  padding: 0.5rem 1rem;
+  background-color: darkseagreen;
+  width: 100%;
+  text-align: start;
+  border-radius: 8px;
+  font-size: 1.5rem;
+}
+
+.accordion__trigger-expanded {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.accordion__content {
+  padding: 0.5rem 1rem;
+  background-color: lightgreen;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
 .switch {
   width: 2rem;
   border-radius: 16px;
@@ -130,7 +159,6 @@
 .tabs-element-disabled {
   cursor: not-allowed;
   background: gray;
-
 }
 
 .tabs-panel {

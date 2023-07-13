@@ -86,14 +86,46 @@ function App() {
         <Accordion
           data={[
             {
-              header: 'Test multiple accordion',
-              content: 'This is the first accordion',
+              render: ({
+                rootProps,
+                contentProps,
+                headerProps,
+                state,
+                triggerProps,
+              }) => (
+                <div {...rootProps}>
+                  <h2 {...headerProps}>
+                    <button {...triggerProps}>
+                      Accordion is now{' '}
+                      {state.expanded ? 'expanded' : 'collapsed'}
+                    </button>
+                  </h2>
+
+                  <div {...contentProps}>This is my accordion content</div>
+                </div>
+              ),
             },
             {
               header: 'Test multiple accordion',
               content: 'This is the second accordion',
             },
           ]}
+        />
+
+        <Accordion
+          data={[
+            { header: 'First accordion', content: 'First accordion content' },
+            { header: 'Second accordion', content: 'Second accordion content' },
+          ]}
+          type='single'
+          classNames={{
+            root: classes['accordion__root'],
+            content: classes['accordion__content'],
+            trigger: {
+              default: classes['accordion__trigger'],
+              expanded: classes['accordion__trigger-expanded'],
+            },
+          }}
         />
 
         {/* <div style={{ marginBottom: '8rem' }}></div> */}
