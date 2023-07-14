@@ -23,6 +23,7 @@ export { Accordion } from './components/accordion'
 
 export type {
   CheckboxClassNames,
+  CheckboxProps,
   CheckboxRelative,
   CheckboxRelativeClassNames,
   CheckboxRelativeStyle,
@@ -153,6 +154,13 @@ export type {
 } from './components/tooltip'
 
 export { Tooltip } from './components/tooltip'
+
+/** Hooks */
+
+import { useElementPosition } from './hooks/useElementPosition'
+import { usePreventScroll } from './hooks/usePreventScroll'
+
+export { useElementPosition, usePreventScroll }
 
 /** Misc */
 

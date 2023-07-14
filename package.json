@@ -1,7 +1,7 @@
 {
   "name": "felice",
   "private": false,
-  "version": "0.0.10",
+  "version": "1.0.0",
   "type": "module",
   "description": "Unstyled accessible components",
   "license": "MIT",
