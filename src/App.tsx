@@ -222,31 +222,10 @@ function App() {
         ></Progress>
 
         <Slider
-          ref={sliderRef}
           labels={['Minimum price', 'Maximum price']}
           min={50}
           max={150}
           defaultValue={[75, 125]}
-          value={sliderValue}
-          onValueChange={setSliderValue}
-          step={5}
-          multipleStep={15}
-          classNames={{
-            root: classes['slider-root'],
-            track: classes['slider-track'],
-            range: classes['slider-range'],
-            thumb: classes['slider-thumb'],
-          }}
-        />
-
-        <Slider
-          ref={sliderRef}
-          labels={['Minimum price', 'Maximum price']}
-          min={50}
-          max={150}
-          defaultValue={[75, 125]}
-          // value={sliderValue}
-          // onValueChange={setSliderValue}
           step={5}
           multipleStep={15}
           classNames={{
@@ -257,6 +236,21 @@ function App() {
               classes['slider-thumb'] + ' ' + classes['slider-thumb-vertical'],
           }}
           orientation='vertical'
+        />
+
+        <Slider
+          labels={['Minimum price', 'Maximum price']}
+          min={50}
+          max={150}
+          defaultValue={[75, 125]}
+          step={5}
+          multipleStep={15}
+          classNames={{
+            root: classes['slider-root'],
+            track: classes['slider-track'],
+            range: classes['slider-range'],
+            thumb: classes['slider-thumb'],
+          }}
         />
 
         <Tabs

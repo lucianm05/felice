@@ -1,7 +1,21 @@
-export const getFocusableElements = (parent: HTMLElement) => {
+export const getFocusableElements = (parent: HTMLElement, query?: string) => {
+  const querySelectors = [
+    '[href]',
+    'input',
+    'select',
+    'textarea',
+    '[tabindex]:not([tabindex="-1"])',
+  ]
+
+  if (query) {
+    querySelectors.push(query)
+  }
+
+  if (!query || !query.includes('button')) querySelectors.push('button')
+
   const focusableElements =
     parent.querySelectorAll<HTMLElement>(
-      'button:not([data-close-button="true"]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      querySelectors.filter(Boolean).join(', ')
     ) || []
   const firstFocusableElement = focusableElements[0]
   const lastFocusableElement = focusableElements[focusableElements.length - 1]

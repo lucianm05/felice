@@ -190,7 +190,8 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
         if (internalRef.current) {
           const { firstFocusableElement } = getFocusableElements(
-            internalRef.current
+            internalRef.current,
+            'button:not([data-close-button="true"])'
           )
 
           firstFocusableElement?.focus()

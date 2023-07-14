@@ -40,8 +40,13 @@ export const getRangeProperties = ({
   let size = null
 
   if (isDefined(value[0]) && isDefined(value[1])) {
-    startingPoint = ((value[0] - min) * 100) / (max - min)
-    size = ((value[1] - min) * 100) / (max - min) - startingPoint
+    if (orientation === 'horizontal') {
+      startingPoint = ((value[0] - min) * 100) / (max - min)
+      size = ((value[1] - min) * 100) / (max - min) - startingPoint
+    } else {
+      startingPoint = ((value[1] - max) * 100) / (min - max)
+      size = ((value[0] - max) * 100) / (min - max) - startingPoint
+    }
   } else {
     if (orientation === 'horizontal') {
       size = startingPoint
@@ -49,6 +54,7 @@ export const getRangeProperties = ({
       size = (value[0] - min) / (max - min)
     }
   }
+
   if (orientation === 'horizontal') {
     return {
       position: 'absolute',
