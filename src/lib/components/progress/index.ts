@@ -1,6 +1,11 @@
 import { Progress, ProgressProps } from './Progress'
-import { ProgressClassNames, ProgressStyles } from './types'
+import { ProgressClassNames, ProgressStyleable, ProgressStyles } from './types'
 
-export type { ProgressProps, ProgressClassNames, ProgressStyles }
+export type {
+  ProgressClassNames,
+  ProgressProps,
+  ProgressStyleable,
+  ProgressStyles,
+}
 
 export { Progress }

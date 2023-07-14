@@ -3,6 +3,7 @@ import { CSSProperties } from 'react'
 export interface SwitchRelative<T = unknown> {
   checked?: T
   unchecked?: T
+  disabled?: T
 }
 
 export type SwitchRelativeStyle = SwitchRelative<CSSProperties>

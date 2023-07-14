@@ -4,12 +4,18 @@ import {
   SwitchStyleable,
 } from '@lib/components/switch/types'
 import { getClassNames, getStyles } from '@lib/components/switch/utils'
+import { CheckableChildren } from '@lib/types'
 import { cn, mergeObjects } from '@lib/utils'
-import { HTMLProps, forwardRef, useState } from 'react'
+import { HTMLProps, MouseEvent, forwardRef, useState } from 'react'
 
 export interface SwitchProps
-  extends Omit<HTMLProps<HTMLButtonElement>, 'role' | 'type' | 'aria-checked'> {
-  label?: string
+  extends Omit<
+    HTMLProps<HTMLButtonElement>,
+    'role' | 'type' | 'aria-checked' | 'children'
+  > {
+  children?: CheckableChildren
+  label: string
+  hideLabel?: boolean
   styles?: SwitchStyleable<SwitchStyle>
   classNames?: SwitchStyleable<SwitchClassNames>
   defaultChecked?: boolean
@@ -28,6 +34,8 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
       style,
       checked: externalChecked,
       onCheckedChange,
+      onClick,
+      disabled = false,
       ...props
     },
     ref
@@ -39,7 +47,13 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
     const checked =
       typeof externalChecked === 'boolean' ? externalChecked : internalChecked
 
-    const onClickInternal = () => {
+    const onClickInternal = (event: MouseEvent<HTMLButtonElement>) => {
+      if (disabled) return
+
+      onClick?.(event)
+
+      if (event.defaultPrevented) return
+
       const newChecked = !checked
 
       setInternalChecked(newChecked)
@@ -52,12 +66,19 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
         ref={ref}
         type='button'
         role='switch'
-        style={mergeObjects(style, getStyles(styles?.switch, checked))}
-        className={cn(className, getClassNames(classNames?.switch, checked))}
+        style={mergeObjects(
+          style,
+          getStyles(styles?.switch, checked, disabled)
+        )}
+        className={cn(
+          className,
+          getClassNames(classNames?.switch, checked, disabled)
+        )}
         onClick={onClickInternal}
         aria-checked={checked}
         aria-label={label}
         data-checked={checked}
+        data-disabled={disabled}
       >
         {!children && (
           <>
@@ -69,7 +90,14 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
           </>
         )}
 
-        {children}
+        {children && (
+          <>
+            {typeof children === 'function' &&
+              children({ state: { checked, disabled } })}
+
+            {typeof children !== 'function' && children}
+          </>
+        )}
       </button>
     )
   }

@@ -8,13 +8,18 @@ import {
   TabsStyles,
 } from '@lib/components/tabs/types'
 import {
-  getNextIndex,
+  getTabElementClassNames,
+  getTabElementStyles,
   isItemDisabled,
-  isTabElementClassNamesRelative,
-  isTabElementStylesRelative,
 } from '@lib/components/tabs/utils'
 import { keys } from '@lib/constants/keys'
-import { cn, isDefined, mergeObjects } from '@lib/utils'
+import {
+  cn,
+  getNextElementInSequence,
+  getSequenceDirection,
+  isDefined,
+  mergeObjects,
+} from '@lib/utils'
 import {
   FocusEvent,
   HTMLProps,
@@ -92,7 +97,10 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
     },
     ref
   ) => {
-    const [internalTab, setInternalTab] = useState(defaultTab)
+    const [internalTab, setInternalTab] = useState(() => {
+      if (isDefined(selectedTab)) return selectedTab
+      return defaultTab
+    })
     const [ids, setIds] = useState({ element: [], panel: [] })
 
     const currentTab = isDefined(selectedTab) ? selectedTab : internalTab
@@ -101,9 +109,16 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
 
     useImperativeHandle<TabsRef, TabsRef>(ref, () => internalRef.current, [])
 
-    const onIdLoad = useCallback((id: string, item: TabItem) => {
-      setIds(prev => ({ ...prev, [item]: [...prev[item], id] }))
-    }, [])
+    const onIdLoad = useCallback(
+      (id: string, item: TabItem) => {
+        setIds(prev => {
+          if (prev[item].length === data.length) return prev
+
+          return { ...prev, [item]: [...prev[item], id] }
+        })
+      },
+      [data]
+    )
 
     const setInternalTabHandler = ({
       index,
@@ -123,61 +138,78 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
     }
 
     const onTabElementKeyDown = useCallback(
-      (
-        event: KeyboardEvent<HTMLButtonElement>,
-        index: number,
-        ids: string[]
-      ) => {
-        if (event.defaultPrevented) return
+      (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+        if (event.defaultPrevented || !internalRef.current) return
 
-        let nextIndex = null
+        const elements = [
+          ...internalRef.current.querySelectorAll<HTMLButtonElement>(
+            'button[role=tab]'
+          ),
+        ]
+        const enabledElements = elements.filter(
+          element => element.getAttribute('data-disabled') === 'false'
+        )
+
+        let nextElement = null
 
         switch (event.key) {
           case keys.home:
             {
-              nextIndex = 0
+              nextElement = enabledElements[0]
             }
             break
 
           case keys.end:
             {
-              nextIndex = ids.length - 1
+              nextElement = enabledElements[enabledElements.length - 1]
             }
             break
 
           default:
             {
-              const isForward =
-                (orientation === 'horizontal' &&
-                  event.key === keys.arrowRight) ||
-                (orientation === 'vertical' && event.key === keys.arrowDown)
-              const isBackward =
-                (orientation === 'horizontal' &&
-                  event.key === keys.arrowLeft) ||
-                (orientation === 'vertical' && event.key === keys.arrowUp)
+              const direction = getSequenceDirection(event.key, orientation)
 
-              if (!isForward && !isBackward) return
-
-              nextIndex = getNextIndex(
-                index,
-                ids,
-                isForward ? 'forward' : 'backward'
-              )
+              if (direction) {
+                nextElement = getNextElementInSequence<HTMLButtonElement>(
+                  index,
+                  elements,
+                  direction
+                )
+              }
             }
             break
         }
 
-        if (isDefined(nextIndex)) {
-          const targetElement = document.getElementById(`${ids[nextIndex]}`)
+        if (!nextElement) return
 
-          if (targetElement) targetElement.focus()
+        event.preventDefault()
+        event.stopPropagation()
 
-          event.preventDefault()
-          event.stopPropagation()
-        }
+        nextElement.focus()
       },
       []
     )
+
+    const getTabIndex = (index: number) => {
+      const isSelected = index === currentTab
+
+      const currentElement = data[currentTab]
+
+      const isCurrentElementDisabled = isItemDisabled(
+        disabled,
+        currentElement.elementProps
+      )
+
+      if (isCurrentElementDisabled) {
+        const firstEnabledIndex = data.findIndex(
+          element => !isItemDisabled(disabled, element.elementProps)
+        )
+
+        if (firstEnabledIndex >= 0) return index === firstEnabledIndex ? 0 : -1
+      }
+
+      return isSelected ? 0 : -1
+    }
 
     return (
       <div
@@ -191,6 +223,7 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
           style={styles?.tablist}
           className={classNames?.tablist}
           aria-orientation={orientation}
+          data-orientation={orientation}
         >
           {data.map(({ element, elementProps }, index) => {
             const isSelected = index === currentTab
@@ -201,21 +234,15 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
                 {...elementProps}
                 key={index}
                 style={mergeObjects(
-                  isTabElementStylesRelative(styles?.element)
-                    ? mergeObjects(
-                        styles?.element?.default,
-                        isSelected ? styles?.element?.selected : undefined
-                      )
-                    : styles?.element,
+                  getTabElementStyles(styles?.element, isDisabled, isSelected),
                   elementProps?.style
                 )}
                 className={cn(
-                  isTabElementClassNamesRelative(classNames?.element)
-                    ? cn(
-                        classNames?.element?.default,
-                        isSelected && classNames?.element?.selected
-                      )
-                    : classNames?.element,
+                  getTabElementClassNames(
+                    classNames?.element,
+                    isDisabled,
+                    isSelected
+                  ),
                   elementProps?.className
                 )}
                 onIdLoad={id => {
@@ -228,13 +255,13 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
                 }}
                 onKeyDown={event => {
                   elementProps?.onKeyDown?.(event)
-                  onTabElementKeyDown(event, index, ids.element)
+                  onTabElementKeyDown(event, index)
                 }}
                 onFocus={event => {
                   elementProps?.onFocus?.(event)
                   setInternalTabHandler({ index, event, elementProps })
                 }}
-                tabIndex={!isSelected ? -1 : 0}
+                tabIndex={getTabIndex(index)}
                 disabled={isDisabled}
                 aria-controls={ids.panel[index]}
                 aria-selected={isSelected}

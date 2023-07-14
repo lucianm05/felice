@@ -13,7 +13,11 @@ export const getIsStyleRelative = (
 
   const relativeStyle = style as SwitchRelativeStyle
 
-  return Boolean(relativeStyle?.checked || relativeStyle?.unchecked)
+  return Boolean(
+    relativeStyle?.checked ||
+      relativeStyle?.unchecked ||
+      relativeStyle?.disabled
+  )
 }
 
 export const getIsClassNamesRelative = (
@@ -26,28 +30,36 @@ export const getIsClassNamesRelative = (
   return Boolean(
     relativeClassNames?.default ||
       relativeClassNames?.checked ||
-      relativeClassNames?.unchecked
+      relativeClassNames?.unchecked ||
+      relativeClassNames?.disabled
   )
 }
 
-export const getStyles = (style?: SwitchStyle, checked?: boolean) => {
+export const getStyles = (
+  style?: SwitchStyle,
+  checked?: boolean,
+  disabled?: boolean
+) => {
   return mergeObjects(
     style,
     getIsStyleRelative(style)
-      ? checked
-        ? style?.checked
-        : style?.unchecked
+      ? mergeObjects(
+          disabled ? style?.disabled : undefined,
+          checked ? style?.checked : style?.unchecked
+        )
       : undefined
   )
 }
 
 export const getClassNames = (
   classNames?: SwitchClassNames,
-  checked?: boolean
+  checked?: boolean,
+  disabled?: boolean
 ) => {
   return getIsClassNamesRelative(classNames)
     ? cn(
         classNames?.default,
+        disabled && classNames?.disabled,
         checked ? classNames?.checked : classNames?.unchecked
       )
     : classNames

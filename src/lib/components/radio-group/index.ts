@@ -6,10 +6,11 @@ import {
   RadioButtonRelativeClassNames,
   RadioButtonRelativeStyles,
   RadioButtonState,
+  RadioButtonStyleable,
   RadioButtonStyles,
+  RadioGroupStyleable,
 } from './types'
 
-export { RadioGroup }
 export type {
   RadioButton,
   RadioButtonClassNames,
@@ -17,6 +18,10 @@ export type {
   RadioButtonRelativeClassNames,
   RadioButtonRelativeStyles,
   RadioButtonState,
+  RadioButtonStyleable,
   RadioButtonStyles,
   RadioGroupProps,
+  RadioGroupStyleable,
 }
+
+export { RadioGroup }

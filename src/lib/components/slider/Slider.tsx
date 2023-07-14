@@ -87,6 +87,8 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
 
     const value = isDefined(externalValue) ? externalValue : internalValue
 
+    const isHorizontal = orientation === 'horizontal'
+
     const movingSlider = useRef<number | null>()
 
     const internalRef = useRef<SliderRef>(null)
@@ -95,8 +97,6 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
       () => internalRef.current,
       []
     )
-
-    const isHorizontal = orientation === 'horizontal'
 
     const setSliderPosition = (slider: HTMLSpanElement, index: number) => {
       if (!internalRef.current) return
@@ -113,7 +113,9 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
       if (isHorizontal) {
         slider.style.left = `${baseValue * (rootWidth - thumbWidth)}px`
       } else {
-        slider.style.top = `${baseValue * (rootHeight - thumbHeight)}px`
+        slider.style.top = `${
+          rootHeight - thumbHeight - baseValue * (rootHeight - thumbHeight)
+        }px`
       }
     }
 
@@ -245,8 +247,7 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
         return
 
       const rect = internalRef.current.getBoundingClientRect()
-      const { width, height } = rect
-
+      const { width: rootWidth, height: rootHeight } = rect
       const x = event.clientX - rect.left
       const y = event.clientY - rect.top
       const currentValue = value[movingSlider.current]
@@ -272,11 +273,12 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
 
       if (isHorizontal) {
         newVal = Math.round(
-          ((x + (currentValue + thumbWidth * multiplier)) * 100) / width
+          ((x + (currentValue + thumbWidth * multiplier)) * 100) / rootWidth
         )
       } else {
         newVal = Math.round(
-          ((y + (currentValue + thumbHeight * multiplier)) * 100) / height
+          ((rootHeight - y + (currentValue + thumbHeight * multiplier)) * 100) /
+            rootHeight
         )
       }
 
@@ -353,6 +355,8 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
         ref={internalRef}
         style={mergeObjects({ position: 'relative' }, style, styles?.root)}
         className={cn(className, classNames?.root)}
+        data-disabled={disabled}
+        data-orientation={orientation}
       >
         <div style={styles?.track} className={classNames?.track}>
           <div
@@ -364,36 +368,42 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
           ></div>
         </div>
 
-        {value?.map((_, index) => {
-          const { maxValue, minValue } = getIntervalValues({
-            max,
-            min,
-            value,
-            index,
-          })
+        {value &&
+          (isHorizontal ? value : [...value].reverse())?.map((_, index) => {
+            const trueIndex = isHorizontal ? index : value.length - 1 - index
 
-          return (
-            <span
-              key={index}
-              ref={sliderRef => {
-                if (!sliderRef) return
-                setSliderPosition(sliderRef, index)
-              }}
-              style={styles?.thumb}
-              className={classNames?.thumb}
-              role='slider'
-              tabIndex={0}
-              onKeyDown={e => onKeyDown(e, index)}
-              onPointerDown={e => onPointerDown(e, index)}
-              aria-label={labels[index]}
-              aria-valuenow={value[index]}
-              aria-valuemin={minValue}
-              aria-valuemax={maxValue}
-              aria-disabled={disabled}
-              aria-orientation={orientation}
-            />
-          )
-        })}
+            const { maxValue, minValue } = getIntervalValues({
+              max,
+              min,
+              value,
+              index: trueIndex,
+            })
+
+            return (
+              <span
+                key={trueIndex}
+                ref={sliderRef => {
+                  if (!sliderRef) return
+                  setSliderPosition(sliderRef, trueIndex)
+                }}
+                style={styles?.thumb}
+                className={classNames?.thumb}
+                role='slider'
+                tabIndex={0}
+                onKeyDown={e => onKeyDown(e, trueIndex)}
+                onPointerDown={e => onPointerDown(e, trueIndex)}
+                aria-label={labels[trueIndex]}
+                aria-valuenow={value[trueIndex]}
+                aria-valuemin={minValue}
+                aria-valuemax={maxValue}
+                aria-disabled={disabled}
+                aria-orientation={orientation}
+                data-disabled={disabled}
+                data-orientation={orientation}
+                data-slider={trueIndex}
+              />
+            )
+          })}
       </div>
     )
   }

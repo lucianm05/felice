@@ -3,10 +3,11 @@ import {
   TooltipChildren,
   TooltipClassNames,
   TooltipSide,
-  TooltipTriggerRef,
-  TooltipTriggerProps,
   TooltipState,
+  TooltipStyleable,
   TooltipStyles,
+  TooltipTriggerProps,
+  TooltipTriggerRef,
 } from './types'
 
 export { Tooltip }
@@ -16,6 +17,7 @@ export type {
   TooltipProps,
   TooltipSide,
   TooltipState,
+  TooltipStyleable,
   TooltipStyles,
   TooltipTriggerProps,
   TooltipTriggerRef,

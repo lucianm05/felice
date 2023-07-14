@@ -1,66 +1,66 @@
 import {
-  CheckboxClassName,
-  CheckboxIndicator,
-  CheckboxRelativeClassName,
-  CheckboxRelativeIndicator,
+  CheckboxClassNames,
+  CheckboxRelativeClassNames,
   CheckboxRelativeStyle,
-  CheckboxStyle,
+  CheckboxStyles,
 } from '@lib/components/checkbox/types'
 import { cn, mergeObjects } from '@lib/utils'
 
-export const getIsIndicatorRelative = (
-  indicator?: CheckboxIndicator
-): indicator is CheckboxRelativeIndicator => {
-  if (!indicator) return false
-
-  const relativeIndicator = indicator as CheckboxRelativeIndicator
-
-  return Boolean(relativeIndicator?.checked || relativeIndicator?.unchecked)
-}
-
 export const getIsStyleRelative = (
-  style?: CheckboxStyle
+  style?: CheckboxStyles
 ): style is CheckboxRelativeStyle => {
   if (!style) return false
 
   const relativeStyle = style as CheckboxRelativeStyle
 
-  return Boolean(relativeStyle?.checked || relativeStyle?.unchecked)
+  return Boolean(
+    relativeStyle?.checked ||
+      relativeStyle?.unchecked ||
+      relativeStyle?.disabled
+  )
 }
 
 export const getIsClassNamesRelative = (
-  className?: CheckboxClassName
-): className is CheckboxRelativeClassName => {
+  className?: CheckboxClassNames
+): className is CheckboxRelativeClassNames => {
   if (!className) return false
 
-  const relativeClassName = className as CheckboxRelativeClassName
+  const relativeClassName = className as CheckboxRelativeClassNames
 
   return Boolean(
     relativeClassName?.default ||
       relativeClassName?.checked ||
-      relativeClassName?.unchecked
+      relativeClassName?.unchecked ||
+      relativeClassName?.disabled
   )
 }
 
-export const getStyles = (style?: CheckboxStyle, checked?: boolean) => {
+export const getStyles = (
+  styles?: CheckboxStyles,
+  checked?: boolean,
+  disabled?: boolean
+) => {
   return mergeObjects(
-    style,
-    getIsStyleRelative(style)
-      ? checked
-        ? style?.checked
-        : style?.unchecked
+    styles,
+    getIsStyleRelative(styles)
+      ? mergeObjects(
+          disabled ? styles?.disabled : undefined,
+          checked ? styles?.checked : styles?.unchecked
+        )
       : undefined
   )
 }
 
 export const getClassNames = (
-  className?: CheckboxClassName,
-  checked?: boolean
+  classNames?: CheckboxClassNames,
+  checked?: boolean,
+  disabled?: boolean
 ) => {
-  return getIsClassNamesRelative(className)
+  return getIsClassNamesRelative(classNames)
     ? cn(
-        className?.default,
-        checked ? className?.checked : className?.unchecked
+        classNames?.default,
+        disabled && classNames?.disabled,
+        checked ? classNames?.checked : classNames?.unchecked
       )
-    : className
+    : classNames
 }

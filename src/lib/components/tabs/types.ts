@@ -25,6 +25,7 @@ export type TabItem = 'element' | 'panel'
 export interface TabElementRelativeStyleable<T> {
   default?: T
   selected?: T
+  disabled?: T
 }
 export type TabElementStyleable<T> = T | TabElementRelativeStyleable<T>
 

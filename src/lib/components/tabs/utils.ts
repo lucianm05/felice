@@ -6,7 +6,7 @@ import {
   TabElementStyles,
   TabPanelProps,
 } from '@lib/components/tabs/types'
-import { isDefined } from '@lib/utils'
+import { cn, isDefined, mergeObjects } from '@lib/utils'
 
 export const isItemDisabled = (
   disabled?: boolean,
@@ -17,35 +17,17 @@ export const isItemDisabled = (
   return Boolean(disabled)
 }
 
-export const getNextIndex = (
-  index: number,
-  ids: string[],
-  direction: 'forward' | 'backward'
-) => {
-  if (direction === 'forward') {
-    if (index === ids.length - 1) {
-      return 0
-    }
-    return index + 1
-  }
+export const getIsTabElementStylesRelative = (
+  styles?: TabElementStyles
+): styles is TabElementRelativeStyles => {
+  if (!styles) return false
 
-  if (index === 0) {
-    return ids.length - 1
-  }
-  return index - 1
+  const relativeStyles = styles as TabElementRelativeStyles
+
+  return Boolean(relativeStyles?.default || relativeStyles?.selected)
 }
 
-export const isTabElementStylesRelative = (
-  classNames?: TabElementStyles
-): classNames is TabElementRelativeStyles => {
-  if (!classNames) return false
-
-  const relativeClassNames = classNames as TabElementRelativeStyles
-
-  return Boolean(relativeClassNames?.default || relativeClassNames?.selected)
-}
-
-export const isTabElementClassNamesRelative = (
+export const getIsTabElementClassNamesRelative = (
   classNames?: TabElementClassNames
 ): classNames is TabElementRelativeClassNames => {
   if (!classNames) return false
@@ -53,4 +35,42 @@ export const isTabElementClassNamesRelative = (
   const relativeClassNames = classNames as TabElementRelativeClassNames
 
   return Boolean(relativeClassNames?.default || relativeClassNames?.selected)
+}
+
+export const getTabElementStyles = (
+  styles?: TabElementStyles,
+  disabled?: boolean,
+  selected?: boolean
+) => {
+  if (!styles) return
+
+  return mergeObjects(
+    styles,
+    getIsTabElementStylesRelative(styles)
+      ? mergeObjects(
+          disabled && styles?.disabled
+            ? styles?.disabled
+            : selected
+            ? styles?.selected
+            : undefined
+        )
+      : styles
+  )
+}
+
+export const getTabElementClassNames = (
+  classNames?: TabElementClassNames,
+  disabled?: boolean,
+  selected?: boolean
+) => {
+  if (!classNames) return
+
+  return getIsTabElementClassNamesRelative(classNames)
+    ? cn(
+        classNames?.default,
+        disabled && classNames.disabled
+          ? classNames.disabled
+          : selected && classNames?.selected
+      )
+    : classNames
 }

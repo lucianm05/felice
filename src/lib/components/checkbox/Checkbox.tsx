@@ -1,15 +1,11 @@
 import {
-  CheckboxClassName,
-  CheckboxIndicator,
-  CheckboxStyle,
+  CheckboxClassNames,
+  CheckboxStyles,
   CheckboxStyleable,
 } from '@lib/components/checkbox/types'
-import {
-  getClassNames,
-  getIsIndicatorRelative,
-  getStyles,
-} from '@lib/components/checkbox/utils'
-import { cn, mergeObjects } from '@lib/utils'
+import { getClassNames, getStyles } from '@lib/components/checkbox/utils'
+import { CheckableChildren } from '@lib/types'
+import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
   CSSProperties,
   HTMLProps,
@@ -20,15 +16,19 @@ import {
 } from 'react'
 
 export interface CheckboxProps
-  extends Omit<HTMLProps<HTMLButtonElement>, 'type' | 'aria-checked' | 'role'> {
+  extends Omit<
+    HTMLProps<HTMLButtonElement>,
+    'type' | 'aria-checked' | 'role' | 'children'
+  > {
+  children?: CheckableChildren
   label: string
   hideLabel?: boolean
   defaultChecked?: boolean
   checked?: boolean
   onCheckedChanged?: (value: boolean) => void
-  indicator?: CheckboxIndicator
-  styles?: CheckboxStyleable<CSSProperties, CheckboxStyle>
-  classNames?: CheckboxStyleable<string, CheckboxClassName>
+  indicator?: CheckableChildren
+  styles?: CheckboxStyleable<CSSProperties, CheckboxStyles>
+  classNames?: CheckboxStyleable<string, CheckboxClassNames>
 }
 
 export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
@@ -47,22 +47,36 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
       id: externalId,
       onCheckedChanged,
       onClick,
+      disabled = false,
       ...props
     },
     ref
   ) => {
     const [internalChecked, setInternalChecked] = useState(
-      typeof externalChecked === 'boolean' ? externalChecked : defaultChecked
+      isDefined(externalChecked) ? externalChecked : defaultChecked
     )
+
+    const checked = isDefined(externalChecked)
+      ? externalChecked
+      : internalChecked
 
     const labelId = useId()
     const internalId = useId()
     const id = externalId || internalId
 
-    const checked =
-      typeof externalChecked === 'boolean' ? externalChecked : internalChecked
+    const dataAttributes = {
+      'data-checked': checked,
+      'data-disabled': disabled,
+    }
+
+    const state = {
+      checked,
+      disabled,
+    }
 
     const onClickInternal = (event: MouseEvent<HTMLButtonElement>) => {
+      if (disabled) return
+
       onClick?.(event)
 
       if (event.isDefaultPrevented()) return
@@ -72,37 +86,46 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
     }
 
     return (
-      <div style={styles?.root} className={classNames?.root}>
+      <div
+        style={getStyles(styles?.root, checked, disabled)}
+        className={getClassNames(classNames?.root, checked, disabled)}
+        {...dataAttributes}
+      >
         <button
           {...props}
+          ref={ref}
           id={id}
           type='button'
-          ref={ref}
           role='checkbox'
-          style={mergeObjects(style, getStyles(styles?.checkbox, checked))}
+          disabled={disabled}
+          style={mergeObjects(
+            style,
+            getStyles(styles?.checkbox, checked, disabled)
+          )}
           className={cn(
             className,
-            getClassNames(classNames?.checkbox, checked)
+            getClassNames(classNames?.checkbox, checked, disabled)
           )}
           onClick={onClickInternal}
           aria-labelledby={labelId}
           aria-checked={checked}
-          data-checked={checked}
+          {...dataAttributes}
         >
-          {!children && indicator && (
+          {!children && (
             <>
-              {getIsIndicatorRelative(indicator) ? (
-                <>
-                  {checked && indicator.checked}
-                  {!checked && indicator.unchecked}
-                </>
-              ) : (
-                <>{indicator}</>
-              )}
+              {typeof indicator === 'function' && indicator({ state })}
+
+              {typeof indicator !== 'function' && indicator}
             </>
           )}
 
-          {children}
+          {children && (
+            <>
+              {typeof children === 'function' && children({ state })}
+
+              {typeof children !== 'function' && children}
+            </>
+          )}
         </button>
 
         <label

@@ -1,22 +1,20 @@
-import { CSSProperties, ReactNode } from 'react'
+import { CSSProperties } from 'react'
 
 export interface CheckboxStyleable<T, R> {
-  root?: T
+  root?: R
   checkbox?: R
   label?: T
 }
 export interface CheckboxRelative<T> {
   checked?: T
   unchecked?: T
+  disabled?: T
 }
 
 export type CheckboxRelativeStyle = CheckboxRelative<CSSProperties>
-export type CheckboxStyle = CSSProperties | CheckboxRelativeStyle
+export type CheckboxStyles = CSSProperties | CheckboxRelativeStyle
 
-export interface CheckboxRelativeClassName extends CheckboxRelative<string> {
+export interface CheckboxRelativeClassNames extends CheckboxRelative<string> {
   default?: string
 }
-export type CheckboxClassName = string | CheckboxRelativeClassName
-
-export type CheckboxRelativeIndicator = CheckboxRelative<ReactNode>
-export type CheckboxIndicator = CheckboxRelativeIndicator | Omit<ReactNode, ''>
+export type CheckboxClassNames = string | CheckboxRelativeClassNames

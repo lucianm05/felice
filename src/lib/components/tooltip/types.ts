@@ -28,7 +28,8 @@ export interface TooltipPosition {
 export interface TooltipTriggerProps {
   ref: MutableRefObject<TooltipTriggerRef>
   type: 'button'
-  className: string | undefined
+  style?: CSSProperties
+  className?: string
   tabIndex: number
   onFocus: (event: FocusEvent<HTMLButtonElement>) => void
   onBlur: (event: FocusEvent<HTMLButtonElement>) => void
@@ -51,6 +52,7 @@ export type TooltipChildren =
 export interface TooltipStyleable<T> {
   trigger?: T
   content?: T
+  container?: T
 }
 
 export type TooltipStyles = CSSProperties

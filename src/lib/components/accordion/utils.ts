@@ -1,36 +1,56 @@
 import {
-  AccordionIndicator,
-  AccordionItemStyleable,
-  AccordionRelativeIndicator,
-  AccordionRelativeIndicatorStyleable,
+  AccordionItemClassNames,
+  AccordionItemRelativeClassNames,
+  AccordionItemRelativeStyles,
+  AccordionItemStyles,
 } from '@lib/components/accordion/types'
-import { CSSProperties } from 'react'
+import { cn, mergeObjects } from '@lib/utils'
 
-export const getIsIndicatorRelative = (
-  indicator?: AccordionIndicator
-): indicator is AccordionRelativeIndicator => {
-  if (!indicator) return false
+export const getIsStylesRelative = (
+  styles?: AccordionItemStyles
+): styles is AccordionItemRelativeStyles => {
+  if (!styles) return false
 
-  const relativeIndicator = indicator as AccordionRelativeIndicator
+  const relativeStyles = styles as AccordionItemRelativeStyles
+
+  return Boolean(relativeStyles?.collapsed || relativeStyles?.expanded)
+}
+
+export const getIsClassNamesRelative = (
+  classNames?: AccordionItemClassNames
+): classNames is AccordionItemRelativeClassNames => {
+  if (!classNames) return false
+
+  const relativeClassNames = classNames as AccordionItemRelativeClassNames
 
   return Boolean(
-    typeof indicator === 'object' &&
-      relativeIndicator.expanded &&
-      relativeIndicator.collapsed
+    relativeClassNames?.default ||
+      relativeClassNames?.collapsed ||
+      relativeClassNames?.expanded
   )
 }
 
-export const getIsIndicatorStylesRelative = (
-  style?: AccordionItemStyleable<CSSProperties>['indicator']
-): style is AccordionRelativeIndicatorStyleable<CSSProperties> => {
-  if (!style) return false
+export const getStyles = (styles?: AccordionItemStyles, expanded?: boolean) => {
+  return mergeObjects(
+    styles,
+    getIsStylesRelative(styles)
+      ? expanded
+        ? styles?.expanded
+        : styles?.collapsed
+      : undefined
+  )
+}
 
-  const relativeStyleable =
-    style as AccordionRelativeIndicatorStyleable<CSSProperties>
-
-  return Boolean(
-    relativeStyleable?.default ||
-      relativeStyleable?.collapsed ||
-      relativeStyleable?.expanded
+export const getClassNames = (
+  classNames?: AccordionItemClassNames,
+  expanded?: boolean
+) => {
+  return cn(
+    getIsClassNamesRelative(classNames)
+      ? cn(
+          classNames?.default,
+          expanded ? classNames?.expanded : classNames?.collapsed
+        )
+      : classNames
   )
 }

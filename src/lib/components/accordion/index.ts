@@ -2,14 +2,34 @@ import { Accordion, AccordionProps } from '@lib/components/accordion/Accordion'
 import {
   AccordionIndicator,
   AccordionItem,
-  AccordionRelativeIndicator,
+  AccordionItemClassNames,
+  AccordionItemRelative,
+  AccordionItemRelativeClassNames,
+  AccordionItemRelativeStyles,
+  AccordionItemRenderFunction,
+  AccordionItemStyleable,
+  AccordionItemStyles,
+  AccordionRef,
+  AccordionStyleable,
+  AccordionItemState,
+  AccordionType,
 } from './types'
 
 export type {
   AccordionIndicator,
   AccordionItem,
   AccordionProps,
-  AccordionRelativeIndicator,
+  AccordionItemClassNames,
+  AccordionItemRelative,
+  AccordionItemRelativeClassNames,
+  AccordionItemRelativeStyles,
+  AccordionItemRenderFunction,
+  AccordionItemStyleable,
+  AccordionItemStyles,
+  AccordionRef,
+  AccordionStyleable,
+  AccordionItemState,
+  AccordionType,
 }
 
 export { Accordion }

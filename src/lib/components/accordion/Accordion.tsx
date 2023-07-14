@@ -1,33 +1,23 @@
 import {
   AccordionIndicator,
   AccordionItem,
+  AccordionItemClassNames,
   AccordionItemStyleable,
+  AccordionItemStyles,
+  AccordionRef,
   AccordionStyleable,
+  AccordionType,
 } from '@lib/components/accordion/types'
-import {
-  getIsIndicatorRelative,
-  getIsIndicatorStylesRelative,
-} from '@lib/components/accordion/utils'
-import { cn } from '@lib/utils'
-import {
-  CSSProperties,
-  ReactNode,
-  forwardRef,
-  useCallback,
-  useId,
-  useState,
-} from 'react'
-import classes from './Accordion.module.css'
-
-/** @todo
- * extended/collapsed external prop
- * multiple/single prop
- */
+import { getClassNames, getStyles } from '@lib/components/accordion/utils'
+import { cn, isDefined, mergeObjects } from '@lib/utils'
+import { CSSProperties, HTMLProps, forwardRef, useId, useState } from 'react'
 
 interface AccordionItemProps extends AccordionItem {
-  classNames?: AccordionItemStyleable<string>
-  styles?: AccordionItemStyleable<CSSProperties>
+  classNames?: AccordionItemStyleable<string, AccordionItemClassNames>
+  styles?: AccordionItemStyleable<CSSProperties, AccordionItemStyles>
   indicator?: AccordionIndicator
+  expanded?: boolean
+  onClick: VoidFunction
 }
 
 const AccordionItem = ({
@@ -36,101 +26,159 @@ const AccordionItem = ({
   styles,
   classNames,
   indicator,
+  expanded = false,
+  onClick,
+  render,
 }: AccordionItemProps) => {
   const headerId = useId()
   const contentId = useId()
 
-  const [expanded, setExpanded] = useState(false)
+  const dataAttributes = {
+    'data-expanded': expanded,
+    'data-disabled': false,
+  } as const
 
-  const onClick = useCallback(() => {
-    setExpanded(prev => !prev)
-  }, [])
+  const indicatorProps = {
+    style: mergeObjects(
+      { display: 'inline-block' },
+      getStyles(styles?.indicator, expanded)
+    ),
+    className: getClassNames(classNames?.indicator, expanded),
+    'aria-hidden': true,
+    ...dataAttributes,
+  } as const
 
-  const isIndicatorRelative = getIsIndicatorRelative(indicator)
+  const rootProps = {
+    style: styles?.item,
+    className: classNames?.item,
+  } as const
+
+  const headerProps = {
+    id: headerId,
+    className: classNames?.header,
+    style: styles?.header,
+    ...dataAttributes,
+  } as const
+
+  const triggerProps = {
+    className: getClassNames(classNames?.trigger, expanded),
+    style: getStyles(styles?.trigger, expanded),
+    onClick: onClick,
+    'aria-expanded': expanded,
+    'aria-controls': contentId,
+    'aria-disabled': false,
+    ...dataAttributes,
+  } as const
+
+  const contentProps = {
+    id: contentId,
+    className: classNames?.content,
+    style: styles?.content,
+    role: 'region',
+    hidden: !expanded,
+    'aria-hidden': !expanded,
+    'aria-labelledby': headerId,
+    ...dataAttributes,
+  } as const
+
+  const state = { expanded }
+
+  if (render) {
+    return (
+      <>
+        {render({ contentProps, headerProps, state, triggerProps, rootProps })}
+      </>
+    )
+  }
 
   return (
-    <div className={classNames?.item} style={styles?.item}>
-      <h3 className={classNames?.header} style={styles?.header}>
-        <button
-          id={headerId}
-          className={classNames?.trigger}
-          style={styles?.trigger}
-          onClick={onClick}
-          aria-expanded={expanded}
-          aria-controls={contentId}
-          aria-disabled={false}
-        >
+    <div {...rootProps}>
+      <h3 {...headerProps}>
+        <button {...triggerProps}>
           <span>{header}</span>
 
-          <span
-            aria-hidden
-            className={
-              typeof classNames?.indicator === 'object'
-                ? cn(
-                    classes['felice__accordion-indicator'],
-                    classNames?.indicator?.default,
-                    expanded && classNames?.indicator?.expanded,
-                    !expanded && classNames?.indicator?.collapsed
-                  )
-                : cn(
-                    classes['felice__acordion-indicator'],
-                    classNames?.indicator
-                  )
-            }
-            style={{
-              ...styles?.indicator,
-              ...((expanded &&
-                getIsIndicatorStylesRelative(styles?.indicator) &&
-                styles?.indicator?.expanded) ??
-                {}),
-              ...((!expanded &&
-                getIsIndicatorStylesRelative(styles?.indicator) &&
-                styles?.indicator?.collapsed) ??
-                {}),
-            }}
-          >
-            {isIndicatorRelative && (
-              <>
-                {expanded && indicator.expanded}
-                {!expanded && indicator.collapsed}
-              </>
-            )}
+          {typeof indicator === 'function' &&
+            indicator({ state, indicatorProps })}
 
-            {!isIndicatorRelative && (indicator as ReactNode)}
-          </span>
+          {typeof indicator !== 'function' && (
+            <span {...indicatorProps}>{indicator}</span>
+          )}
         </button>
       </h3>
-      <div
-        id={contentId}
-        className={classNames?.content}
-        style={styles?.content}
-        role='region'
-        hidden={!expanded}
-        aria-hidden={!expanded}
-        aria-labelledby={headerId}
-      >
-        {content}
-      </div>
+      <div {...contentProps}>{content}</div>
     </div>
   )
 }
 
-export interface AccordionProps {
+export interface AccordionProps
+  extends Omit<HTMLProps<HTMLDivElement>, 'data' | 'defaultValue' | 'value'> {
   data: AccordionItem | AccordionItem[]
-  classNames?: AccordionStyleable<string>
-  styles?: AccordionStyleable<CSSProperties>
+  classNames?: AccordionStyleable<string, AccordionItemClassNames>
+  styles?: AccordionStyleable<CSSProperties, AccordionItemStyles>
   indicator?: AccordionIndicator
+  defaultValue?: number[]
+  value?: number[]
+  onValueChange?: (value: number[]) => void
+  type?: AccordionType
 }
 
-export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
-  ({ data, classNames, styles, indicator }, ref) => {
-    const id = useId()
+export const Accordion = forwardRef<AccordionRef, AccordionProps>(
+  (
+    {
+      data,
+      classNames,
+      styles,
+      indicator,
+      style,
+      className,
+      id: externalId,
+      defaultValue = [],
+      value: externalValue,
+      onValueChange,
+      type = 'multiple',
+      ...props
+    },
+    ref
+  ) => {
+    const [internalValue, setInternalValue] = useState(() => {
+      if (isDefined(externalValue)) return externalValue
+
+      return defaultValue
+    })
+    const internalId = useId()
+
+    const value = isDefined(externalValue) ? externalValue : internalValue
+
+    const id = externalId || internalId
 
     const isDataArray = Array.isArray(data)
 
-    const getItemProps = (item: AccordionItem): AccordionItemProps => {
+    const setInternalValueHandler = (value: number[]) => {
+      setInternalValue(value)
+      onValueChange?.(value)
+    }
+
+    const onItemClick = (index: number) => {
+      if (value.includes(index)) {
+        setInternalValueHandler(value.filter(idx => idx !== index))
+        return
+      }
+
+      if (type === 'multiple') {
+        setInternalValueHandler([...value, index])
+      } else {
+        setInternalValueHandler([index])
+      }
+    }
+
+    const getItemProps = (
+      item: AccordionItem,
+      index: number
+    ): AccordionItemProps => {
       return {
         ...item,
+        onClick: () => onItemClick(index),
+        expanded: value.includes(index),
         classNames: {
           content: classNames?.content,
           header: classNames?.header,
@@ -150,16 +198,22 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
     }
 
     return (
-      <div id={id} ref={ref} className={classNames?.root} style={styles?.root}>
+      <div
+        {...props}
+        id={id}
+        ref={ref}
+        style={mergeObjects(style, styles?.root)}
+        className={cn(className, classNames?.root)}
+      >
         {isDataArray &&
           data.map((item, index) => (
             <AccordionItem
               key={`${item.header}@${index}`}
-              {...getItemProps(item)}
+              {...getItemProps(item, index)}
             />
           ))}
 
-        {!isDataArray && <AccordionItem {...getItemProps(data)} />}
+        {!isDataArray && <AccordionItem {...getItemProps(data, 0)} />}
       </div>
     )
   }

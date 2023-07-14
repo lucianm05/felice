@@ -4,7 +4,16 @@ import {
   RadioButtonRelativeStyles,
   RadioButtonStyles,
 } from '@lib/components/radio-group/types'
-import { cn, mergeObjects } from '@lib/utils'
+import { cn, isDefined, mergeObjects } from '@lib/utils'
+
+export const isItemDisabled = (
+  groupDisabled?: boolean,
+  itemDisabled?: boolean
+) => {
+  if (isDefined(itemDisabled)) return Boolean(itemDisabled)
+
+  return Boolean(groupDisabled)
+}
 
 export const getIsRadioButtonStyleRelative = (
   styles?: RadioButtonStyles
@@ -41,7 +50,7 @@ export const getStyles = (
     styles,
     getIsRadioButtonStyleRelative(styles)
       ? mergeObjects(
-          disabled
+          disabled && styles?.disabled
             ? styles?.disabled
             : checked
             ? styles?.checked
@@ -61,7 +70,7 @@ export const getClassNames = (
   return getIsRadioButtonClassNamesRelative(classNames)
     ? cn(
         classNames?.default,
-        disabled
+        disabled && classNames.disabled
           ? classNames.disabled
           : checked
           ? classNames?.checked

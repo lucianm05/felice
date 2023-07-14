@@ -82,7 +82,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
     const internalRef = useRef<DialogRef>(null)
 
     useImperativeHandle<DialogRef, DialogRef>(ref, () => internalRef.current, [
-      internalRef.current,
+      open,
     ])
 
     const titleId = useId()
@@ -169,18 +169,18 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       )
         return
 
-      if (event.key === keys.tab) {
-        if (event.target === lastFocusableElement) {
-          event.preventDefault()
-          firstFocusableElement.focus()
-          return
-        }
+      if (event.key !== keys.tab) return
 
-        if (event.shiftKey && event.target === firstFocusableElement) {
-          event.preventDefault()
-          lastFocusableElement.focus()
-          return
-        }
+      if (!event.shiftKey && event.target === lastFocusableElement) {
+        event.preventDefault()
+        firstFocusableElement.focus()
+        return
+      }
+
+      if (event.shiftKey && event.target === firstFocusableElement) {
+        event.preventDefault()
+        lastFocusableElement.focus()
+        return
       }
     }
 
@@ -190,7 +190,8 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
         if (internalRef.current) {
           const { firstFocusableElement } = getFocusableElements(
-            internalRef.current
+            internalRef.current,
+            'button:not([data-close-button="true"])'
           )
 
           firstFocusableElement?.focus()

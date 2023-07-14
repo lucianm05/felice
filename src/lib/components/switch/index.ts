@@ -5,9 +5,9 @@ import {
   SwitchRelativeStyle,
   SwitchStyle,
   SwitchStyleable,
+  SwitchRelative,
 } from './types'
 
-export { Switch }
 export type {
   SwitchClassNames,
   SwitchProps,
@@ -15,4 +15,6 @@ export type {
   SwitchRelativeStyle,
   SwitchStyle,
   SwitchStyleable,
+  SwitchRelative,
 }
+export { Switch }

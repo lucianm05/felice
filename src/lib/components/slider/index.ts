@@ -4,13 +4,16 @@ import {
   SliderOrientation,
   SliderRef,
   SliderValue,
+  SliderStyleable,
 } from './types'
 
-export { Slider }
 export type {
   SliderLabels,
   SliderOrientation,
   SliderProps,
   SliderRef,
   SliderValue,
+  SliderStyleable,
 }
+
+export { Slider }

@@ -12,7 +12,7 @@ import { Tabs } from '@lib/components/tabs/Tabs'
 import { Tooltip } from '@lib/components/tooltip/Tooltip'
 import { TooltipTriggerRef } from '@lib/components/tooltip/types'
 import { cn } from '@lib/utils'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import classes from './test.module.css'
 
 function App() {
@@ -31,10 +31,6 @@ function App() {
 
   const dialogRef = useRef<DialogRef>(null)
 
-  useEffect(() => {
-    console.log(dialogRef)
-  }, [dialogRef])
-
   return (
     <div className='App'>
       <div
@@ -46,6 +42,7 @@ function App() {
         }}
       >
         <Select
+          // open
           label='Preferred social media'
           data={[
             { label: 'Facebook', value: 'facebook' },
@@ -57,16 +54,18 @@ function App() {
             { label: 'TikTok', value: 'tiktok' },
           ]}
           placeholder='Social media'
-          styles={{
-            root: {
-              border: '1px solid red',
-              width: 'max-content',
-            },
-            activeOption: {
-              color: 'red',
-            },
-            selectedOption: {
-              color: 'blue',
+          // defaultValue='twitter'
+          onValueChange={({ value, label }) => {
+            console.log(value, label)
+          }}
+          classNames={{
+            root: classes['select__root'],
+            trigger: classes['select__trigger'],
+            list: classes['select__list'],
+            option: {
+              default: classes['select__option'],
+              active: classes['select__option-active'],
+              selected: classes['select__option-selected'],
             },
           }}
         />
@@ -76,7 +75,7 @@ function App() {
             header: 'Test single accordion',
             content: 'This is a single accordion',
           }}
-          indicator={<span>^</span>}
+          indicator={({ indicatorProps }) => <span {...indicatorProps}>^</span>}
           styles={{
             indicator: {
               collapsed: {
@@ -84,19 +83,52 @@ function App() {
               },
             },
           }}
+          value={[0]}
         />
 
         <Accordion
           data={[
             {
-              header: 'Test multiple accordion',
-              content: 'This is the first accordion',
+              render: ({
+                rootProps,
+                contentProps,
+                headerProps,
+                state,
+                triggerProps,
+              }) => (
+                <div {...rootProps}>
+                  <h2 {...headerProps}>
+                    <button {...triggerProps}>
+                      Accordion is now{' '}
+                      {state.expanded ? 'expanded' : 'collapsed'}
+                    </button>
+                  </h2>
+
+                  <div {...contentProps}>This is my accordion content</div>
+                </div>
+              ),
             },
             {
               header: 'Test multiple accordion',
               content: 'This is the second accordion',
             },
           ]}
+        />
+
+        <Accordion
+          data={[
+            { header: 'First accordion', content: 'First accordion content' },
+            { header: 'Second accordion', content: 'Second accordion content' },
+          ]}
+          type='single'
+          classNames={{
+            root: classes['accordion__root'],
+            content: classes['accordion__content'],
+            trigger: {
+              default: classes['accordion__trigger'],
+              expanded: classes['accordion__trigger-expanded'],
+            },
+          }}
         />
 
         {/* <div style={{ marginBottom: '8rem' }}></div> */}
@@ -109,6 +141,7 @@ function App() {
               default: classes['switch'],
               checked: classes['switch-checked'],
               unchecked: classes['switch-unchecked'],
+              disabled: classes['switch-disabled'],
             },
             thumb: {
               default: classes['switch__thumb'],
@@ -117,6 +150,7 @@ function App() {
           }}
           checked={switchChecked}
           onCheckedChange={setSwitchChecked}
+          // disabled
         />
 
         {/* <button type='button' onClick={() => setChecked(prev => !prev)}>
@@ -135,13 +169,15 @@ function App() {
           <Checkbox
             label='Terms and conditions'
             classNames={{
+              root: classes['checkbox-root'],
               checkbox: {
                 default: classes['checkbox'],
                 checked: classes['checkbox-checked'],
                 unchecked: classes['checkbox-unchecked'],
+                disabled: classes['checkbox-disabled'],
               },
             }}
-            indicator={{ checked: <span>✓</span>, unchecked: <span>✗</span> }}
+            indicator={({ state }) => <span>{state.checked ? '✓' : '✗'}</span>}
           />
 
           <Checkbox
@@ -153,11 +189,8 @@ function App() {
                 unchecked: classes['checkbox-unchecked'],
               },
             }}
-            checked={checkboxChecked}
-            onCheckedChanged={setCheckboxChecked}
           >
-            {checkboxChecked && <span>✓</span>}
-            {!checkboxChecked && <span>✗</span>}
+            {({ state: { checked } }) => <span>{checked ? '✓' : '✗'}</span>}
           </Checkbox>
         </div>
 
@@ -184,31 +217,10 @@ function App() {
         ></Progress>
 
         <Slider
-          ref={sliderRef}
           labels={['Minimum price', 'Maximum price']}
           min={50}
           max={150}
           defaultValue={[75, 125]}
-          value={sliderValue}
-          onValueChange={setSliderValue}
-          step={5}
-          multipleStep={15}
-          classNames={{
-            root: classes['slider-root'],
-            track: classes['slider-track'],
-            range: classes['slider-range'],
-            thumb: classes['slider-thumb'],
-          }}
-        />
-
-        <Slider
-          ref={sliderRef}
-          labels={['Minimum price', 'Maximum price']}
-          min={50}
-          max={150}
-          defaultValue={[75, 125]}
-          // value={sliderValue}
-          // onValueChange={setSliderValue}
           step={5}
           multipleStep={15}
           classNames={{
@@ -219,6 +231,21 @@ function App() {
               classes['slider-thumb'] + ' ' + classes['slider-thumb-vertical'],
           }}
           orientation='vertical'
+        />
+
+        <Slider
+          labels={['Minimum price', 'Maximum price']}
+          min={50}
+          max={150}
+          defaultValue={[75, 125]}
+          step={5}
+          multipleStep={15}
+          classNames={{
+            root: classes['slider-root'],
+            track: classes['slider-track'],
+            range: classes['slider-range'],
+            thumb: classes['slider-thumb'],
+          }}
         />
 
         <Tabs
@@ -250,22 +277,35 @@ function App() {
             {
               element: 'Settings',
               panel: <div>User settings</div>,
-              elementProps: { onClick: event => event.preventDefault() },
+              elementProps: {
+                onClick: event => event.preventDefault(),
+                disabled: true,
+                className: 'test1',
+              },
             },
             {
               element: 'Account information',
               panel: <>Account information</>,
+              elementProps: {
+                className: 'test2',
+              },
             },
             {
               element: 'My orders',
               panel: <div>User orders</div>,
+              elementProps: {
+                disabled: true,
+                className: 'test3',
+              },
             },
           ]}
+          defaultTab={2}
           classNames={{
             root: cn(classes['tabs-root-vertical']),
             element: {
               default: classes['tabs-element'],
               selected: classes['tabs-element-selected'],
+              disabled: classes['tabs-element-disabled'],
             },
             panel: classes['tabs-panel'],
             tablist: classes['tabs-tablist-vertical'],
@@ -275,11 +315,13 @@ function App() {
 
         <RadioGroup
           label='Select payment method'
+          defaultValue='card'
           data={[
             {
               label: 'Card',
               value: 'card',
               description: 'Card payment for faster processing',
+              disabled: true,
             },
             {
               label: 'Cash',
@@ -291,23 +333,24 @@ function App() {
               value: 'trade',
               description:
                 'In case you dont have money but have something to give',
-              disabled: true,
             },
             {
               value: 'another_option',
-              render: ({ state, buttonProps, rootProps, labelProps }) => {
-                return (
-                  <div {...rootProps} className=''>
-                    <button {...buttonProps} className=''>
-                      {state.checked ? 'checked' : 'unchecked'}
-                    </button>
+              label: 'Another option',
+              description: 'Another option which is not supported',
+              // render: ({ state, buttonProps, rootProps, labelProps }) => {
+              //   return (
+              //     <div {...rootProps} className=''>
+              //       <button {...buttonProps} className=''>
+              //         {state.checked ? 'checked' : 'unchecked'}
+              //       </button>
 
-                    <label {...labelProps} className=''>
-                      whatever
-                    </label>
-                  </div>
-                )
-              },
+              //       <label {...labelProps} className=''>
+              //         whatever
+              //       </label>
+              //     </div>
+              //   )
+              // },
             },
           ]}
           classNames={{
@@ -349,6 +392,8 @@ function App() {
               trigger: classes['tooltip-trigger'],
               content: classes['tooltip-content'],
             }}
+            // open
+            delay={0}
           >
             My tooltip
           </Tooltip>
@@ -359,6 +404,7 @@ function App() {
             side='bottom'
             classNames={{
               content: classes['tooltip-content'],
+              container: classes['tooltip-container'],
             }}
           >
             {({ triggerProps, state: { open } }) => {

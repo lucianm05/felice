@@ -15,13 +15,14 @@ import {
   getOffsetProperties,
 } from '@lib/components/tooltip/utils'
 import { keys } from '@lib/constants/keys'
-import { cn, isDefined } from '@lib/utils'
+import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
   FocusEvent,
   HTMLProps,
   MouseEvent,
   ReactNode,
   forwardRef,
+  useCallback,
   useEffect,
   useId,
   useImperativeHandle,
@@ -74,6 +75,7 @@ export interface TooltipProps
   sideOffset?: number
   classNames?: TooltipStyleable<TooltipClassNames>
   styles?: TooltipStyleable<TooltipStyles>
+  delay?: number
 }
 
 export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
@@ -86,8 +88,11 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
       content,
       side = 'top',
       sideOffset = 0,
+      style,
+      styles,
       className,
       classNames,
+      delay = 1000,
       ...props
     },
     ref
@@ -111,6 +116,24 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
       []
     )
 
+    const timeout = useRef<ReturnType<typeof setTimeout>>()
+
+    const setTimeoutHandler = useCallback(
+      (cb: VoidFunction) => {
+        timeout.current = setTimeout(() => {
+          cb()
+          clearTimeoutHandler()
+        }, delay)
+      },
+      [delay]
+    )
+
+    const clearTimeoutHandler = useCallback(() => {
+      if (!timeout.current) return
+      clearTimeout(timeout.current)
+      timeout.current = undefined
+    }, [])
+
     const setInternalOpenHandler = (
       value: boolean,
       event?: FocusEvent | MouseEvent
@@ -122,10 +145,11 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
     }
 
     const onMouseEnter = (event: MouseEvent) => {
-      setInternalOpenHandler(true, event)
+      setTimeoutHandler(() => setInternalOpenHandler(true, event))
     }
 
     const onMouseLeave = (event: MouseEvent) => {
+      clearTimeoutHandler()
       setInternalOpenHandler(false, event)
     }
 
@@ -186,15 +210,18 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
       }
 
       window.addEventListener('resize', updatePosition)
+      window.addEventListener('scroll', updatePosition)
 
       return () => {
         window.removeEventListener('resize', updatePosition)
+        window.removeEventListener('scroll', updatePosition)
       }
     }, [open, containerRef])
 
     const triggerProps: TooltipTriggerProps = {
       ref: triggerRef,
       type: 'button',
+      style: mergeObjects(style, styles?.trigger),
       className: cn(className, classNames?.trigger) || undefined,
       tabIndex: 0,
       onFocus: (event: FocusEvent<HTMLButtonElement>) => {
@@ -237,8 +264,11 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
                 containerRef.current = ref
               }}
               style={{
-                position: 'absolute',
+                position: 'fixed',
+                width: 'max-content',
+                ...(styles?.container || {}),
               }}
+              className={classNames?.container}
               onWindowKeyDown={onWindowKeyDown}
               onMouseEnter={event => {
                 onMouseEnter(event)
@@ -250,6 +280,7 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
               <TooltipContent
                 role='tooltip'
                 id={contentId}
+                style={styles?.content}
                 className={classNames?.content}
               >
                 {content}
