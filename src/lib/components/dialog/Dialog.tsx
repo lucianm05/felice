@@ -169,18 +169,18 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       )
         return
 
-      if (event.key === keys.tab) {
-        if (event.target === lastFocusableElement) {
-          event.preventDefault()
-          firstFocusableElement.focus()
-          return
-        }
+      if (event.key !== keys.tab) return
 
-        if (event.shiftKey && event.target === firstFocusableElement) {
-          event.preventDefault()
-          lastFocusableElement.focus()
-          return
-        }
+      if (!event.shiftKey && event.target === lastFocusableElement) {
+        event.preventDefault()
+        firstFocusableElement.focus()
+        return
+      }
+
+      if (event.shiftKey && event.target === firstFocusableElement) {
+        event.preventDefault()
+        lastFocusableElement.focus()
+        return
       }
     }
 

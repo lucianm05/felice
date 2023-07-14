@@ -155,7 +155,7 @@ function App() {
           }}
           checked={switchChecked}
           onCheckedChange={setSwitchChecked}
-          disabled
+          // disabled
         />
 
         {/* <button type='button' onClick={() => setChecked(prev => !prev)}>
