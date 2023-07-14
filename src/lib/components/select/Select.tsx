@@ -16,6 +16,7 @@ import {
   forwardRef,
   useCallback,
   useId,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -131,7 +132,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       return defaultOpen
     })
     const [internalSearch, setInternalSearch] = useState('')
-    
+
     const open = isDefined(externalOpen) ? externalOpen : internalOpen
     const value = isDefined(externalValue) ? externalValue : internalValue
 
@@ -165,15 +166,14 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
 
     const setInternalOptionValue = (index: number) => {
       const newOption = data[index]
-      // setInternalOption(newOption)
       setInternalValue(newOption.value)
-      // onOptionChange?.(newOption)
       onValueChange?.(newOption)
       setInternalOpenHandler(false)
     }
 
     const setInternalIndexAfterSearch = useCallback((index?: number) => {
       setInternalIndex(index)
+      setElementInView(index)
 
       // Clear internalSearch after the user stops typing
       clearSearchTimeout.current = setTimeout(() => {
@@ -209,6 +209,17 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       setInternalOpenHandler(!internalOpen)
     }
 
+    const setElementInView = (index?: number) => {
+      if (!isDefined(index)) return
+
+      const list = document.getElementById(ids.list)
+      const element = document.getElementById(ids.getOption(index))
+
+      if (!list || !element) return
+
+      list.scrollTo({ top: index * element.getBoundingClientRect().height })
+    }
+
     const onKeyDown: KeyboardEventHandler<HTMLButtonElement> = event => {
       const { code, altKey, key } = event
 
@@ -223,11 +234,14 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
 
           if (!isDefined(internalIndex)) {
             setInternalIndex(0)
+            setElementInView(0)
             return
           }
 
           if (internalIndex < maxIndex) {
-            setInternalIndex(prev => (prev || 0) + 1)
+            const newIndex = (internalIndex || 0) + 1
+            setInternalIndex(newIndex)
+            setElementInView(newIndex)
             return
           }
 
@@ -246,16 +260,20 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
           if (!internalOpen) {
             setInternalOpenHandler(true)
             setInternalIndex(0)
+            setElementInView(0)
             return
           }
 
           if (!internalIndex) {
             setInternalIndex(0)
+            setElementInView(0)
             return
           }
 
           if (internalIndex > 0) {
-            setInternalIndex(prev => (prev || maxIndex) - 1)
+            const newIndex = (internalIndex || maxIndex) - 1
+            setInternalIndex(newIndex)
+            setElementInView(newIndex)
             return
           }
 
@@ -283,7 +301,9 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
           event.preventDefault()
 
           if (!internalOpen) setInternalOpenHandler(true)
+
           setInternalIndex(0)
+          setElementInView(0)
           return
         }
 
@@ -291,7 +311,9 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
           event.preventDefault()
 
           if (!internalOpen) setInternalOpenHandler(true)
+
           setInternalIndex(maxIndex)
+          setElementInView(maxIndex)
           return
         }
 
@@ -307,15 +329,20 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
 
           if (!isDefined(internalIndex)) {
             setInternalIndex(0)
+            setElementInView(0)
             return
           }
 
-          if (internalIndex - 10 <= 0) {
+          const newIndex = internalIndex - 10
+
+          if (newIndex <= 0) {
             setInternalIndex(0)
+            setElementInView(0)
             return
           }
 
-          setInternalIndex(internalIndex - 10)
+          setInternalIndex(newIndex)
+          setElementInView(newIndex)
 
           return
         }
@@ -327,15 +354,20 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
 
           if (!isDefined(internalIndex)) {
             setInternalIndex(0)
+            setElementInView(0)
             return
           }
 
-          if (internalIndex + 10 > maxIndex) {
+          const newIndex = internalIndex + 10
+
+          if (newIndex > maxIndex) {
             setInternalIndex(maxIndex)
+            setElementInView(maxIndex)
             return
           }
 
-          setInternalIndex(internalIndex + 10)
+          setInternalIndex(newIndex)
+          setElementInView(newIndex)
 
           return
         }
@@ -382,6 +414,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
               // If the next valid index is greater than the array length, set the internalIndex to the first valid index
               if (nextValidIndex > validIndexes.length - 1) {
                 setInternalIndexAfterSearch(validIndexes[0])
+
                 return
               }
 
@@ -423,7 +456,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       setInternalOptionValue(index)
     }
 
-    const getListPosition = (): CSSProperties => {
+    const listPosition = useMemo<CSSProperties>(() => {
       return {
         position: 'absolute',
         left: (open && triggerPosition?.left) || undefined,
@@ -431,8 +464,11 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
           open && triggerPosition
             ? `${triggerPosition.top + triggerPosition.height}px`
             : undefined,
+        width: triggerPosition?.width
+          ? `${triggerPosition.width}px`
+          : undefined,
       }
-    }
+    }, [open])
 
     const triggerProps: SelectTriggerProps = {
       id: ids.trigger,
@@ -527,7 +563,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
               tabIndex={-1}
               className={classNames?.list}
               style={{
-                ...getListPosition(),
+                ...listPosition,
                 ...styles?.list,
               }}
             >

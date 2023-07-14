@@ -1,3 +1,43 @@
+.select__root {
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.5rem;
+  margin-left: 1rem;
+}
+
+.select__trigger {
+  width: 100%;
+  max-width: 10rem;
+  text-align: start;
+  padding: 0.5rem 1rem;
+  border: 1px solid darkgray;
+  border-radius: 4px;
+}
+
+.select__list {
+  background: white;
+  border: 1px solid darkgray;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+  max-height: 10rem;
+  overflow: auto;
+}
+
+.select__option {
+  display: block;
+  padding: 0.5rem 1rem;
+  transition: all 0.1s ease-in;
+  cursor: pointer;
+}
+
+.select__option-active {
+  background-color: cyan !important;
+}
+
+.select__option-selected {
+  background-color: darkturquoise;
+}
+
 .accordion__root {
   padding: 1rem;
   max-width: 20rem;

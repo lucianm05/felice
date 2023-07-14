@@ -4,7 +4,16 @@ import {
   RadioButtonRelativeStyles,
   RadioButtonStyles,
 } from '@lib/components/radio-group/types'
-import { cn, mergeObjects } from '@lib/utils'
+import { cn, isDefined, mergeObjects } from '@lib/utils'
+
+export const isItemDisabled = (
+  groupDisabled?: boolean,
+  itemDisabled?: boolean
+) => {
+  if (isDefined(itemDisabled)) return Boolean(itemDisabled)
+
+  return Boolean(groupDisabled)
+}
 
 export const getIsRadioButtonStyleRelative = (
   styles?: RadioButtonStyles

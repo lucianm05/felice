@@ -42,6 +42,7 @@ function App() {
         }}
       >
         <Select
+          // open
           label='Preferred social media'
           data={[
             { label: 'Facebook', value: 'facebook' },
@@ -53,25 +54,19 @@ function App() {
             { label: 'TikTok', value: 'tiktok' },
           ]}
           placeholder='Social media'
-          styles={{
-            root: {
-              border: '1px solid red',
-              width: 'max-content',
-              marginTop: '5rem',
-            },
-            option: {
-              active: {
-                color: 'red',
-              },
-              selected: {
-                color: 'blue',
-              },
-            },
-          }}
-          // open
-          defaultValue='twitter'
+          // defaultValue='twitter'
           onValueChange={({ value, label }) => {
             console.log(value, label)
+          }}
+          classNames={{
+            root: classes['select__root'],
+            trigger: classes['select__trigger'],
+            list: classes['select__list'],
+            option: {
+              default: classes['select__option'],
+              active: classes['select__option-active'],
+              selected: classes['select__option-selected'],
+            },
           }}
         />
 
@@ -320,11 +315,13 @@ function App() {
 
         <RadioGroup
           label='Select payment method'
+          defaultValue='card'
           data={[
             {
               label: 'Card',
               value: 'card',
               description: 'Card payment for faster processing',
+              disabled: true,
             },
             {
               label: 'Cash',
@@ -336,23 +333,24 @@ function App() {
               value: 'trade',
               description:
                 'In case you dont have money but have something to give',
-              disabled: true,
             },
             {
               value: 'another_option',
-              render: ({ state, buttonProps, rootProps, labelProps }) => {
-                return (
-                  <div {...rootProps} className=''>
-                    <button {...buttonProps} className=''>
-                      {state.checked ? 'checked' : 'unchecked'}
-                    </button>
+              label: 'Another option',
+              description: 'Another option which is not supported',
+              // render: ({ state, buttonProps, rootProps, labelProps }) => {
+              //   return (
+              //     <div {...rootProps} className=''>
+              //       <button {...buttonProps} className=''>
+              //         {state.checked ? 'checked' : 'unchecked'}
+              //       </button>
 
-                    <label {...labelProps} className=''>
-                      whatever
-                    </label>
-                  </div>
-                )
-              },
+              //       <label {...labelProps} className=''>
+              //         whatever
+              //       </label>
+              //     </div>
+              //   )
+              // },
             },
           ]}
           classNames={{
