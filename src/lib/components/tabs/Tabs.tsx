@@ -217,6 +217,8 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
           const isSelected = index === currentTab
           const isDisabled = isItemDisabled(disabled, panelProps)
 
+          if (!isSelected) return null
+
           return (
             <div
               {...panelProps}
@@ -228,6 +230,7 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
               hidden={!isSelected}
               tabIndex={0}
               aria-labelledby={ids.getElement(index)}
+              aria-hidden={!isSelected}
               data-selected={isSelected}
               data-disabled={isDisabled}
             >

@@ -43,17 +43,25 @@ export const getRangeProperties = ({
     if (orientation === 'horizontal') {
       startingPoint = ((value[0] - min) * 100) / (max - min)
       size = ((value[1] - min) * 100) / (max - min) - startingPoint
-    } else {
-      startingPoint = ((value[1] - max) * 100) / (min - max)
-      size = ((value[0] - max) * 100) / (min - max) - startingPoint
+
+      return {
+        position: 'absolute',
+        left: `${startingPoint}%`,
+        width: `${size}%`,
+      }
     }
-  } else {
-    if (orientation === 'horizontal') {
-      size = startingPoint
-    } else {
-      size = (value[0] - min) / (max - min)
+
+    startingPoint = ((value[1] - max) * 100) / (min - max)
+    size = ((value[0] - max) * 100) / (min - max) - startingPoint
+
+    return {
+      position: 'absolute',
+      top: `${startingPoint}%`,
+      height: `${size}%`,
     }
   }
+
+  size = ((value[0] - min) * 100) / (max - min)
 
   if (orientation === 'horizontal') {
     return {
@@ -65,7 +73,7 @@ export const getRangeProperties = ({
 
   return {
     position: 'absolute',
-    top: `${startingPoint}%`,
+    bottom: `${startingPoint}%`,
     height: `${size}%`,
   }
 }

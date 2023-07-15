@@ -4,6 +4,7 @@ import {
   CheckboxStyles,
 } from '@lib/components/checkbox/types'
 import { getClassNames, getStyles } from '@lib/components/checkbox/utils'
+import { useUpdateInternalOnExternalChange } from '@lib/hooks/useUpdateInternalOnExternalChange'
 import { CheckableChildren } from '@lib/types'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
@@ -11,7 +12,6 @@ import {
   HTMLProps,
   MouseEvent,
   forwardRef,
-  useEffect,
   useId,
   useState,
 } from 'react'
@@ -19,7 +19,7 @@ import {
 export interface CheckboxProps
   extends Omit<
     HTMLProps<HTMLButtonElement>,
-    'type' | 'aria-checked' | 'role' | 'children'
+    'type' | 'aria-checked' | 'role' | 'children' | 'ref'
   > {
   children?: CheckableChildren
   label: string
@@ -86,16 +86,11 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
       onCheckedChanged?.(!checked)
     }
 
-    useEffect(() => {
-      if (isDefined(externalChecked)) {
-        setInternalChecked(externalChecked)
-        return
-      }
-
-      if (!isDefined(defaultChecked)) return
-
-      setInternalChecked(defaultChecked)
-    }, [defaultChecked, externalChecked])
+    useUpdateInternalOnExternalChange({
+      defaultValue: defaultChecked,
+      externalValue: externalChecked,
+      setInternalValue: setInternalChecked,
+    })
 
     return (
       <div

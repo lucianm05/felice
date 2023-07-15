@@ -13,6 +13,7 @@ import { getFocusableElements } from '@lib/components/dialog/utils'
 import { Portal } from '@lib/components/portal'
 import { keys } from '@lib/constants/keys'
 import { usePreventScroll } from '@lib/hooks/usePreventScroll'
+import { useUpdateInternalOnExternalChange } from '@lib/hooks/useUpdateInternalOnExternalChange'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
   HTMLProps,
@@ -79,17 +80,24 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       onOpenChange?.(value)
     }
 
+    const internalTriggerRef = useRef<DialogTriggerRef>(null)
     const internalRef = useRef<DialogRef>(null)
 
     useImperativeHandle<DialogRef, DialogRef>(ref, () => internalRef.current, [
       open,
     ])
 
+    useImperativeHandle<DialogTriggerRef, DialogTriggerRef>(
+      triggerRef,
+      () => internalTriggerRef.current,
+      []
+    )
+
     const titleId = useId()
     const descriptionId = useId()
 
     const triggerProps = {
-      ref: triggerRef,
+      ref: internalTriggerRef,
       type: 'button',
       onClick: (event: MouseEvent<HTMLButtonElement>) =>
         setInternalOpenHandler(true, event),
@@ -105,8 +113,8 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       style: mergeObjects(style, styles?.root),
       className: cn(className, classNames?.root),
       'aria-modal': true,
-      'aria-labelledby': title ? titleId : undefined,
-      'aria-describedby': description ? descriptionId : undefined,
+      'aria-labelledby': titleId,
+      'aria-describedby': descriptionId,
     } as const
 
     const overlayProps = {
@@ -154,6 +162,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
     const onWindowKeyDown = (event: KeyboardEvent) => {
       if (event.key === keys.escape) {
         setInternalOpenHandler(false)
+        internalTriggerRef.current?.focus()
         return
       }
 
@@ -199,9 +208,19 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       if (!open) {
         window.removeEventListener('keydown', onWindowKeyDown)
       }
+
+      return () => {
+        window.removeEventListener('keydown', onWindowKeyDown)
+      }
     }, [open])
 
     usePreventScroll(open)
+
+    useUpdateInternalOnExternalChange({
+      setInternalValue: setInternalOpen,
+      defaultValue: defaultOpen,
+      externalValue: externalOpen,
+    })
 
     return (
       <>

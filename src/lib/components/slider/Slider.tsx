@@ -10,6 +10,7 @@ import {
   getRangeProperties,
 } from '@lib/components/slider/utils'
 import { keys } from '@lib/constants/keys'
+import { useUpdateInternalOnExternalChange } from '@lib/hooks/useUpdateInternalOnExternalChange'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
   CSSProperties,
@@ -49,7 +50,7 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
       styles,
       className,
       classNames,
-      defaultValue = [1],
+      defaultValue,
       value: externalValue,
       onValueChange,
       step = 1,
@@ -66,6 +67,10 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
       if (isDefined(externalValue)) return externalValue
 
       let minValue = min
+
+      if (!isDefined(defaultValue)) {
+        return [minValue]
+      }
 
       if (isDefined(defaultValue[0]) && isDefined(defaultValue[1])) {
         let maxValue = max
@@ -348,6 +353,12 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
     useEffect(() => {
       onValueChange?.(internalValue)
     }, [internalValue, onValueChange])
+
+    useUpdateInternalOnExternalChange({
+      setInternalValue,
+      defaultValue,
+      externalValue,
+    })
 
     return (
       <div

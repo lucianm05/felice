@@ -39,8 +39,7 @@ type RadioButtonRenderFunction = (params: {
   descriptionProps: DescriptionRenderProps
 }) => JSX.Element
 
-export interface RadioButton
-  extends Omit<HTMLProps<HTMLButtonElement>, 'label' | 'checked'> {
+export interface RadioButton {
   value: string
   label?: ReactNode
   description?: ReactNode

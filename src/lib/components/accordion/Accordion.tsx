@@ -9,6 +9,7 @@ import {
   AccordionType,
 } from '@lib/components/accordion/types'
 import { getClassNames, getStyles } from '@lib/components/accordion/utils'
+import { useUpdateInternalOnExternalChange } from '@lib/hooks/useUpdateInternalOnExternalChange'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
 import { CSSProperties, HTMLProps, forwardRef, useId, useState } from 'react'
 
@@ -132,7 +133,7 @@ export const Accordion = forwardRef<AccordionRef, AccordionProps>(
       style,
       className,
       id: externalId,
-      defaultValue = [],
+      defaultValue,
       value: externalValue,
       onValueChange,
       type = 'multiple',
@@ -142,8 +143,8 @@ export const Accordion = forwardRef<AccordionRef, AccordionProps>(
   ) => {
     const [internalValue, setInternalValue] = useState(() => {
       if (isDefined(externalValue)) return externalValue
-
-      return defaultValue
+      if (isDefined(defaultValue)) return defaultValue
+      return []
     })
     const internalId = useId()
 
@@ -196,6 +197,12 @@ export const Accordion = forwardRef<AccordionRef, AccordionProps>(
         indicator,
       }
     }
+
+    useUpdateInternalOnExternalChange({
+      setInternalValue,
+      defaultValue,
+      externalValue,
+    })
 
     return (
       <div
