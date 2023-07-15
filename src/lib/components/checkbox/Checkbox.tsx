@@ -1,7 +1,7 @@
 import {
   CheckboxClassNames,
-  CheckboxStyles,
   CheckboxStyleable,
+  CheckboxStyles,
 } from '@lib/components/checkbox/types'
 import { getClassNames, getStyles } from '@lib/components/checkbox/utils'
 import { CheckableChildren } from '@lib/types'
@@ -109,6 +109,7 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
           onClick={onClickInternal}
           aria-labelledby={labelId}
           aria-checked={checked}
+          aria-label={hideLabel ? label : undefined}
           {...dataAttributes}
         >
           {!children && (
@@ -128,18 +129,16 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
           )}
         </button>
 
-        <label
-          id={labelId}
-          htmlFor={id}
-          style={hideLabel ? undefined : styles?.label}
-          className={
-            !hideLabel && !classNames?.label
-              ? undefined
-              : cn(hideLabel ? 'felice__sr-only' : classNames?.label)
-          }
-        >
-          {label}
-        </label>
+        {!hideLabel && (
+          <label
+            id={labelId}
+            htmlFor={id}
+            style={styles?.label}
+            className={classNames?.label}
+          >
+            {label}
+          </label>
+        )}
       </div>
     )
   }
