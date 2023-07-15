@@ -21,7 +21,7 @@ function App() {
   const [checkboxChecked, setCheckboxChecked] = useState(true)
   const [sliderValue, setSliderValue] = useState<SliderValue>([75, 100])
   const progressValues = {
-    value: 75,
+    value: 25,
     min: 0,
     max: 150,
   }
@@ -200,17 +200,22 @@ function App() {
               background: 'gray',
               borderRadius: '99999px',
             },
-            indicator: {
-              width: `${
-                ((progressValues.value - progressValues.min) * 100) /
-                (progressValues.max - progressValues.min)
-              }%`,
-              height: '100%',
-              background: 'blue',
-              borderRadius: '99999px',
-            },
           }}
-        ></Progress>
+        >
+          {({ indicatorProps, state: { percentageValue } }) => {
+            return (
+              <div
+                {...indicatorProps}
+                style={{
+                  width: `${percentageValue}%`,
+                  background: 'blue',
+                  height: '100%',
+                  borderRadius: '99999px',
+                }}
+              ></div>
+            )
+          }}
+        </Progress>
 
         <Slider
           labels={['Minimum price', 'Maximum price']}
@@ -443,6 +448,7 @@ function App() {
 
           <Tooltip
             ref={tooltipRef}
+            delay={300}
             content={<>My tooltip with custom trigger</>}
             side='bottom'
             classNames={{
