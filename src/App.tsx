@@ -436,25 +436,30 @@ function App() {
           }}
           title='Add your shipping info'
           description='Fill the details below to proceed with your order'
-          closeButton={'X'}
+          // closeButton={'X'}
           content={({ actions }) => (
-            <form className={classes['dialog__content']}>
-              <input type='text' placeholder='Full name' name='name' />
+            // <form className={classes['dialog__content']}>
+            //   <input type='text' placeholder='Full name' name='name' />
 
-              <input type='text' placeholder='Address' name='address' />
+            //   <input type='text' placeholder='Address' name='address' />
 
-              <input type='text' placeholder='City' name='city' />
+            //   <input type='text' placeholder='City' name='city' />
 
-              <button
-                type='submit'
-                onClick={event => {
-                  event.preventDefault()
-                  actions.close()
-                }}
-              >
-                Save Address
-              </button>
-            </form>
+            //   <button
+            //     type='submit'
+            //     onClick={event => {
+            //       event.preventDefault()
+            //       actions.close()
+            //     }}
+            //   >
+            //     Save Address
+            //   </button>
+            // </form>
+            <>
+              <p>My dialog has only text</p>
+              <div>And divs</div>
+              <div>Keep the focus inside, if you can</div>
+            </>
           )}
           // render={({
           //   descriptionProps,
