@@ -1,4 +1,5 @@
 import {
+  Tab,
   TabElementClassNames,
   TabElementProps,
   TabElementRelativeClassNames,
@@ -15,6 +16,32 @@ export const isItemDisabled = (
   if (isDefined(itemProps?.disabled)) return Boolean(itemProps?.disabled)
 
   return Boolean(disabled)
+}
+
+export const getTabIndex = (
+  index: number,
+  data: Tab[],
+  currentTab: number,
+  groupDisabled: boolean
+) => {
+  const isSelected = index === currentTab
+
+  const currentElement = data[currentTab]
+
+  const isCurrentElementDisabled = isItemDisabled(
+    groupDisabled,
+    currentElement.elementProps
+  )
+
+  if (isCurrentElementDisabled) {
+    const firstEnabledIndex = data.findIndex(
+      element => !isItemDisabled(groupDisabled, element.elementProps)
+    )
+
+    if (firstEnabledIndex >= 0) return index === firstEnabledIndex ? 0 : -1
+  }
+
+  return isSelected ? 0 : -1
 }
 
 export const getIsTabElementStylesRelative = (

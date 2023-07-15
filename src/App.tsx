@@ -273,6 +273,7 @@ function App() {
         />
 
         <Tabs
+          id='user-actions'
           data={[
             {
               element: 'Settings',
@@ -286,17 +287,22 @@ function App() {
             {
               element: 'Account information',
               panel: <>Account information</>,
-              elementProps: {
-                className: 'test2',
-              },
             },
             {
               element: 'My orders',
-              panel: <div>User orders</div>,
-              elementProps: {
-                disabled: true,
-                className: 'test3',
-              },
+              panel: (
+                <div>
+                  <div>User orders</div>
+
+                  <Tabs
+                    data={[
+                      { element: 'Order 1', panel: <div>Order 1 </div> },
+                      { element: 'Order 2', panel: <div>Order 2 </div> },
+                      { element: 'Order 3', panel: <div>Order 3 </div> },
+                    ]}
+                  />
+                </div>
+              ),
             },
           ]}
           defaultTab={2}
