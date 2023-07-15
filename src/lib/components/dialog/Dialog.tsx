@@ -162,14 +162,12 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       const { firstFocusableElement, lastFocusableElement } =
         getFocusableElements(internalRef.current) || []
 
-      if (
-        event.ctrlKey ||
-        event.altKey ||
-        (!firstFocusableElement && !lastFocusableElement)
-      )
-        return
+      if (event.ctrlKey || event.altKey || event.key !== keys.tab) return
 
-      if (event.key !== keys.tab) return
+      if (!firstFocusableElement && !lastFocusableElement) {
+        event.preventDefault()
+        return
+      }
 
       if (!event.shiftKey && event.target === lastFocusableElement) {
         event.preventDefault()

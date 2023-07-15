@@ -7,7 +7,9 @@ import {
 } from '@lib/components/radio-group/types'
 import {
   getClassNames,
+  getCurrentIndex,
   getStyles,
+  getTabIndex,
   isItemDisabled,
 } from '@lib/components/radio-group/utils'
 import { Orientation } from '@lib/types'
@@ -173,36 +175,7 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
 
     const groupValue = isDefined(externalValue) ? externalValue : internalValue
 
-    const getCurrentIndex = () => {
-      const currentIndex = data.findIndex(
-        element => element.value === groupValue
-      )
-
-      return currentIndex < 0 ? 0 : currentIndex
-    }
-
-    const currentIndex = getCurrentIndex()
-
-    const getTabIndex = (index: number) => {
-      const isSelected = index === currentIndex
-
-      const currentElement = data[currentIndex]
-
-      const isCurrentElementDisabled = isItemDisabled(
-        groupDisabled,
-        currentElement.disabled
-      )
-
-      if (isCurrentElementDisabled) {
-        const firstEnabledIndex = data.findIndex(
-          element => !isItemDisabled(groupDisabled, element.disabled)
-        )
-
-        if (firstEnabledIndex >= 0) return index === firstEnabledIndex ? 0 : -1
-      }
-
-      return isSelected ? 0 : -1
-    }
+    const currentIndex = getCurrentIndex(data, groupValue)
 
     const setInternalValueHandler = (
       value: string,
@@ -252,7 +225,7 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
         {data.map(({ value, disabled, ...rest }, index) => {
           const isChecked = groupValue === value
           const isDisabled = isItemDisabled(groupDisabled, disabled)
-          const tabIndex = getTabIndex(index)
+          const tabIndex = getTabIndex(index, data, currentIndex, groupDisabled)
 
           const getClassNamesHandler = (classNames?: RadioButtonClassNames) =>
             getClassNames(classNames, isDisabled, isChecked)

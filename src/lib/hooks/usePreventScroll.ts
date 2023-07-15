@@ -6,6 +6,7 @@ export const usePreventScroll = (disable = false) => {
       document.body.style.top = `${-scrollY}px`
       document.body.style.overflowY = 'hidden'
       document.body.style.position = 'fixed'
+      document.body.style.width = '100%'
       return
     }
 

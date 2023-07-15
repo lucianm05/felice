@@ -1,8 +1,6 @@
 import {
   Tab,
   TabElementProps,
-  TabItem,
-  TabPanelProps,
   TabsClassNames,
   TabsOrientation,
   TabsStyles,
@@ -10,6 +8,7 @@ import {
 import {
   getTabElementClassNames,
   getTabElementStyles,
+  getTabIndex,
   isItemDisabled,
 } from '@lib/components/tabs/utils'
 import { keys } from '@lib/constants/keys'
@@ -28,45 +27,9 @@ import {
   forwardRef,
   useCallback,
   useId,
-  useImperativeHandle,
-  useLayoutEffect,
   useRef,
   useState,
 } from 'react'
-
-const TabElement = forwardRef<HTMLButtonElement, TabElementProps>(
-  ({ children, onIdLoad, ...props }, ref) => {
-    const id = useId()
-
-    useLayoutEffect(() => {
-      onIdLoad?.(id)
-    }, [])
-
-    return (
-      <button {...props} ref={ref} type='button' id={id} role='tab'>
-        {children}
-      </button>
-    )
-  }
-)
-TabElement.displayName = 'FeliceTabElement'
-
-const TabPanel = forwardRef<HTMLDivElement, TabPanelProps>(
-  ({ children, onIdLoad, ...props }, ref) => {
-    const id = useId()
-
-    useLayoutEffect(() => {
-      onIdLoad?.(id)
-    }, [])
-
-    return (
-      <div {...props} ref={ref} id={id} role='tabpanel'>
-        {children}
-      </div>
-    )
-  }
-)
-TabPanel.displayName = 'FeliceTabPanel'
 
 export interface TabsProps extends Omit<HTMLProps<HTMLDivElement>, 'data'> {
   data: Tab[]
@@ -83,6 +46,7 @@ type TabsRef = HTMLDivElement | null
 export const Tabs = forwardRef<TabsRef, TabsProps>(
   (
     {
+      id: externalId,
       data,
       defaultTab = 0,
       selectedTab,
@@ -91,7 +55,7 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
       styles,
       className,
       classNames,
-      disabled,
+      disabled = false,
       orientation = 'horizontal',
       ...props
     },
@@ -101,24 +65,19 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
       if (isDefined(selectedTab)) return selectedTab
       return defaultTab
     })
-    const [ids, setIds] = useState({ element: [], panel: [] })
 
     const currentTab = isDefined(selectedTab) ? selectedTab : internalTab
 
-    const internalRef = useRef<TabsRef>(null)
+    const tablistRef = useRef<HTMLDivElement | null>(null)
 
-    useImperativeHandle<TabsRef, TabsRef>(ref, () => internalRef.current, [])
+    const internalId = useId()
+    const id = externalId || internalId
 
-    const onIdLoad = useCallback(
-      (id: string, item: TabItem) => {
-        setIds(prev => {
-          if (prev[item].length === data.length) return prev
-
-          return { ...prev, [item]: [...prev[item], id] }
-        })
-      },
-      [data]
-    )
+    const ids = {
+      root: id,
+      getElement: (index: number) => `${id}-element-${index}`,
+      getPanel: (index: number) => `${id}-panel-${index}`,
+    }
 
     const setInternalTabHandler = ({
       index,
@@ -139,10 +98,10 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
 
     const onTabElementKeyDown = useCallback(
       (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
-        if (event.defaultPrevented || !internalRef.current) return
+        if (event.defaultPrevented || !tablistRef.current) return
 
         const elements = [
-          ...internalRef.current.querySelectorAll<HTMLButtonElement>(
+          ...tablistRef.current.querySelectorAll<HTMLButtonElement>(
             'button[role=tab]'
           ),
         ]
@@ -190,36 +149,17 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
       []
     )
 
-    const getTabIndex = (index: number) => {
-      const isSelected = index === currentTab
-
-      const currentElement = data[currentTab]
-
-      const isCurrentElementDisabled = isItemDisabled(
-        disabled,
-        currentElement.elementProps
-      )
-
-      if (isCurrentElementDisabled) {
-        const firstEnabledIndex = data.findIndex(
-          element => !isItemDisabled(disabled, element.elementProps)
-        )
-
-        if (firstEnabledIndex >= 0) return index === firstEnabledIndex ? 0 : -1
-      }
-
-      return isSelected ? 0 : -1
-    }
-
     return (
       <div
         {...props}
-        ref={internalRef}
+        ref={ref}
+        id={ids.root}
         style={mergeObjects(style, styles?.root)}
         className={cn(className, classNames?.root)}
       >
         <div
           role='tablist'
+          ref={tablistRef}
           style={styles?.tablist}
           className={classNames?.tablist}
           aria-orientation={orientation}
@@ -230,8 +170,11 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
             const isDisabled = isItemDisabled(disabled, elementProps)
 
             return (
-              <TabElement
+              <button
                 {...elementProps}
+                type='button'
+                id={ids.getElement(index)}
+                role='tab'
                 key={index}
                 style={mergeObjects(
                   getTabElementStyles(styles?.element, isDisabled, isSelected),
@@ -245,10 +188,6 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
                   ),
                   elementProps?.className
                 )}
-                onIdLoad={id => {
-                  elementProps?.onIdLoad?.(id)
-                  onIdLoad(id, 'element')
-                }}
                 onClick={event => {
                   elementProps?.onClick?.(event)
                   setInternalTabHandler({ index, event, elementProps })
@@ -261,15 +200,15 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
                   elementProps?.onFocus?.(event)
                   setInternalTabHandler({ index, event, elementProps })
                 }}
-                tabIndex={getTabIndex(index)}
+                tabIndex={getTabIndex(index, data, currentTab, disabled)}
                 disabled={isDisabled}
-                aria-controls={ids.panel[index]}
+                aria-controls={ids.getPanel(index)}
                 aria-selected={isSelected}
                 data-selected={isSelected}
                 data-disabled={isDisabled}
               >
                 {element}
-              </TabElement>
+              </button>
             )
           })}
         </div>
@@ -279,24 +218,21 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
           const isDisabled = isItemDisabled(disabled, panelProps)
 
           return (
-            <TabPanel
+            <div
               {...panelProps}
               key={index}
+              id={ids.getPanel(index)}
+              role='tabpanel'
               style={mergeObjects(styles?.panel, panelProps?.style)}
               className={cn(classNames?.panel, panelProps?.className)}
-              onIdLoad={id => {
-                panelProps?.onIdLoad?.(id)
-                onIdLoad(id, 'panel')
-              }}
               hidden={!isSelected}
               tabIndex={0}
-              disabled={isItemDisabled(disabled, panelProps)}
-              aria-labelledby={ids.element[index]}
+              aria-labelledby={ids.getElement(index)}
               data-selected={isSelected}
               data-disabled={isDisabled}
             >
               {panel}
-            </TabPanel>
+            </div>
           )
         })}
       </div>

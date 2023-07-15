@@ -273,6 +273,7 @@ function App() {
         />
 
         <Tabs
+          id='user-actions'
           data={[
             {
               element: 'Settings',
@@ -286,17 +287,22 @@ function App() {
             {
               element: 'Account information',
               panel: <>Account information</>,
-              elementProps: {
-                className: 'test2',
-              },
             },
             {
               element: 'My orders',
-              panel: <div>User orders</div>,
-              elementProps: {
-                disabled: true,
-                className: 'test3',
-              },
+              panel: (
+                <div>
+                  <div>User orders</div>
+
+                  <Tabs
+                    data={[
+                      { element: 'Order 1', panel: <div>Order 1 </div> },
+                      { element: 'Order 2', panel: <div>Order 2 </div> },
+                      { element: 'Order 3', panel: <div>Order 3 </div> },
+                    ]}
+                  />
+                </div>
+              ),
             },
           ]}
           defaultTab={2}
@@ -430,25 +436,30 @@ function App() {
           }}
           title='Add your shipping info'
           description='Fill the details below to proceed with your order'
-          closeButton={'X'}
+          // closeButton={'X'}
           content={({ actions }) => (
-            <form className={classes['dialog__content']}>
-              <input type='text' placeholder='Full name' name='name' />
+            // <form className={classes['dialog__content']}>
+            //   <input type='text' placeholder='Full name' name='name' />
 
-              <input type='text' placeholder='Address' name='address' />
+            //   <input type='text' placeholder='Address' name='address' />
 
-              <input type='text' placeholder='City' name='city' />
+            //   <input type='text' placeholder='City' name='city' />
 
-              <button
-                type='submit'
-                onClick={event => {
-                  event.preventDefault()
-                  actions.close()
-                }}
-              >
-                Save Address
-              </button>
-            </form>
+            //   <button
+            //     type='submit'
+            //     onClick={event => {
+            //       event.preventDefault()
+            //       actions.close()
+            //     }}
+            //   >
+            //     Save Address
+            //   </button>
+            // </form>
+            <>
+              <p>My dialog has only text</p>
+              <div>And divs</div>
+              <div>Keep the focus inside, if you can</div>
+            </>
           )}
           // render={({
           //   descriptionProps,
