@@ -1,4 +1,5 @@
 import {
+  ProgressChildren,
   ProgressClassNames,
   ProgressStyles,
 } from '@lib/components/progress/types'
@@ -8,9 +9,10 @@ import { HTMLProps, ReactNode, forwardRef, useEffect } from 'react'
 export interface ProgressProps
   extends Omit<
     HTMLProps<HTMLDivElement>,
-    'role' | 'aria-valuemin' | 'aria-valuemax' | 'aria-valuenow'
+    'role' | 'aria-valuemin' | 'aria-valuemax' | 'aria-valuenow' | 'children'
   > {
   label: string
+  children?: ProgressChildren
   min?: number
   max?: number
   value?: number
@@ -59,6 +61,19 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
       }
     }, [min, max, value])
 
+    const dataAttributes = {
+      'data-min': min,
+      'data-max': max,
+      'data-value': value,
+    } as const
+
+    const indicatorProps = {
+      style: styles?.indicator,
+      className: classNames?.indicator,
+      'aria-hidden': true,
+      ...dataAttributes,
+    } as const
+
     return (
       <div
         {...props}
@@ -70,19 +85,23 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
         aria-valuemin={min}
         aria-valuemax={max}
         aria-valuenow={value}
+        {...dataAttributes}
       >
-        {!children && (
-          <div
-            style={styles?.indicator}
-            className={classNames?.indicator}
-            aria-hidden
-            data-min={min}
-            data-max={max}
-            data-value={value}
-          />
-        )}
+        {!children && <div {...indicatorProps} />}
 
-        {children}
+        {children && (
+          <>
+            {typeof children !== 'function' && children}{' '}
+            {typeof children === 'function' &&
+              children({
+                indicatorProps,
+                state: {
+                  value,
+                  percentageValue: ((value - min) * 100) / (max - min),
+                },
+              })}
+          </>
+        )}
       </div>
     )
   }

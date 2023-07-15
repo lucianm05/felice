@@ -14,7 +14,9 @@ export interface SwitchRelativeClassNames extends SwitchRelative<string> {
 }
 export type SwitchClassNames = SwitchRelativeClassNames | string
 
-export interface SwitchStyleable<T> {
-  switch?: T
-  thumb?: T
+export interface SwitchStyleable<T, R> {
+  root?: T
+  label?: T
+  switch?: R
+  thumb?: R
 }

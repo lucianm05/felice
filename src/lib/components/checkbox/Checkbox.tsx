@@ -1,9 +1,10 @@
 import {
   CheckboxClassNames,
-  CheckboxStyles,
   CheckboxStyleable,
+  CheckboxStyles,
 } from '@lib/components/checkbox/types'
 import { getClassNames, getStyles } from '@lib/components/checkbox/utils'
+import { useUpdateInternalOnExternalChange } from '@lib/hooks/useUpdateInternalOnExternalChange'
 import { CheckableChildren } from '@lib/types'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
@@ -18,7 +19,7 @@ import {
 export interface CheckboxProps
   extends Omit<
     HTMLProps<HTMLButtonElement>,
-    'type' | 'aria-checked' | 'role' | 'children'
+    'type' | 'aria-checked' | 'role' | 'children' | 'ref'
   > {
   children?: CheckableChildren
   label: string
@@ -85,6 +86,12 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
       onCheckedChanged?.(!checked)
     }
 
+    useUpdateInternalOnExternalChange({
+      defaultValue: defaultChecked,
+      externalValue: externalChecked,
+      setInternalValue: setInternalChecked,
+    })
+
     return (
       <div
         style={getStyles(styles?.root, checked, disabled)}
@@ -107,8 +114,10 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
             getClassNames(classNames?.checkbox, checked, disabled)
           )}
           onClick={onClickInternal}
-          aria-labelledby={labelId}
           aria-checked={checked}
+          aria-disabled={disabled}
+          aria-labelledby={hideLabel ? undefined : labelId}
+          aria-label={hideLabel ? label : undefined}
           {...dataAttributes}
         >
           {!children && (
@@ -128,18 +137,16 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
           )}
         </button>
 
-        <label
-          id={labelId}
-          htmlFor={id}
-          style={hideLabel ? undefined : styles?.label}
-          className={
-            !hideLabel && !classNames?.label
-              ? undefined
-              : cn(hideLabel ? 'felice__sr-only' : classNames?.label)
-          }
-        >
-          {label}
-        </label>
+        {!hideLabel && (
+          <label
+            id={labelId}
+            htmlFor={id}
+            style={styles?.label}
+            className={classNames?.label}
+          >
+            {label}
+          </label>
+        )}
       </div>
     )
   }

@@ -7,6 +7,7 @@ import {
 } from '@lib/components/select/utils'
 import { keys } from '@lib/constants/keys'
 import { useElementPosition } from '@lib/hooks/useElementPosition'
+import { useUpdateInternalOnExternalChange } from '@lib/hooks/useUpdateInternalOnExternalChange'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
   CSSProperties,
@@ -15,6 +16,7 @@ import {
   KeyboardEventHandler,
   forwardRef,
   useCallback,
+  useEffect,
   useId,
   useMemo,
   useRef,
@@ -221,7 +223,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
     }
 
     const onKeyDown: KeyboardEventHandler<HTMLButtonElement> = event => {
-      const { code, altKey, key } = event
+      const { altKey, key, code } = event
 
       switch (code) {
         case keys.arrowDown: {
@@ -285,12 +287,15 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         case keys.tab: {
           ignoreBlur.current = true
 
-          if (!internalOpen && code !== keys.tab) {
+          if (!internalOpen && key !== keys.tab) {
             setInternalOpenHandler(true)
             return
           }
 
-          if (!isDefined(internalIndex)) return
+          if (!isDefined(internalIndex)) {
+            setInternalOpenHandler(false)
+            return
+          }
 
           setInternalIndex(internalIndex)
           setInternalOptionValue(internalIndex)
@@ -468,7 +473,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
           ? `${triggerPosition.width}px`
           : undefined,
       }
-    }, [open])
+    }, [open, triggerPosition])
 
     const triggerProps: SelectTriggerProps = {
       id: ids.trigger,
@@ -530,6 +535,36 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       }
     }
 
+    useEffect(() => {
+      const onWindowKeyDown = (event: KeyboardEvent) => {
+        if (event.key === keys.escape) {
+          reset()
+        }
+      }
+
+      if (open) {
+        window.addEventListener('keydown', onWindowKeyDown)
+      } else {
+        window.removeEventListener('keydown', onWindowKeyDown)
+      }
+
+      return () => {
+        window.removeEventListener('keydown', onWindowKeyDown)
+      }
+    }, [open])
+
+    useUpdateInternalOnExternalChange({
+      setInternalValue,
+      defaultValue,
+      externalValue,
+    })
+
+    useUpdateInternalOnExternalChange({
+      setInternalValue: setInternalOpen,
+      defaultValue: defaultOpen,
+      externalValue: externalOpen,
+    })
+
     return (
       <div
         {...props}
@@ -556,7 +591,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         )}
 
         <Portal>
-          {open && (
+          {open && triggerRef.current && (
             <ul
               id={ids.list}
               role='listbox'

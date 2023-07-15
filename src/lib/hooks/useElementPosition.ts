@@ -1,9 +1,15 @@
-import { MutableRefObject } from 'react'
+import { MutableRefObject, useEffect, useState } from 'react'
 
 export const useElementPosition = (
   ref?: MutableRefObject<HTMLElement | null>
 ) => {
-  if (!ref?.current) return null
+  const [pos, setPos] = useState<DOMRect | null>(null)
 
-  return ref.current.getBoundingClientRect()
+  useEffect(() => {
+    if (!ref?.current) return
+
+    setPos(ref.current.getBoundingClientRect())
+  }, [ref])
+
+  return pos
 }

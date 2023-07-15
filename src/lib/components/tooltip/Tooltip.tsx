@@ -15,6 +15,7 @@ import {
   getOffsetProperties,
 } from '@lib/components/tooltip/utils'
 import { keys } from '@lib/constants/keys'
+import { useUpdateInternalOnExternalChange } from '@lib/hooks/useUpdateInternalOnExternalChange'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
   FocusEvent,
@@ -92,7 +93,7 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
       styles,
       className,
       classNames,
-      delay = 1000,
+      delay = 500,
       ...props
     },
     ref
@@ -218,6 +219,12 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
       }
     }, [open, containerRef])
 
+    useUpdateInternalOnExternalChange({
+      setInternalValue: setInternalOpen,
+      defaultValue: defaultOpen,
+      externalValue: externalOpen,
+    })
+
     const triggerProps: TooltipTriggerProps = {
       ref: triggerRef,
       type: 'button',
@@ -256,7 +263,7 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
           children({ triggerProps, state: { open } })}
 
         <Portal>
-          {open && (
+          {open && triggerRef.current && (
             <TooltipContainer
               ref={ref => {
                 setContainerOffset(ref)
@@ -271,7 +278,7 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
               className={classNames?.container}
               onWindowKeyDown={onWindowKeyDown}
               onMouseEnter={event => {
-                onMouseEnter(event)
+                setInternalOpenHandler(true, event)
               }}
               onMouseLeave={event => {
                 onMouseLeave(event)

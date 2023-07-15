@@ -162,6 +162,9 @@ import { usePreventScroll } from './hooks/usePreventScroll'
 
 export { useElementPosition, usePreventScroll }
 
+/** Utils */
+export { cn, isDefined, mergeObjects } from './utils'
+
 /** Misc */
 
 export type {

@@ -12,6 +12,7 @@ import {
   getTabIndex,
   isItemDisabled,
 } from '@lib/components/radio-group/utils'
+import { useUpdateInternalOnExternalChange } from '@lib/hooks/useUpdateInternalOnExternalChange'
 import { Orientation } from '@lib/types'
 import {
   cn,
@@ -34,12 +35,14 @@ import {
   useState,
 } from 'react'
 
-interface RadioButtonProps extends Radio, RadioButtonState {}
+interface RadioButtonProps
+  extends Radio,
+    RadioButtonState,
+    Omit<HTMLProps<HTMLButtonElement>, 'content' | 'value' | 'label'> {}
 
 const RadioButton = ({
   label,
   description,
-  value,
   id: externalId,
   checked,
   render,
@@ -48,7 +51,6 @@ const RadioButton = ({
   className,
   classNames,
   disabled,
-  ...props
 }: RadioButtonProps) => {
   const internalId = useId()
   const labelId = useId()
@@ -64,7 +66,6 @@ const RadioButton = ({
   } as const
 
   const buttonProps = {
-    ...props,
     type: 'button',
     id,
     role: 'radio',
@@ -74,9 +75,8 @@ const RadioButton = ({
       getClassNames(classNames?.button, disabled, checked)
     ),
     disabled,
-    'aria-labelledby': label ? labelId : undefined,
-    'aria-describedby': description ? descriptionId : undefined,
-    'aria-label': label ? undefined : value,
+    'aria-labelledby': labelId,
+    'aria-describedby': descriptionId,
     'aria-checked': checked,
     'aria-disabled': disabled,
     'data-disabled': disabled,
@@ -213,6 +213,12 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
       }
     }
 
+    useUpdateInternalOnExternalChange({
+      setInternalValue,
+      defaultValue,
+      externalValue,
+    })
+
     return (
       <div
         {...props}
@@ -235,17 +241,14 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
             value,
             onClick: (event: MouseEvent<HTMLButtonElement>) => {
               if (isDisabled) return
-              rest?.onClick?.(event)
               setInternalValueHandler(value, event)
             },
             onFocus: (event: FocusEvent<HTMLButtonElement>) => {
               if (isDisabled) return
-              rest?.onFocus?.(event)
               setInternalValueHandler(value, event)
             },
             onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => {
               if (isDisabled) return
-              rest?.onKeyDown?.(event)
               onRadioButtonKeyDown(event)
             },
             tabIndex,
