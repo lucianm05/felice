@@ -1,4 +1,5 @@
 import {
+  RadioButton,
   RadioButtonClassNames,
   RadioButtonRelativeClassNames,
   RadioButtonRelativeStyles,
@@ -13,6 +14,38 @@ export const isItemDisabled = (
   if (isDefined(itemDisabled)) return Boolean(itemDisabled)
 
   return Boolean(groupDisabled)
+}
+
+export const getTabIndex = (
+  index: number,
+  data: RadioButton[],
+  currentIndex: number,
+  groupDisabled: boolean
+) => {
+  const isSelected = index === currentIndex
+
+  const currentElement = data[currentIndex]
+
+  const isCurrentElementDisabled = isItemDisabled(
+    groupDisabled,
+    currentElement.disabled
+  )
+
+  if (isCurrentElementDisabled) {
+    const firstEnabledIndex = data.findIndex(
+      element => !isItemDisabled(groupDisabled, element.disabled)
+    )
+
+    if (firstEnabledIndex >= 0) return index === firstEnabledIndex ? 0 : -1
+  }
+
+  return isSelected ? 0 : -1
+}
+
+export const getCurrentIndex = (data: RadioButton[], groupValue: string) => {
+  const currentIndex = data.findIndex(element => element.value === groupValue)
+
+  return currentIndex < 0 ? 0 : currentIndex
 }
 
 export const getIsRadioButtonStyleRelative = (
