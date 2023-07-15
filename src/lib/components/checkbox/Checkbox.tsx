@@ -11,6 +11,7 @@ import {
   HTMLProps,
   MouseEvent,
   forwardRef,
+  useEffect,
   useId,
   useState,
 } from 'react'
@@ -85,6 +86,17 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
       onCheckedChanged?.(!checked)
     }
 
+    useEffect(() => {
+      if (isDefined(externalChecked)) {
+        setInternalChecked(externalChecked)
+        return
+      }
+
+      if (!isDefined(defaultChecked)) return
+
+      setInternalChecked(defaultChecked)
+    }, [defaultChecked, externalChecked])
+
     return (
       <div
         style={getStyles(styles?.root, checked, disabled)}
@@ -107,8 +119,9 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
             getClassNames(classNames?.checkbox, checked, disabled)
           )}
           onClick={onClickInternal}
-          aria-labelledby={labelId}
           aria-checked={checked}
+          aria-disabled={disabled}
+          aria-labelledby={hideLabel ? undefined : labelId}
           aria-label={hideLabel ? label : undefined}
           {...dataAttributes}
         >

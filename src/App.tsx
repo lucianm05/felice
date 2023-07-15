@@ -167,6 +167,7 @@ function App() {
           }}
         >
           <Checkbox
+            hideLabel
             label='Terms and conditions'
             classNames={{
               root: classes['checkbox-root'],
