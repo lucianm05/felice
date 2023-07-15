@@ -348,7 +348,6 @@ function App() {
               ),
             },
           ]}
-          defaultTab={2}
           classNames={{
             root: cn(classes['tabs-root-vertical']),
             element: {

@@ -12,6 +12,7 @@ import {
   isItemDisabled,
 } from '@lib/components/tabs/utils'
 import { keys } from '@lib/constants/keys'
+import { useUpdateInternalOnExternalChange } from '@lib/hooks/useUpdateInternalOnExternalChange'
 import {
   cn,
   getNextElementInSequence,
@@ -34,7 +35,7 @@ import {
 export interface TabsProps extends Omit<HTMLProps<HTMLDivElement>, 'data'> {
   data: Tab[]
   defaultTab?: number
-  selectedTab?: number
+  currentTab?: number
   onTabChange?: (tab: number) => void
   styles?: TabsStyles
   classNames?: TabsClassNames
@@ -49,7 +50,7 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
       id: externalId,
       data,
       defaultTab = 0,
-      selectedTab,
+      currentTab: externalTab,
       onTabChange,
       style,
       styles,
@@ -62,11 +63,11 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
     ref
   ) => {
     const [internalTab, setInternalTab] = useState(() => {
-      if (isDefined(selectedTab)) return selectedTab
+      if (isDefined(externalTab)) return externalTab
       return defaultTab
     })
 
-    const currentTab = isDefined(selectedTab) ? selectedTab : internalTab
+    const currentTab = isDefined(externalTab) ? externalTab : internalTab
 
     const tablistRef = useRef<HTMLDivElement | null>(null)
 
@@ -148,6 +149,12 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
       },
       []
     )
+
+    useUpdateInternalOnExternalChange({
+      setInternalValue: setInternalTab,
+      defaultValue: defaultTab,
+      externalValue: externalTab,
+    })
 
     return (
       <div
