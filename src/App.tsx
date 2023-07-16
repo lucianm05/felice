@@ -297,6 +297,7 @@ function App() {
         />
 
         <Tabs
+          orientation='vertical'
           data={[
             {
               element: 'Settings',
@@ -320,7 +321,7 @@ function App() {
           }}
         />
 
-        <Tabs
+        {/* <Tabs
           id='user-actions'
           data={[
             {
@@ -374,7 +375,7 @@ function App() {
             tablist: classes['tabs-tablist-vertical'],
           }}
           orientation='vertical'
-        />
+        /> */}
 
         <RadioGroup
           label='Select payment method'
