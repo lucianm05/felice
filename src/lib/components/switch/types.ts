@@ -6,13 +6,13 @@ export interface SwitchRelative<T = unknown> {
   disabled?: T
 }
 
-export type SwitchRelativeStyle = SwitchRelative<CSSProperties>
-export type SwitchStyle = SwitchRelativeStyle | CSSProperties
+export type SwitchRelativeStyles = SwitchRelative<CSSProperties>
+export type SwitchInternalStyles = SwitchRelativeStyles | CSSProperties
 
 export interface SwitchRelativeClassNames extends SwitchRelative<string> {
   default?: string
 }
-export type SwitchClassNames = SwitchRelativeClassNames | string
+export type SwitchInternalClassNames = SwitchRelativeClassNames | string
 
 export interface SwitchStyleable<T, R> {
   root?: T
@@ -20,3 +20,6 @@ export interface SwitchStyleable<T, R> {
   switch?: R
   thumb?: R
 }
+
+export type SwitchStyles = SwitchStyleable<CSSProperties, SwitchInternalStyles>
+export type SwitchClassNames = SwitchStyleable<string, SwitchInternalClassNames>

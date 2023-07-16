@@ -1,20 +1,12 @@
 import {
   CheckboxClassNames,
-  CheckboxStyleable,
   CheckboxStyles,
 } from '@lib/components/checkbox/types'
 import { getClassNames, getStyles } from '@lib/components/checkbox/utils'
 import { useUpdateInternalOnExternalChange } from '@lib/hooks/useUpdateInternalOnExternalChange'
 import { CheckableChildren } from '@lib/types'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
-import {
-  CSSProperties,
-  HTMLProps,
-  MouseEvent,
-  forwardRef,
-  useId,
-  useState,
-} from 'react'
+import { HTMLProps, MouseEvent, forwardRef, useId, useState } from 'react'
 
 export interface CheckboxProps
   extends Omit<
@@ -28,8 +20,8 @@ export interface CheckboxProps
   checked?: boolean
   onCheckedChanged?: (value: boolean) => void
   indicator?: CheckableChildren
-  styles?: CheckboxStyleable<CSSProperties, CheckboxStyles>
-  classNames?: CheckboxStyleable<string, CheckboxClassNames>
+  styles?: CheckboxStyles
+  classNames?: CheckboxClassNames
 }
 
 export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
@@ -122,7 +114,8 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
         >
           {!children && (
             <>
-              {typeof indicator === 'function' && indicator({ state })}
+              {typeof indicator === 'function' &&
+                indicator({ state, childrenProps: dataAttributes })}
 
               {typeof indicator !== 'function' && indicator}
             </>
@@ -130,7 +123,8 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
 
           {children && (
             <>
-              {typeof children === 'function' && children({ state })}
+              {typeof children === 'function' &&
+                children({ state, childrenProps: dataAttributes })}
 
               {typeof children !== 'function' && children}
             </>

@@ -1,20 +1,9 @@
-import {
-  SwitchClassNames,
-  SwitchStyle,
-  SwitchStyleable,
-} from '@lib/components/switch/types'
+import { SwitchClassNames, SwitchStyles } from '@lib/components/switch/types'
 import { getClassNames, getStyles } from '@lib/components/switch/utils'
 import { useUpdateInternalOnExternalChange } from '@lib/hooks/useUpdateInternalOnExternalChange'
 import { CheckableChildren } from '@lib/types'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
-import {
-  CSSProperties,
-  HTMLProps,
-  MouseEvent,
-  forwardRef,
-  useId,
-  useState,
-} from 'react'
+import { HTMLProps, MouseEvent, forwardRef, useId, useState } from 'react'
 
 export interface SwitchProps
   extends Omit<
@@ -24,8 +13,8 @@ export interface SwitchProps
   children?: CheckableChildren
   label: string
   hideLabel?: boolean
-  styles?: SwitchStyleable<CSSProperties, SwitchStyle>
-  classNames?: SwitchStyleable<string, SwitchClassNames>
+  styles?: SwitchStyles
+  classNames?: SwitchClassNames
   defaultChecked?: boolean
   checked?: boolean
   onCheckedChange?: (value: boolean) => void

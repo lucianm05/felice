@@ -4,8 +4,8 @@ import {
   RadioButton as Radio,
   RadioButtonClassNames,
   RadioButtonState,
-  RadioButtonStyles,
-  RadioGroupStyleable,
+  RadioGroupClassNames,
+  RadioGroupStyles,
 } from '@lib/components/radio-group/types'
 import {
   getClassNames,
@@ -24,7 +24,6 @@ import {
   mergeObjects,
 } from '@lib/utils'
 import {
-  CSSProperties,
   FocusEvent,
   Fragment,
   HTMLProps,
@@ -148,8 +147,8 @@ export interface RadioGroupProps
   onValueChange?: (value: string) => void
   orientation?: Orientation
   disabled?: boolean
-  styles?: RadioGroupStyleable<CSSProperties, RadioButtonStyles>
-  classNames?: RadioGroupStyleable<string, RadioButtonClassNames>
+  styles?: RadioGroupStyles
+  classNames?: RadioGroupClassNames
 }
 
 type RadioGroupRef = HTMLDivElement | null

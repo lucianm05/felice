@@ -1,20 +1,24 @@
 import { Switch, SwitchProps } from './Switch'
 import {
   SwitchClassNames,
-  SwitchRelativeClassNames,
-  SwitchRelativeStyle,
-  SwitchStyle,
-  SwitchStyleable,
+  SwitchInternalClassNames,
+  SwitchInternalStyles,
   SwitchRelative,
+  SwitchRelativeClassNames,
+  SwitchRelativeStyles,
+  SwitchStyleable,
+  SwitchStyles,
 } from './types'
 
+export { Switch }
 export type {
   SwitchClassNames,
+  SwitchInternalClassNames,
+  SwitchInternalStyles,
   SwitchProps,
-  SwitchRelativeClassNames,
-  SwitchRelativeStyle,
-  SwitchStyle,
-  SwitchStyleable,
   SwitchRelative,
+  SwitchRelativeClassNames,
+  SwitchRelativeStyles,
+  SwitchStyleable,
+  SwitchStyles,
 }
-export { Switch }
