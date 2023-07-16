@@ -101,6 +101,7 @@ export const Select = forwardRef<SelectRef, SelectProps>(
     const maxIndex = data.length - 1
 
     const ids = {
+      root: id,
       label: `${id}-label`,
       trigger: id,
       list: `${id}-listbox`,
@@ -527,6 +528,7 @@ export const Select = forwardRef<SelectRef, SelectProps>(
     return (
       <div
         {...props}
+        id={ids.root}
         ref={ref}
         style={mergeObjects(style, styles?.root)}
         className={cn(className, classNames?.root)}
@@ -578,6 +580,9 @@ export const Select = forwardRef<SelectRef, SelectProps>(
                         optionProps: getListItemProps(option, index),
                         option,
                         index,
+                        state: {
+                          selected: option.value === value,
+                        },
                       })}
                     </>
                   )}

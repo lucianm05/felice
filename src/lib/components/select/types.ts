@@ -106,6 +106,9 @@ export interface SelectOptionRenderFunctionParams {
   optionProps: SelectOptionRenderProps
   option: SelectOption
   index: number
+  state: {
+    selected: boolean
+  }
 }
 export type SelectOptionRenderFunction = (
   params: SelectOptionRenderFunctionParams
