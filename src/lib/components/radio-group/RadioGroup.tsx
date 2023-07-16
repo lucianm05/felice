@@ -1,4 +1,6 @@
 import {
+  ButtonHandlers,
+  CommonRenderProps,
   RadioButton as Radio,
   RadioButtonClassNames,
   RadioButtonState,
@@ -38,36 +40,41 @@ import {
 interface RadioButtonProps
   extends Radio,
     RadioButtonState,
-    Omit<HTMLProps<HTMLButtonElement>, 'content' | 'value' | 'label'> {}
+    ButtonHandlers,
+    CommonRenderProps {}
 
 const RadioButton = ({
   label,
   description,
-  id: externalId,
-  checked,
+  checked = false,
   render,
   style,
   styles,
   className,
   classNames,
-  disabled,
+  disabled = false,
+  onClick,
+  onFocus,
+  onKeyDown,
 }: RadioButtonProps) => {
   const internalId = useId()
   const labelId = useId()
   const descriptionId = useId()
 
-  const id = externalId || internalId
-
-  const rootProps = {
-    style: getStyles(styles?.root, disabled, checked),
-    className: getClassNames(classNames?.root, disabled, checked),
+  const dataAttributes = {
     'data-disabled': disabled,
     'data-checked': checked,
   } as const
 
+  const rootProps = {
+    style: getStyles(styles?.root, disabled, checked),
+    className: getClassNames(classNames?.root, disabled, checked),
+    ...dataAttributes,
+  } as const
+
   const buttonProps = {
     type: 'button',
-    id,
+    id: internalId,
     role: 'radio',
     style: mergeObjects(style, getStyles(styles?.button, disabled, checked)),
     className: cn(
@@ -75,30 +82,35 @@ const RadioButton = ({
       getClassNames(classNames?.button, disabled, checked)
     ),
     disabled,
+    onClick,
+    onFocus,
+    onKeyDown,
     'aria-labelledby': labelId,
     'aria-describedby': descriptionId,
     'aria-checked': checked,
     'aria-disabled': disabled,
-    'data-disabled': disabled,
-    'data-checked': checked,
+    ...dataAttributes,
   } as const
 
   const textContainerProps = {
     style: styles?.textContainer,
     className: classNames?.textContainer,
+    ...dataAttributes,
   } as const
 
   const labelProps = {
     id: labelId,
-    htmlFor: id,
+    htmlFor: internalId,
     style: styles?.label,
     className: classNames?.label,
+    ...dataAttributes,
   } as const
 
   const descriptionProps = {
     id: descriptionId,
     style: styles?.description,
     className: classNames?.description,
+    ...dataAttributes,
   } as const
 
   if (render) {
@@ -240,7 +252,9 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
             ...rest,
             value,
             onClick: (event: MouseEvent<HTMLButtonElement>) => {
-              if (isDisabled) return
+              if (isDisabled) {
+                return
+              }
               setInternalValueHandler(value, event)
             },
             onFocus: (event: FocusEvent<HTMLButtonElement>) => {
@@ -295,6 +309,8 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
                 rest?.classNames?.textContainer
               ),
             },
+            'data-disabled': isDisabled,
+            'data-checked': isChecked,
           }
 
           return (
