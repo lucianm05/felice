@@ -40,6 +40,8 @@ export type {
   DialogClassNames,
   DialogCloseButton,
   DialogContent,
+  DialogInternalClassNames,
+  DialogInternalStyles,
   DialogProps,
   DialogRef,
   DialogRenderFunction,

@@ -95,6 +95,8 @@ export interface DialogStyleable<T> {
   closeButton?: T
 }
 
-export type DialogStyles = CSSProperties
+export type DialogInternalStyles = CSSProperties
+export type DialogInternalClassNames = string
 
-export type DialogClassNames = string
+export type DialogStyles = DialogStyleable<DialogInternalStyles>
+export type DialogClassNames = DialogStyleable<DialogInternalClassNames>

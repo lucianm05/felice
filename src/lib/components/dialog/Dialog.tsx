@@ -5,7 +5,6 @@ import {
   DialogContent,
   DialogRef,
   DialogRenderFunction,
-  DialogStyleable,
   DialogStyles,
   DialogTriggerRef,
 } from '@lib/components/dialog/types'
@@ -38,8 +37,8 @@ export interface DialogProps
   description?: ReactNode
   content?: DialogContent
   closeButton?: DialogCloseButton
-  styles?: DialogStyleable<DialogStyles>
-  classNames?: DialogStyleable<DialogClassNames>
+  styles?: DialogStyles
+  classNames?: DialogClassNames
   render?: DialogRenderFunction
 }
 
@@ -104,6 +103,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       style: styles?.trigger,
       className: classNames?.trigger,
       disabled,
+      'data-disabled': disabled,
     } as const
 
     const rootProps = {
