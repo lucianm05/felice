@@ -93,10 +93,27 @@ export { RadioGroup } from './components/radio-group'
 /** Select */
 
 export type {
+  SelectClassNames,
   SelectOption,
-  SelectOptionProps,
+  SelectOptionClassNames,
+  SelectOptionRelativeClassNames,
+  SelectOptionRelativeStyles,
+  SelectOptionRenderFunction,
+  SelectOptionRenderFunctionParams,
+  SelectOptionRenderProps,
+  SelectOptionStyles,
   SelectProps,
-  SelectTriggerProps,
+  SelectRef,
+  SelectRelativeOption,
+  SelectRelativeTrigger,
+  SelectStyles,
+  SelectTriggerClassNames,
+  SelectTriggerRelativeClassNames,
+  SelectTriggerRelativeStyles,
+  SelectTriggerRenderFunction,
+  SelectTriggerRenderFunctionParams,
+  SelectTriggerRenderProps,
+  SelectTriggerStyles,
 } from './components/select'
 
 export { Select } from './components/select'

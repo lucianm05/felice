@@ -58,7 +58,7 @@ function App() {
           placeholder='Social media'
           classNames={{
             root: classes['select__root'],
-            trigger: classes['select__trigger'],
+            trigger: { default: classes['select__trigger'] },
             list: classes['select__list'],
             option: {
               default: classes['select__option'],
@@ -66,6 +66,7 @@ function App() {
               selected: classes['select__option-selected'],
             },
           }}
+          disabled
         />
 
         <Accordion

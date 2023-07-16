@@ -23,73 +23,24 @@ import {
   useState,
 } from 'react'
 import {
+  SelectClassNames,
   SelectOption,
-  SelectOptionClassNames,
-  SelectOptionStyles,
-  SelectStyleable,
-  SelectVisibilityClassNames,
-  SelectVisibilityStyles,
+  SelectOptionRenderFunction,
+  SelectOptionRenderProps,
+  SelectRef,
+  SelectStyles,
+  SelectTriggerRenderFunction,
+  SelectTriggerRenderProps,
 } from './types'
-
-export interface SelectTriggerProps
-  extends Pick<
-      HTMLProps<HTMLButtonElement>,
-      | 'aria-controls'
-      | 'aria-expanded'
-      | 'aria-labelledby'
-      | 'aria-activedescendant'
-      | 'aria-label'
-      | 'aria-haspopup'
-      | 'className'
-      | 'style'
-    >,
-    Required<
-      Pick<
-        HTMLProps<HTMLButtonElement>,
-        'id' | 'ref' | 'onClick' | 'onBlur' | 'onKeyDown' | 'tabIndex'
-      >
-    > {
-  type: 'button'
-}
-
-export interface SelectOptionProps
-  extends Pick<HTMLProps<HTMLLIElement>, 'className' | 'style'>,
-    Required<
-      Pick<
-        HTMLProps<HTMLLIElement>,
-        | 'id'
-        | 'role'
-        | 'tabIndex'
-        | 'aria-selected'
-        | 'onClick'
-        | 'onMouseDown'
-        | 'onMouseEnter'
-      >
-    > {}
 
 export interface SelectProps extends Omit<HTMLProps<HTMLDivElement>, 'data'> {
   label: string
   data: SelectOption[]
   placeholder?: string
-  styles?: SelectStyleable<
-    CSSProperties,
-    SelectOptionStyles,
-    SelectVisibilityStyles
-  >
-  classNames?: SelectStyleable<
-    string,
-    SelectOptionClassNames,
-    SelectVisibilityClassNames
-  >
-  renderTrigger?: (
-    props: SelectTriggerProps,
-    selectedOption?: SelectOption
-  ) => JSX.IntrinsicElements['button']
-  renderOption?: (
-    props: SelectOptionProps,
-    option: SelectOption,
-    index: number
-  ) => JSX.IntrinsicElements['li']
+  styles?: SelectStyles
+  classNames?: SelectClassNames
+  renderTrigger?: SelectTriggerRenderFunction
+  renderOption?: SelectOptionRenderFunction
   defaultOpen?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
@@ -98,7 +49,7 @@ export interface SelectProps extends Omit<HTMLProps<HTMLDivElement>, 'data'> {
   onValueChange?: (option: SelectOption) => void
 }
 
-export const Select = forwardRef<HTMLDivElement, SelectProps>(
+export const Select = forwardRef<SelectRef, SelectProps>(
   (
     {
       id: externalId,
@@ -117,6 +68,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       defaultValue,
       value: externalValue,
       onValueChange,
+      disabled = false,
       ...props
     },
     ref
@@ -162,6 +114,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
     const clearSearchTimeout = useRef<ReturnType<typeof setTimeout>>()
 
     const setInternalOpenHandler = (open: boolean) => {
+      if (disabled) return
+
       setInternalOpen(open)
       onOpenChange?.(open)
     }
@@ -475,7 +429,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       }
     }, [open, triggerPosition])
 
-    const triggerProps: SelectTriggerProps = {
+    const triggerProps: SelectTriggerRenderProps = {
       id: ids.trigger,
       ref: triggerRef,
       type: 'button',
@@ -483,22 +437,27 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       onBlur: onBlur,
       onKeyDown: onKeyDown,
       tabIndex: 0,
+      disabled,
       'aria-controls': ids.list,
       'aria-expanded': internalOpen,
       'aria-haspopup': 'listbox',
       'aria-labelledby': ids.label,
       'aria-activedescendant': ids.getOption(internalIndex) || undefined,
       'aria-label': getCurrentOption()?.label,
+      'aria-disabled': disabled,
+      'data-disabled': disabled,
       className: getIsVisiblityClassNamesRelative(classNames?.trigger)
         ? cn(
             classNames?.trigger?.default,
-            open ? classNames?.trigger?.open : classNames?.trigger?.closed
+            open ? classNames?.trigger?.open : classNames?.trigger?.closed,
+            disabled ? classNames?.trigger?.disabled : undefined
           )
         : classNames?.trigger,
       style: getIsVisibilityStylesRelative(styles?.trigger)
         ? mergeObjects(
             styles?.trigger,
-            open ? styles?.trigger?.open : styles?.trigger?.closed
+            open ? styles?.trigger?.open : styles?.trigger?.closed,
+            disabled ? styles?.trigger?.disabled : undefined
           )
         : styles?.trigger,
     }
@@ -506,7 +465,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
     const getListItemProps = (
       { value: optionValue }: SelectOption,
       index: number
-    ): SelectOptionProps => {
+    ): SelectOptionRenderProps => {
       const isActive = internalIndex === index
       const isSelected = optionValue === value
 
@@ -587,7 +546,12 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         )}
 
         {renderTrigger && (
-          <>{renderTrigger(triggerProps, getCurrentOption())}</>
+          <>
+            {renderTrigger({
+              triggerProps,
+              selectedOption: getCurrentOption(),
+            })}
+          </>
         )}
 
         <Portal>
@@ -603,18 +567,18 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
               }}
             >
               {data.map((option, index) => (
-                <Fragment key={option.value}>
+                <Fragment key={`${option.value}${index}`}>
                   {!renderOption && (
                     <li {...getListItemProps(option, index)}>{option.label}</li>
                   )}
 
                   {renderOption && (
                     <>
-                      {renderOption(
-                        getListItemProps(option, index),
+                      {renderOption({
+                        optionProps: getListItemProps(option, index),
                         option,
-                        index
-                      )}
+                        index,
+                      })}
                     </>
                   )}
                 </Fragment>
