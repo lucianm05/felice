@@ -1,9 +1,7 @@
 import {
-  ButtonHandlers,
-  CommonRenderProps,
   RadioButton as Radio,
   RadioButtonClassNames,
-  RadioButtonState,
+  RadioButtonStyles,
   RadioGroupClassNames,
   RadioGroupStyles,
 } from '@lib/components/radio-group/types'
@@ -36,108 +34,6 @@ import {
   useState,
 } from 'react'
 
-interface RadioButtonProps
-  extends Radio,
-    RadioButtonState,
-    ButtonHandlers,
-    CommonRenderProps {}
-
-const RadioButton = ({
-  label,
-  description,
-  checked = false,
-  render,
-  style,
-  styles,
-  className,
-  classNames,
-  disabled = false,
-  onClick,
-  onFocus,
-  onKeyDown,
-}: RadioButtonProps) => {
-  const internalId = useId()
-  const labelId = useId()
-  const descriptionId = useId()
-
-  const dataAttributes = {
-    'data-disabled': disabled,
-    'data-checked': checked,
-  } as const
-
-  const rootProps = {
-    style: getStyles(styles?.root, disabled, checked),
-    className: getClassNames(classNames?.root, disabled, checked),
-    ...dataAttributes,
-  } as const
-
-  const buttonProps = {
-    type: 'button',
-    id: internalId,
-    role: 'radio',
-    style: mergeObjects(style, getStyles(styles?.button, disabled, checked)),
-    className: cn(
-      className,
-      getClassNames(classNames?.button, disabled, checked)
-    ),
-    disabled,
-    onClick,
-    onFocus,
-    onKeyDown,
-    'aria-labelledby': labelId,
-    'aria-describedby': descriptionId,
-    'aria-checked': checked,
-    'aria-disabled': disabled,
-    ...dataAttributes,
-  } as const
-
-  const textContainerProps = {
-    style: styles?.textContainer,
-    className: classNames?.textContainer,
-    ...dataAttributes,
-  } as const
-
-  const labelProps = {
-    id: labelId,
-    htmlFor: internalId,
-    style: styles?.label,
-    className: classNames?.label,
-    ...dataAttributes,
-  } as const
-
-  const descriptionProps = {
-    id: descriptionId,
-    style: styles?.description,
-    className: classNames?.description,
-    ...dataAttributes,
-  } as const
-
-  if (render) {
-    return render({
-      state: { checked, disabled },
-      rootProps,
-      buttonProps,
-      textContainerProps,
-      labelProps,
-      descriptionProps,
-    })
-  }
-
-  return (
-    <div {...rootProps}>
-      <button {...buttonProps} />
-
-      {(label || description) && (
-        <div {...textContainerProps}>
-          {label && <label {...labelProps}>{label}</label>}
-
-          {description && <p {...descriptionProps}>{description}</p>}
-        </div>
-      )}
-    </div>
-  )
-}
-
 export interface RadioGroupProps
   extends Omit<HTMLProps<HTMLDivElement>, 'data'> {
   label: string
@@ -167,6 +63,7 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
       styles,
       className,
       classNames,
+      id: externalId,
       ...props
     },
     ref
@@ -176,13 +73,24 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
       return defaultValue
     })
 
+    const internalRef = useRef<RadioGroupRef>(null)
+
     useImperativeHandle<RadioGroupRef, RadioGroupRef>(
       ref,
       () => internalRef.current,
       []
     )
 
-    const internalRef = useRef<RadioGroupRef>(null)
+    const internalId = useId()
+    const id = externalId || internalId
+
+    const ids = {
+      radioGroup: id,
+      getRoot: (index: number) => `${id}-radio-${index}-root`,
+      getRadio: (index: number) => `${id}-radio-${index}-button`,
+      getLabel: (index: number) => `${id}-radio-${index}-label`,
+      getDescription: (index: number) => `${id}-radio-${index}-description`,
+    }
 
     const groupValue = isDefined(externalValue) ? externalValue : internalValue
 
@@ -190,16 +98,20 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
 
     const setInternalValueHandler = (
       value: string,
-      event: MouseEvent | FocusEvent
+      event: MouseEvent | FocusEvent,
+      isDisabled: boolean
     ) => {
-      if (event.defaultPrevented) return
+      if (event.defaultPrevented || isDisabled) return
 
       setInternalValue(value)
       onValueChange?.(value)
     }
 
-    const onRadioButtonKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
-      if (!internalRef.current || event.defaultPrevented) return
+    const onRadioButtonKeyDown = (
+      event: KeyboardEvent<HTMLButtonElement>,
+      isDisabled: boolean
+    ) => {
+      if (!internalRef.current || event.defaultPrevented || isDisabled) return
 
       const elements =
         internalRef.current.querySelectorAll<HTMLDivElement>(
@@ -234,90 +146,163 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
       <div
         {...props}
         ref={internalRef}
+        id={ids.radioGroup}
         role='radiogroup'
         style={mergeObjects(style, styles?.root)}
         className={cn(className, classNames?.root)}
         aria-label={label}
       >
-        {data.map(({ value, disabled, ...rest }, index) => {
-          const isChecked = groupValue === value
-          const isDisabled = isItemDisabled(groupDisabled, disabled)
-          const tabIndex = getTabIndex(index, data, currentIndex, groupDisabled)
+        {data.map(
+          (
+            {
+              value,
+              disabled,
+              classNames: itemClassNames,
+              description,
+              label,
+              render,
+              styles: itemStyles,
+            },
+            index
+          ) => {
+            const isChecked = groupValue === value
+            const isDisabled = isItemDisabled(groupDisabled, disabled)
+            const tabIndex = getTabIndex(
+              index,
+              data,
+              currentIndex,
+              groupDisabled
+            )
 
-          const getClassNamesHandler = (classNames?: RadioButtonClassNames) =>
-            getClassNames(classNames, isDisabled, isChecked)
+            const getStylesHandler = (styles?: RadioButtonStyles) =>
+              getStyles(styles, isDisabled, isChecked)
 
-          const radioButtonProps = {
-            ...rest,
-            value,
-            onClick: (event: MouseEvent<HTMLButtonElement>) => {
-              if (isDisabled) {
-                return
-              }
-              setInternalValueHandler(value, event)
-            },
-            onFocus: (event: FocusEvent<HTMLButtonElement>) => {
-              if (isDisabled) return
-              setInternalValueHandler(value, event)
-            },
-            onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => {
-              if (isDisabled) return
-              onRadioButtonKeyDown(event)
-            },
-            tabIndex,
-            disabled: isDisabled,
-            checked: isChecked,
-            styles: {
-              root: mergeObjects(styles?.radioButton?.root, rest?.styles?.root),
-              button: mergeObjects(
-                styles?.radioButton?.button,
-                rest?.styles?.button
+            const getClassNamesHandler = (classNames?: RadioButtonClassNames) =>
+              getClassNames(classNames, isDisabled, isChecked)
+
+            const dataAttributes = {
+              'data-disabled': isDisabled,
+              'data-checked': isChecked,
+            } as const
+
+            const rootProps = {
+              id: ids.getRoot(index),
+              style: mergeObjects(
+                getStylesHandler(styles?.radioButton?.root),
+                getStylesHandler(itemStyles?.root)
               ),
-              description: mergeObjects(
-                styles?.radioButton?.description,
-                rest?.styles?.description
-              ),
-              label: mergeObjects(
-                styles?.radioButton?.label,
-                rest?.styles?.label
-              ),
-              textContainer: mergeObjects(
-                styles?.radioButton?.textContainer,
-                rest?.styles?.textContainer
-              ),
-            },
-            classNames: {
-              root: cn(
+              className: cn(
                 getClassNamesHandler(classNames?.radioButton?.root),
-                getClassNamesHandler(rest?.classNames?.root)
+                getClassNamesHandler(itemClassNames?.root)
               ),
-              button: cn(
-                getClassNamesHandler(classNames?.radioButton?.button),
-                getClassNamesHandler(rest?.classNames?.button)
-              ),
-              description: cn(
-                classNames?.radioButton?.description,
-                rest?.classNames?.description
-              ),
-              label: cn(
-                classNames?.radioButton?.label,
-                rest?.classNames?.label
-              ),
-              textContainer: cn(
-                classNames?.radioButton?.textContainer,
-                rest?.classNames?.textContainer
-              ),
-            },
-            'data-disabled': isDisabled,
-            'data-checked': isChecked,
-          }
+              ...dataAttributes,
+            } as const
 
-          return (
-            <Fragment key={`${label}@${value}`}>
-              <RadioButton {...radioButtonProps} />
-            </Fragment>
-          )
-        })}
+            const buttonProps = {
+              id: ids.getRadio(index),
+              type: 'button',
+              role: 'radio',
+              tabIndex,
+              style: mergeObjects(
+                getStylesHandler(styles?.radioButton?.button),
+                getStylesHandler(itemStyles?.button)
+              ),
+              className: cn(
+                getClassNamesHandler(classNames?.radioButton?.button),
+                getClassNamesHandler(itemClassNames?.button)
+              ),
+              disabled: isDisabled,
+              onClick: (event: MouseEvent<HTMLButtonElement>) => {
+                setInternalValueHandler(value, event, isDisabled)
+              },
+              onFocus: (event: FocusEvent<HTMLButtonElement>) => {
+                setInternalValueHandler(value, event, isDisabled)
+              },
+              onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => {
+                onRadioButtonKeyDown(event, isDisabled)
+              },
+              'aria-labelledby': ids.getLabel(index),
+              'aria-describedby': ids.getDescription(index),
+              'aria-checked': isChecked,
+              'aria-disabled': isDisabled,
+              ...dataAttributes,
+            } as const
+
+            const textContainerProps = {
+              style: mergeObjects(
+                getStylesHandler(styles?.radioButton?.textContainer),
+                getStylesHandler(itemStyles?.textContainer)
+              ),
+              className: cn(
+                getClassNamesHandler(classNames?.radioButton?.textContainer),
+                getClassNamesHandler(itemClassNames?.textContainer)
+              ),
+              ...dataAttributes,
+            } as const
+
+            const labelProps = {
+              id: ids.getLabel(index),
+              htmlFor: internalId,
+              style: mergeObjects(
+                getStylesHandler(styles?.radioButton?.label),
+                getStylesHandler(itemStyles?.label)
+              ),
+              className: cn(
+                getClassNamesHandler(classNames?.radioButton?.label),
+                getClassNamesHandler(itemClassNames?.label)
+              ),
+              ...dataAttributes,
+            } as const
+
+            const descriptionProps = {
+              id: ids.getDescription(index),
+              style: mergeObjects(
+                getStylesHandler(styles?.radioButton?.description),
+                getStylesHandler(itemStyles?.description)
+              ),
+              className: cn(
+                getClassNamesHandler(classNames?.radioButton?.description),
+                getClassNamesHandler(itemClassNames?.description)
+              ),
+              ...dataAttributes,
+            } as const
+
+            const key = `${label}@${value}@${index}`
+
+            if (render) {
+              return (
+                <Fragment key={key}>
+                  {render({
+                    state: { checked: isChecked, disabled: isDisabled },
+                    rootProps,
+                    buttonProps,
+                    textContainerProps,
+                    labelProps,
+                    descriptionProps,
+                  })}
+                </Fragment>
+              )
+            }
+
+            return (
+              <Fragment key={key}>
+                <div {...rootProps}>
+                  <button {...buttonProps} />
+
+                  {(label || description) && (
+                    <div {...textContainerProps}>
+                      {label && <label {...labelProps}>{label}</label>}
+
+                      {description && (
+                        <p {...descriptionProps}>{description}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </Fragment>
+            )
+          }
+        )}
       </div>
     )
   }
