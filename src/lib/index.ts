@@ -27,6 +27,8 @@ export { Accordion } from './components/accordion'
 
 export type {
   CheckboxClassNames,
+  CheckboxInternalClassNames,
+  CheckboxInternalStyles,
   CheckboxProps,
   CheckboxRelative,
   CheckboxRelativeClassNames,
@@ -84,8 +86,10 @@ export type {
   RadioButtonState,
   RadioButtonStyleable,
   RadioButtonStyles,
+  RadioGroupClassNames,
   RadioGroupProps,
   RadioGroupStyleable,
+  RadioGroupStyles,
 } from './components/radio-group'
 
 export { RadioGroup } from './components/radio-group'
@@ -120,11 +124,13 @@ export { Select } from './components/select'
 
 /** Slider */
 export type {
+  SliderClassNames,
   SliderLabels,
   SliderOrientation,
   SliderProps,
   SliderRef,
   SliderStyleable,
+  SliderStyles,
   SliderValue,
 } from './components/slider'
 
@@ -134,12 +140,14 @@ export { Slider } from './components/slider'
 
 export type {
   SwitchClassNames,
+  SwitchInternalClassNames,
+  SwitchInternalStyles,
   SwitchProps,
   SwitchRelative,
   SwitchRelativeClassNames,
-  SwitchRelativeStyle,
-  SwitchStyle,
+  SwitchRelativeStyles,
   SwitchStyleable,
+  SwitchStyles,
 } from './components/switch'
 
 export { Switch } from './components/switch'
@@ -190,6 +198,7 @@ import { usePreventScroll } from './hooks/usePreventScroll'
 export { useElementPosition, usePreventScroll }
 
 /** Utils */
+
 export { cn, isDefined, mergeObjects } from './utils'
 
 /** Misc */

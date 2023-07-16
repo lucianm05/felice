@@ -1,19 +1,23 @@
 import { Slider, SliderProps } from './Slider'
 import {
+  SliderClassNames,
   SliderLabels,
   SliderOrientation,
   SliderRef,
-  SliderValue,
   SliderStyleable,
+  SliderStyles,
+  SliderValue,
 } from './types'
 
 export type {
+  SliderClassNames,
   SliderLabels,
   SliderOrientation,
   SliderProps,
   SliderRef,
-  SliderValue,
   SliderStyleable,
+  SliderStyles,
+  SliderValue,
 }
 
 export { Slider }

@@ -1,17 +1,17 @@
 import {
-  SwitchClassNames,
+  SwitchInternalClassNames,
   SwitchRelativeClassNames,
-  SwitchRelativeStyle,
-  SwitchStyle,
+  SwitchRelativeStyles,
+  SwitchInternalStyles,
 } from '@lib/components/switch/types'
 import { cn, mergeObjects } from '@lib/utils'
 
 export const getIsStyleRelative = (
-  style?: SwitchStyle
-): style is SwitchRelativeStyle => {
+  style?: SwitchInternalStyles
+): style is SwitchRelativeStyles => {
   if (!style) return false
 
-  const relativeStyle = style as SwitchRelativeStyle
+  const relativeStyle = style as SwitchRelativeStyles
 
   return Boolean(
     relativeStyle?.checked ||
@@ -21,7 +21,7 @@ export const getIsStyleRelative = (
 }
 
 export const getIsClassNamesRelative = (
-  classNames?: SwitchClassNames
+  classNames?: SwitchInternalClassNames
 ): classNames is SwitchRelativeClassNames => {
   if (!classNames) return false
 
@@ -36,7 +36,7 @@ export const getIsClassNamesRelative = (
 }
 
 export const getStyles = (
-  style?: SwitchStyle,
+  style?: SwitchInternalStyles,
   checked?: boolean,
   disabled?: boolean
 ) => {
@@ -52,7 +52,7 @@ export const getStyles = (
 }
 
 export const getClassNames = (
-  classNames?: SwitchClassNames,
+  classNames?: SwitchInternalClassNames,
   checked?: boolean,
   disabled?: boolean
 ) => {

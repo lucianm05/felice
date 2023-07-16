@@ -12,9 +12,18 @@ export interface CheckboxRelative<T> {
 }
 
 export type CheckboxRelativeStyle = CheckboxRelative<CSSProperties>
-export type CheckboxStyles = CSSProperties | CheckboxRelativeStyle
+export type CheckboxInternalStyles = CSSProperties | CheckboxRelativeStyle
 
 export interface CheckboxRelativeClassNames extends CheckboxRelative<string> {
   default?: string
 }
-export type CheckboxClassNames = string | CheckboxRelativeClassNames
+export type CheckboxInternalClassNames = string | CheckboxRelativeClassNames
+
+export type CheckboxStyles = CheckboxStyleable<
+  CSSProperties,
+  CheckboxInternalStyles
+>
+export type CheckboxClassNames = CheckboxStyleable<
+  string,
+  CheckboxInternalClassNames
+>

@@ -1,8 +1,9 @@
 import {
+  SliderClassNames,
   SliderLabels,
   SliderOrientation,
   SliderRef,
-  SliderStyleable,
+  SliderStyles,
   SliderValue,
 } from '@lib/components/slider/types'
 import {
@@ -13,7 +14,6 @@ import { keys } from '@lib/constants/keys'
 import { useUpdateInternalOnExternalChange } from '@lib/hooks/useUpdateInternalOnExternalChange'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
-  CSSProperties,
   HTMLProps,
   KeyboardEvent,
   PointerEvent as ReactPointerEvent,
@@ -36,8 +36,8 @@ export interface SliderProps
   multipleStep?: number
   min?: number
   max?: number
-  classNames?: SliderStyleable<string>
-  styles?: SliderStyleable<CSSProperties>
+  styles?: SliderStyles
+  classNames?: SliderClassNames
   disabled?: boolean
   orientation?: SliderOrientation
 }

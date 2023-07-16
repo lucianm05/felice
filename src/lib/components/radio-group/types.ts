@@ -94,3 +94,12 @@ export interface RadioGroupStyleable<T, R> {
   root?: T
   radioButton?: RadioButtonStyleable<T, R>
 }
+
+export type RadioGroupStyles = RadioGroupStyleable<
+  CSSProperties,
+  RadioButtonStyles
+>
+export type RadioGroupClassNames = RadioGroupStyleable<
+  string,
+  RadioButtonClassNames
+>

@@ -8,7 +8,9 @@ import {
   RadioButtonState,
   RadioButtonStyleable,
   RadioButtonStyles,
+  RadioGroupClassNames,
   RadioGroupStyleable,
+  RadioGroupStyles,
 } from './types'
 
 export type {
@@ -20,8 +22,10 @@ export type {
   RadioButtonState,
   RadioButtonStyleable,
   RadioButtonStyles,
+  RadioGroupClassNames,
   RadioGroupProps,
   RadioGroupStyleable,
+  RadioGroupStyles,
 }
 
 export { RadioGroup }
