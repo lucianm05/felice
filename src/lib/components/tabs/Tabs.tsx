@@ -62,8 +62,6 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
     },
     ref
   ) => {
-    console.log('orientation', orientation)
-
     const [internalTab, setInternalTab] = useState(() => {
       if (isDefined(externalTab)) return externalTab
       return defaultTab
