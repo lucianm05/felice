@@ -1,9 +1,12 @@
 /** Accordion */
 
 export type {
+  AccordionClassNames,
   AccordionIndicator,
   AccordionItem,
   AccordionItemClassNames,
+  AccordionItemInternalClassNames,
+  AccordionItemInternalStyles,
   AccordionItemRelative,
   AccordionItemRelativeClassNames,
   AccordionItemRelativeStyles,
@@ -14,6 +17,7 @@ export type {
   AccordionProps,
   AccordionRef,
   AccordionStyleable,
+  AccordionStyles,
   AccordionType,
 } from './components/accordion'
 

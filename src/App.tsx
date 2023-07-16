@@ -113,10 +113,20 @@ function App() {
         />
 
         <Accordion
-          defaultValue={[0, 1]}
+          defaultValue={[1]}
           data={[
-            { header: 'First accordion', content: 'First accordion content' },
-            { header: 'Second accordion', content: 'Second accordion content' },
+            {
+              header: 'First accordion',
+              content: 'First accordion content',
+              classNames: {
+                content: 'test',
+                trigger: { default: 'test', expanded: 'trigger expanded' },
+              },
+            },
+            {
+              header: 'Second accordion',
+              content: 'Second accordion content',
+            },
           ]}
           type='single'
           classNames={{
