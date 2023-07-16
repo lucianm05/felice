@@ -36,7 +36,9 @@ export interface TooltipTriggerProps {
   onMouseEnter: (event: MouseEvent<HTMLButtonElement>) => void
   onMouseLeave: (event: MouseEvent<HTMLButtonElement>) => void
   'aria-describedby': string | undefined
+  'aria-disabled': boolean
   'data-open': boolean
+  'data-disabled': boolean
 }
 export interface TooltipState {
   open: boolean
@@ -55,5 +57,8 @@ export interface TooltipStyleable<T> {
   container?: T
 }
 
-export type TooltipStyles = CSSProperties
-export type TooltipClassNames = string
+export type TooltipInternalStyles = CSSProperties
+export type TooltipInternalClassNames = string
+
+export type TooltipStyles = TooltipStyleable<TooltipInternalStyles>
+export type TooltipClassNames = TooltipStyleable<TooltipInternalClassNames>

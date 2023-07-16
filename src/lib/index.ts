@@ -146,6 +146,8 @@ export { Tabs } from './components/tabs'
 export type {
   TooltipChildren,
   TooltipClassNames,
+  TooltipInternalClassNames,
+  TooltipInternalStyles,
   TooltipProps,
   TooltipSide,
   TooltipState,
