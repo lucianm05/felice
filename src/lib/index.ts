@@ -57,8 +57,10 @@ export { Portal } from './components/portal'
 /** Progress */
 
 export type {
+  ProgressChildren,
   ProgressClassNames,
   ProgressProps,
+  ProgressState,
   ProgressStyleable,
   ProgressStyles,
 } from './components/progress'

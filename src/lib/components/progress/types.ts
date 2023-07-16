@@ -6,6 +6,8 @@ export interface ProgressState {
 }
 export interface ProgressStyleable<T> {
   root?: T
+  label?: T 
+  progressbar?: T
   indicator?: T
 }
 
@@ -20,6 +22,7 @@ interface ProgressIndicatorRenderProps {
   'data-min': number
   'data-max': number
   'data-value': number
+  'data-complete': boolean
 }
 export type ProgressChildren =
   | ReactNode

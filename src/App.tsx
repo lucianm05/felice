@@ -21,7 +21,7 @@ function App() {
   const [checkboxChecked, setCheckboxChecked] = useState(true)
   const [sliderValue, setSliderValue] = useState<SliderValue>([75, 100])
   const progressValues = {
-    value: 25,
+    value: 120,
     min: 0,
     max: 150,
   }
@@ -194,15 +194,19 @@ function App() {
           label='Fetching data'
           {...progressValues}
           styles={{
-            root: {
+            progressbar: {
               width: '10rem',
               height: '0.75rem',
               background: 'gray',
               borderRadius: '99999px',
             },
+            indicator: {
+              background: 'blue',
+              borderRadius: '99999px'
+            }
           }}
         >
-          {({ indicatorProps, state: { percentageValue } }) => {
+          {/* {({ indicatorProps, state: { percentageValue } }) => {
             return (
               <div
                 {...indicatorProps}
@@ -214,7 +218,7 @@ function App() {
                 }}
               ></div>
             )
-          }}
+          }} */}
         </Progress>
 
         <Slider
