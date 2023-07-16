@@ -103,6 +103,7 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
 
       return defaultOpen
     })
+    const [shouldDisplay, setShouldDisplay] = useState(false)
 
     const open = isDefined(externalOpen) ? externalOpen : internalOpen
 
@@ -203,6 +204,10 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
     }
 
     useEffect(() => {
+      setShouldDisplay(Boolean(open && triggerRef.current))
+    }, [open, triggerRef])
+
+    useEffect(() => {
       const updatePosition = () => {
         if (open) {
           setContainerOffset(containerRef.current)
@@ -265,7 +270,7 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
           children({ triggerProps, state: { open } })}
 
         <Portal>
-          {open && triggerRef.current && (
+          {shouldDisplay && (
             <TooltipContainer
               ref={ref => {
                 setContainerOffset(ref)

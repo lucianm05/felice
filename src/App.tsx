@@ -310,7 +310,17 @@ function App() {
             },
             {
               element: 'My orders',
-              panel: <div>User orders</div>,
+              panel: (
+                <div>
+                  <Tooltip
+                  defaultOpen
+                    side='right'
+                    content={<div>Here the user orders are displayed</div>}
+                  >
+                    User orders
+                  </Tooltip>
+                </div>
+              ),
             },
           ]}
           classNames={{
@@ -439,7 +449,7 @@ function App() {
           orientation='vertical'
         />
 
-        <div
+        {/* <div
           style={{
             display: 'flex',
             padding: '10rem',
@@ -479,7 +489,7 @@ function App() {
               )
             }}
           </Tooltip>
-        </div>
+        </div> */}
 
         <Dialog
           ref={dialogRef}
