@@ -202,8 +202,8 @@ function App() {
             },
             indicator: {
               background: 'blue',
-              borderRadius: '99999px'
-            }
+              borderRadius: '99999px',
+            },
           }}
         >
           {/* {({ indicatorProps, state: { percentageValue } }) => {

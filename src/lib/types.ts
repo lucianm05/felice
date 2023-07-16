@@ -16,4 +16,7 @@ export interface CheckableState {
 
 export type CheckableChildren =
   | ReactNode
-  | ((params: { state: CheckableState }) => ReactNode)
+  | ((params: {
+      state: CheckableState
+      childrenProps: { 'data-disabled': boolean; 'data-checked': boolean }
+    }) => ReactNode)
