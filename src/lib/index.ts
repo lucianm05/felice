@@ -1,9 +1,12 @@
 /** Accordion */
 
 export type {
+  AccordionClassNames,
   AccordionIndicator,
   AccordionItem,
   AccordionItemClassNames,
+  AccordionItemInternalClassNames,
+  AccordionItemInternalStyles,
   AccordionItemRelative,
   AccordionItemRelativeClassNames,
   AccordionItemRelativeStyles,
@@ -14,6 +17,7 @@ export type {
   AccordionProps,
   AccordionRef,
   AccordionStyleable,
+  AccordionStyles,
   AccordionType,
 } from './components/accordion'
 
@@ -40,6 +44,8 @@ export type {
   DialogClassNames,
   DialogCloseButton,
   DialogContent,
+  DialogInternalClassNames,
+  DialogInternalStyles,
   DialogProps,
   DialogRef,
   DialogRenderFunction,
@@ -57,8 +63,10 @@ export { Portal } from './components/portal'
 /** Progress */
 
 export type {
+  ProgressChildren,
   ProgressClassNames,
   ProgressProps,
+  ProgressState,
   ProgressStyleable,
   ProgressStyles,
 } from './components/progress'
@@ -85,10 +93,27 @@ export { RadioGroup } from './components/radio-group'
 /** Select */
 
 export type {
+  SelectClassNames,
   SelectOption,
-  SelectOptionProps,
+  SelectOptionClassNames,
+  SelectOptionRelativeClassNames,
+  SelectOptionRelativeStyles,
+  SelectOptionRenderFunction,
+  SelectOptionRenderFunctionParams,
+  SelectOptionRenderProps,
+  SelectOptionStyles,
   SelectProps,
-  SelectTriggerProps,
+  SelectRef,
+  SelectRelativeOption,
+  SelectRelativeTrigger,
+  SelectStyles,
+  SelectTriggerClassNames,
+  SelectTriggerRelativeClassNames,
+  SelectTriggerRelativeStyles,
+  SelectTriggerRenderFunction,
+  SelectTriggerRenderFunctionParams,
+  SelectTriggerRenderProps,
+  SelectTriggerStyles,
 } from './components/select'
 
 export { Select } from './components/select'
@@ -144,6 +169,8 @@ export { Tabs } from './components/tabs'
 export type {
   TooltipChildren,
   TooltipClassNames,
+  TooltipInternalClassNames,
+  TooltipInternalStyles,
   TooltipProps,
   TooltipSide,
   TooltipState,

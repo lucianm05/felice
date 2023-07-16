@@ -3,28 +3,28 @@ import {
   SelectOptionRelativeClassNames,
   SelectOptionRelativeStyles,
   SelectOptionStyles,
-  SelectVisibilityClassNames,
-  SelectVisibilityRelativeClassNames,
-  SelectVisibilityRelativeStyles,
-  SelectVisibilityStyles,
+  SelectTriggerClassNames,
+  SelectTriggerRelativeClassNames,
+  SelectTriggerRelativeStyles,
+  SelectTriggerStyles,
 } from '@lib/components/select/types'
 
 export const getIsVisibilityStylesRelative = (
-  styles?: SelectVisibilityStyles
-): styles is SelectVisibilityRelativeStyles => {
+  styles?: SelectTriggerStyles
+): styles is SelectTriggerRelativeStyles => {
   if (!styles) return false
 
-  const relativeStyles = styles as SelectVisibilityRelativeStyles
+  const relativeStyles = styles as SelectTriggerRelativeStyles
 
   return Boolean(relativeStyles?.closed || relativeStyles?.open)
 }
 
 export const getIsVisiblityClassNamesRelative = (
-  classNames?: SelectVisibilityClassNames
-): classNames is SelectVisibilityRelativeClassNames => {
+  classNames?: SelectTriggerClassNames
+): classNames is SelectTriggerRelativeClassNames => {
   if (!classNames) return false
 
-  const relativeClassNames = classNames as SelectVisibilityRelativeClassNames
+  const relativeClassNames = classNames as SelectTriggerRelativeClassNames
 
   return Boolean(
     relativeClassNames?.default ||

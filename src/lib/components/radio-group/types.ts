@@ -1,24 +1,42 @@
-import { CSSProperties, HTMLProps, ReactNode } from 'react'
+import {
+  CSSProperties,
+  FocusEvent,
+  KeyboardEvent,
+  MouseEvent,
+  ReactNode,
+} from 'react'
 
 export interface RadioButtonState {
   checked?: boolean
   disabled?: boolean
 }
 
-interface CommonRenderProps {
+export interface CommonRenderProps {
   style?: CSSProperties
   className?: string
+  'data-disabled': boolean
+  'data-checked': boolean
 }
 
-interface RootRenderProps extends CommonRenderProps {
-  'data-disabled'?: boolean
-  'data-checked'?: boolean
+interface RootRenderProps extends CommonRenderProps {}
+
+export interface ButtonHandlers {
+  onClick: (event: MouseEvent<HTMLButtonElement>) => void
+  onFocus: (event: FocusEvent<HTMLButtonElement>) => void
+  onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void
 }
 
-interface ButtonRenderProps extends HTMLProps<HTMLButtonElement> {
+interface ButtonRenderProps extends CommonRenderProps, ButtonHandlers {
   id: string
   role: 'radio'
   type: 'button'
+  style?: CSSProperties
+  className?: string
+  disabled?: boolean
+  'aria-labelledby': string
+  'aria-describedby': string
+  'aria-checked': boolean
+  'aria-disabled': boolean
 }
 
 interface LabelRenderProps extends CommonRenderProps {

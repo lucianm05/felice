@@ -4,7 +4,7 @@ import {
   ProgressStyles,
 } from '@lib/components/progress/types'
 import { cn, isDefined, mergeObjects } from '@lib/utils'
-import { HTMLProps, ReactNode, forwardRef, useEffect } from 'react'
+import { HTMLProps, ReactNode, forwardRef, useEffect, useId } from 'react'
 
 export interface ProgressProps
   extends Omit<
@@ -12,6 +12,7 @@ export interface ProgressProps
     'role' | 'aria-valuemin' | 'aria-valuemax' | 'aria-valuenow' | 'children'
   > {
   label: string
+  hideLabel?: boolean
   children?: ProgressChildren
   min?: number
   max?: number
@@ -26,6 +27,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
     {
       children,
       label,
+      hideLabel,
       min = 0,
       max = 100,
       value = 0,
@@ -37,6 +39,8 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
     },
     ref
   ) => {
+    const labelId = useId()
+
     useEffect(() => {
       if (isDefined(min) && isDefined(max)) {
         if (min > max) {
@@ -54,54 +58,73 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
 
           if (value > max) {
             console.error(
-              `Progress: Maximum value (${value}) cannot be greater than maximum value (${max})`
+              `Progress: Current value (${value}) cannot be greater than maximum value (${max})`
             )
           }
         }
       }
     }, [min, max, value])
 
+    const percentageValue = ((value - min) * 100) / (max - min)
+
     const dataAttributes = {
       'data-min': min,
       'data-max': max,
       'data-value': value,
+      'data-complete': value === max,
     } as const
 
     const indicatorProps = {
-      style: styles?.indicator,
+      style: mergeObjects(
+        { height: '100%', width: `${percentageValue}%` },
+        styles?.indicator
+      ),
       className: classNames?.indicator,
       'aria-hidden': true,
       ...dataAttributes,
     } as const
 
     return (
-      <div
-        {...props}
-        ref={ref}
-        role='progressbar'
-        style={mergeObjects(style, styles?.root)}
-        className={cn(className, classNames?.root)}
-        aria-label={props['aria-label'] || label}
-        aria-valuemin={min}
-        aria-valuemax={max}
-        aria-valuenow={value}
-        {...dataAttributes}
-      >
-        {!children && <div {...indicatorProps} />}
-
-        {children && (
-          <>
-            {typeof children !== 'function' && children}{' '}
-            {typeof children === 'function' &&
-              children({
-                indicatorProps,
-                state: {
-                  value,
-                  percentageValue: ((value - min) * 100) / (max - min),
-                },
-              })}
-          </>
+      <div style={styles?.root} className={classNames?.root} {...dataAttributes}>
+        {!hideLabel && (
+          <label
+            id={labelId}
+            style={styles?.label}
+            className={classNames?.label}
+          >
+            {label}
+          </label>
         )}
+
+        <div
+          {...props}
+          ref={ref}
+          role='progressbar'
+          style={mergeObjects(style, styles?.progressbar)}
+          className={cn(className, classNames?.progressbar)}
+          aria-label={hideLabel ? label : undefined}
+          aria-labelledby={hideLabel ? labelId : undefined}
+          aria-valuemin={min}
+          aria-valuemax={max}
+          aria-valuenow={value}
+          {...dataAttributes}
+        >
+          {!children && <div {...indicatorProps} />}
+
+          {children && (
+            <>
+              {typeof children !== 'function' && children}{' '}
+              {typeof children === 'function' &&
+                children({
+                  indicatorProps,
+                  state: {
+                    value,
+                    percentageValue,
+                  },
+                })}
+            </>
+          )}
+        </div>
       </div>
     )
   }

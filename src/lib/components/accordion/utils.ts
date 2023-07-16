@@ -1,13 +1,13 @@
 import {
-  AccordionItemClassNames,
+  AccordionItemInternalClassNames,
   AccordionItemRelativeClassNames,
   AccordionItemRelativeStyles,
-  AccordionItemStyles,
+  AccordionItemInternalStyles,
 } from '@lib/components/accordion/types'
 import { cn, mergeObjects } from '@lib/utils'
 
 export const getIsStylesRelative = (
-  styles?: AccordionItemStyles
+  styles?: AccordionItemInternalStyles
 ): styles is AccordionItemRelativeStyles => {
   if (!styles) return false
 
@@ -17,7 +17,7 @@ export const getIsStylesRelative = (
 }
 
 export const getIsClassNamesRelative = (
-  classNames?: AccordionItemClassNames
+  classNames?: AccordionItemInternalClassNames
 ): classNames is AccordionItemRelativeClassNames => {
   if (!classNames) return false
 
@@ -30,26 +30,33 @@ export const getIsClassNamesRelative = (
   )
 }
 
-export const getStyles = (styles?: AccordionItemStyles, expanded?: boolean) => {
+export const getStyles = (
+  styles?: AccordionItemInternalStyles,
+  expanded?: boolean,
+  disabled?: boolean
+) => {
   return mergeObjects(
     styles,
     getIsStylesRelative(styles)
-      ? expanded
-        ? styles?.expanded
-        : styles?.collapsed
+      ? mergeObjects(
+          expanded ? styles?.expanded : styles?.collapsed,
+          disabled ? styles?.disabled : undefined
+        )
       : undefined
   )
 }
 
 export const getClassNames = (
-  classNames?: AccordionItemClassNames,
-  expanded?: boolean
+  classNames?: AccordionItemInternalClassNames,
+  expanded?: boolean,
+  disabled?: boolean
 ) => {
   return cn(
     getIsClassNamesRelative(classNames)
       ? cn(
           classNames?.default,
-          expanded ? classNames?.expanded : classNames?.collapsed
+          expanded ? classNames?.expanded : classNames?.collapsed,
+          disabled ? classNames?.disabled : undefined
         )
       : classNames
   )

@@ -5,7 +5,6 @@ import {
   TooltipContainerRef,
   TooltipContentRef,
   TooltipSide,
-  TooltipStyleable,
   TooltipStyles,
   TooltipTriggerProps,
   TooltipTriggerRef,
@@ -74,8 +73,8 @@ export interface TooltipProps
   content?: ReactNode
   side?: TooltipSide
   sideOffset?: number
-  classNames?: TooltipStyleable<TooltipClassNames>
-  styles?: TooltipStyleable<TooltipStyles>
+  styles?: TooltipStyles
+  classNames?: TooltipClassNames
   delay?: number
 }
 
@@ -94,6 +93,7 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
       className,
       classNames,
       delay = 500,
+      disabled = false,
       ...props
     },
     ref
@@ -103,6 +103,7 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
 
       return defaultOpen
     })
+    const [shouldDisplay, setShouldDisplay] = useState(false)
 
     const open = isDefined(externalOpen) ? externalOpen : internalOpen
 
@@ -139,7 +140,7 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
       value: boolean,
       event?: FocusEvent | MouseEvent
     ) => {
-      if (event?.defaultPrevented) return
+      if (event?.defaultPrevented || disabled) return
 
       setInternalOpen(value)
       onOpenChange?.(value)
@@ -203,6 +204,10 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
     }
 
     useEffect(() => {
+      setShouldDisplay(Boolean(open && triggerRef.current))
+    }, [open, triggerRef])
+
+    useEffect(() => {
       const updatePosition = () => {
         if (open) {
           setContainerOffset(containerRef.current)
@@ -248,7 +253,9 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
         onMouseLeave(event)
       },
       'aria-describedby': open ? contentId : undefined,
+      'aria-disabled': disabled,
       'data-open': open,
+      'data-disabled': disabled,
     }
 
     return (
@@ -263,7 +270,7 @@ export const Tooltip = forwardRef<TooltipTriggerRef, TooltipProps>(
           children({ triggerProps, state: { open } })}
 
         <Portal>
-          {open && triggerRef.current && (
+          {shouldDisplay && (
             <TooltipContainer
               ref={ref => {
                 setContainerOffset(ref)

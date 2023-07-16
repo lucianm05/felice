@@ -1,11 +1,10 @@
 import {
+  AccordionClassNames,
   AccordionIndicator,
   AccordionItem,
-  AccordionItemClassNames,
   AccordionItemStyleable,
-  AccordionItemStyles,
   AccordionRef,
-  AccordionStyleable,
+  AccordionStyles,
   AccordionType,
 } from '@lib/components/accordion/types'
 import { getClassNames, getStyles } from '@lib/components/accordion/utils'
@@ -13,9 +12,10 @@ import { useUpdateInternalOnExternalChange } from '@lib/hooks/useUpdateInternalO
 import { cn, isDefined, mergeObjects } from '@lib/utils'
 import { CSSProperties, HTMLProps, forwardRef, useId, useState } from 'react'
 
-interface AccordionItemProps extends AccordionItem {
-  classNames?: AccordionItemStyleable<string, AccordionItemClassNames>
-  styles?: AccordionItemStyleable<CSSProperties, AccordionItemStyles>
+interface AccordionItemProps
+  extends Omit<AccordionItem, 'classNames' | 'styles'> {
+  styles?: AccordionItemStyleable<CSSProperties, CSSProperties>
+  classNames?: AccordionItemStyleable<string, string>
   indicator?: AccordionIndicator
   expanded?: boolean
   onClick: VoidFunction
@@ -28,6 +28,7 @@ const AccordionItem = ({
   classNames,
   indicator,
   expanded = false,
+  disabled = false,
   onClick,
   render,
 }: AccordionItemProps) => {
@@ -36,15 +37,12 @@ const AccordionItem = ({
 
   const dataAttributes = {
     'data-expanded': expanded,
-    'data-disabled': false,
+    'data-disabled': disabled,
   } as const
 
   const indicatorProps = {
-    style: mergeObjects(
-      { display: 'inline-block' },
-      getStyles(styles?.indicator, expanded)
-    ),
-    className: getClassNames(classNames?.indicator, expanded),
+    style: mergeObjects({ display: 'inline-block' }, styles?.indicator),
+    className: classNames?.indicator,
     'aria-hidden': true,
     ...dataAttributes,
   } as const
@@ -62,8 +60,8 @@ const AccordionItem = ({
   } as const
 
   const triggerProps = {
-    className: getClassNames(classNames?.trigger, expanded),
-    style: getStyles(styles?.trigger, expanded),
+    className: classNames?.trigger,
+    style: styles?.trigger,
     onClick: onClick,
     'aria-expanded': expanded,
     'aria-controls': contentId,
@@ -114,8 +112,8 @@ const AccordionItem = ({
 export interface AccordionProps
   extends Omit<HTMLProps<HTMLDivElement>, 'data' | 'defaultValue' | 'value'> {
   data: AccordionItem | AccordionItem[]
-  classNames?: AccordionStyleable<string, AccordionItemClassNames>
-  styles?: AccordionStyleable<CSSProperties, AccordionItemStyles>
+  styles?: AccordionStyles
+  classNames?: AccordionClassNames
   indicator?: AccordionIndicator
   defaultValue?: number[]
   value?: number[]
@@ -137,6 +135,7 @@ export const Accordion = forwardRef<AccordionRef, AccordionProps>(
       value: externalValue,
       onValueChange,
       type = 'multiple',
+      disabled = false,
       ...props
     },
     ref
@@ -154,21 +153,26 @@ export const Accordion = forwardRef<AccordionRef, AccordionProps>(
 
     const isDataArray = Array.isArray(data)
 
-    const setInternalValueHandler = (value: number[]) => {
+    const setInternalValueHandler = (value: number[], isDisabled: boolean) => {
+      if (isDisabled) return
+
       setInternalValue(value)
       onValueChange?.(value)
     }
 
-    const onItemClick = (index: number) => {
+    const onItemClick = (index: number, isDisabled: boolean) => {
       if (value.includes(index)) {
-        setInternalValueHandler(value.filter(idx => idx !== index))
+        setInternalValueHandler(
+          value.filter(idx => idx !== index),
+          isDisabled
+        )
         return
       }
 
       if (type === 'multiple') {
-        setInternalValueHandler([...value, index])
+        setInternalValueHandler([...value, index], isDisabled)
       } else {
-        setInternalValueHandler([index])
+        setInternalValueHandler([index], isDisabled)
       }
     }
 
@@ -176,25 +180,41 @@ export const Accordion = forwardRef<AccordionRef, AccordionProps>(
       item: AccordionItem,
       index: number
     ): AccordionItemProps => {
+      const isExpanded = value.includes(index)
+      const isDisabled = isDefined(item.disabled) ? item.disabled : disabled
+
       return {
         ...item,
-        onClick: () => onItemClick(index),
-        expanded: value.includes(index),
+        onClick: () => onItemClick(index, isDisabled),
+        expanded: isExpanded,
         classNames: {
-          content: classNames?.content,
-          header: classNames?.header,
-          item: classNames?.item,
-          trigger: classNames?.trigger,
-          indicator: classNames?.indicator,
+          content: cn(classNames?.content, item.classNames?.content),
+          header: cn(classNames?.header),
+          item: cn(classNames?.item),
+          trigger: cn(
+            getClassNames(classNames?.trigger, isExpanded, isDisabled),
+            getClassNames(item.classNames?.trigger, isExpanded, isDisabled)
+          ),
+          indicator: cn(
+            getClassNames(classNames?.indicator, isExpanded, isDisabled),
+            getClassNames(item.classNames?.indicator, isExpanded, isDisabled)
+          ),
         },
         styles: {
-          content: styles?.content,
-          header: styles?.header,
-          item: styles?.item,
-          trigger: styles?.trigger,
-          indicator: styles?.indicator,
+          content: mergeObjects(styles?.content, item.styles?.content),
+          header: mergeObjects(styles?.header, item.styles?.header),
+          item: mergeObjects(styles?.item, item.styles?.item),
+          trigger: mergeObjects(
+            getStyles(styles?.trigger, isExpanded, isDisabled),
+            getStyles(item.styles?.trigger, isExpanded, isDisabled)
+          ),
+          indicator: mergeObjects(
+            getStyles(styles?.indicator, isExpanded, isDisabled),
+            getStyles(item.styles?.indicator, isExpanded, isDisabled)
+          ),
         },
         indicator,
+        disabled: isDisabled,
       }
     }
 

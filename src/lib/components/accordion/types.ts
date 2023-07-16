@@ -17,6 +17,9 @@ export type AccordionType = 'single' | 'multiple'
 export interface AccordionItem {
   header?: ReactNode
   content?: ReactNode
+  disabled?: boolean
+  styles?: AccordionItemStyles
+  classNames?: AccordionItemClassNames
   render?: AccordionItemRenderFunction
 }
 
@@ -35,16 +38,39 @@ export interface AccordionStyleable<T, R> extends AccordionItemStyleable<T, R> {
 export interface AccordionItemRelative<T> {
   expanded?: T
   collapsed?: T
+  disabled?: T
 }
 
 export type AccordionItemRelativeStyles = AccordionItemRelative<CSSProperties>
-export type AccordionItemStyles = CSSProperties | AccordionItemRelativeStyles
+export type AccordionItemInternalStyles =
+  | CSSProperties
+  | AccordionItemRelativeStyles
 
 export interface AccordionItemRelativeClassNames
   extends AccordionItemRelative<string> {
   default?: string
 }
-export type AccordionItemClassNames = string | AccordionItemRelativeClassNames
+export type AccordionItemInternalClassNames =
+  | string
+  | AccordionItemRelativeClassNames
+
+export type AccordionItemStyles = AccordionItemStyleable<
+  CSSProperties,
+  AccordionItemInternalStyles
+>
+export type AccordionItemClassNames = AccordionItemStyleable<
+  string,
+  AccordionItemInternalClassNames
+>
+
+export type AccordionStyles = AccordionStyleable<
+  CSSProperties,
+  AccordionItemInternalStyles
+>
+export type AccordionClassNames = AccordionStyleable<
+  string,
+  AccordionItemInternalClassNames
+>
 
 interface AccordionIndicatorRenderProps
   extends CommonRenderParams,

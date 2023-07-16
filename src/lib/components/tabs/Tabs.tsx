@@ -147,7 +147,7 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
 
         nextElement.focus()
       },
-      []
+      [tablistRef, orientation]
     )
 
     useUpdateInternalOnExternalChange({

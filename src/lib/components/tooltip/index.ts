@@ -2,6 +2,8 @@ import { Tooltip, TooltipProps } from './Tooltip'
 import {
   TooltipChildren,
   TooltipClassNames,
+  TooltipInternalClassNames,
+  TooltipInternalStyles,
   TooltipSide,
   TooltipState,
   TooltipStyleable,
@@ -14,6 +16,8 @@ export { Tooltip }
 export type {
   TooltipChildren,
   TooltipClassNames,
+  TooltipInternalClassNames,
+  TooltipInternalStyles,
   TooltipProps,
   TooltipSide,
   TooltipState,

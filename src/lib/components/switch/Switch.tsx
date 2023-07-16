@@ -117,8 +117,9 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
             <>
               <div
                 aria-hidden
-                style={getStyles(styles?.thumb, checked)}
-                className={getClassNames(classNames?.thumb, checked)}
+                style={getStyles(styles?.thumb, checked, disabled)}
+                className={getClassNames(classNames?.thumb, checked, disabled)}
+                {...dataAttributes}
               />
             </>
           )}
@@ -126,7 +127,10 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
           {children && (
             <>
               {typeof children === 'function' &&
-                children({ state: { checked, disabled } })}
+                children({
+                  state: { checked, disabled },
+                  childrenProps: dataAttributes,
+                })}
 
               {typeof children !== 'function' && children}
             </>

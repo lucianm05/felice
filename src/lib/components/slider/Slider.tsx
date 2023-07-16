@@ -360,23 +360,32 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
       externalValue,
     })
 
+    const dataAttributes = {
+      'data-disabled': disabled,
+      'data-orientation': orientation,
+    }
+
     return (
       <div
         {...props}
         ref={internalRef}
         style={mergeObjects({ position: 'relative' }, style, styles?.root)}
         className={cn(className, classNames?.root)}
-        data-disabled={disabled}
-        data-orientation={orientation}
+        {...dataAttributes}
       >
-        <div style={styles?.track} className={classNames?.track}>
+        <div
+          style={styles?.track}
+          className={classNames?.track}
+          {...dataAttributes}
+        >
           <div
             style={mergeObjects(
               getRangeProperties({ min, max, value, orientation }),
               styles?.range
             )}
             className={classNames?.range}
-          ></div>
+            {...dataAttributes}
+          />
         </div>
 
         {value &&
@@ -409,8 +418,7 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
                 aria-valuemax={maxValue}
                 aria-disabled={disabled}
                 aria-orientation={orientation}
-                data-disabled={disabled}
-                data-orientation={orientation}
+                {...dataAttributes}
                 data-slider={trueIndex}
               />
             )

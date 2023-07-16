@@ -21,7 +21,7 @@ function App() {
   const [checkboxChecked, setCheckboxChecked] = useState(true)
   const [sliderValue, setSliderValue] = useState<SliderValue>([75, 100])
   const progressValues = {
-    value: 25,
+    value: 120,
     min: 0,
     max: 150,
   }
@@ -58,7 +58,7 @@ function App() {
           placeholder='Social media'
           classNames={{
             root: classes['select__root'],
-            trigger: classes['select__trigger'],
+            trigger: { default: classes['select__trigger'] },
             list: classes['select__list'],
             option: {
               default: classes['select__option'],
@@ -66,6 +66,7 @@ function App() {
               selected: classes['select__option-selected'],
             },
           }}
+          disabled
         />
 
         <Accordion
@@ -113,10 +114,20 @@ function App() {
         />
 
         <Accordion
-          defaultValue={[0, 1]}
+          defaultValue={[1]}
           data={[
-            { header: 'First accordion', content: 'First accordion content' },
-            { header: 'Second accordion', content: 'Second accordion content' },
+            {
+              header: 'First accordion',
+              content: 'First accordion content',
+              classNames: {
+                content: 'test',
+                trigger: { default: 'test', expanded: 'trigger expanded' },
+              },
+            },
+            {
+              header: 'Second accordion',
+              content: 'Second accordion content',
+            },
           ]}
           type='single'
           classNames={{
@@ -194,15 +205,19 @@ function App() {
           label='Fetching data'
           {...progressValues}
           styles={{
-            root: {
+            progressbar: {
               width: '10rem',
               height: '0.75rem',
               background: 'gray',
               borderRadius: '99999px',
             },
+            indicator: {
+              background: 'blue',
+              borderRadius: '99999px',
+            },
           }}
         >
-          {({ indicatorProps, state: { percentageValue } }) => {
+          {/* {({ indicatorProps, state: { percentageValue } }) => {
             return (
               <div
                 {...indicatorProps}
@@ -214,7 +229,7 @@ function App() {
                 }}
               ></div>
             )
-          }}
+          }} */}
         </Progress>
 
         <Slider
@@ -282,6 +297,7 @@ function App() {
         />
 
         <Tabs
+          orientation='vertical'
           data={[
             {
               element: 'Settings',
@@ -294,7 +310,17 @@ function App() {
             },
             {
               element: 'My orders',
-              panel: <div>User orders</div>,
+              panel: (
+                <div>
+                  <Tooltip
+                  defaultOpen
+                    side='right'
+                    content={<div>Here the user orders are displayed</div>}
+                  >
+                    User orders
+                  </Tooltip>
+                </div>
+              ),
             },
           ]}
           classNames={{
@@ -305,7 +331,7 @@ function App() {
           }}
         />
 
-        <Tabs
+        {/* <Tabs
           id='user-actions'
           data={[
             {
@@ -359,7 +385,7 @@ function App() {
             tablist: classes['tabs-tablist-vertical'],
           }}
           orientation='vertical'
-        />
+        /> */}
 
         <RadioGroup
           label='Select payment method'
@@ -423,7 +449,7 @@ function App() {
           orientation='vertical'
         />
 
-        <div
+        {/* <div
           style={{
             display: 'flex',
             padding: '10rem',
@@ -463,7 +489,7 @@ function App() {
               )
             }}
           </Tooltip>
-        </div>
+        </div> */}
 
         <Dialog
           ref={dialogRef}
