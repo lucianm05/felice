@@ -409,7 +409,7 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
                 style={styles?.thumb}
                 className={classNames?.thumb}
                 role='slider'
-                tabIndex={0}
+                tabIndex={disabled ? -1 : 0}
                 onKeyDown={e => onKeyDown(e, trueIndex)}
                 onPointerDown={e => onPointerDown(e, trueIndex)}
                 aria-label={labels[trueIndex]}

@@ -34,6 +34,7 @@ import {
 
 export interface TabsProps extends Omit<HTMLProps<HTMLDivElement>, 'data'> {
   data: Tab[]
+  label: string
   defaultTab?: number
   currentTab?: number
   onTabChange?: (tab: number) => void
@@ -49,6 +50,7 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
     {
       id: externalId,
       data,
+      label,
       defaultTab = 0,
       currentTab: externalTab,
       onTabChange,
@@ -169,6 +171,7 @@ export const Tabs = forwardRef<TabsRef, TabsProps>(
           ref={tablistRef}
           style={styles?.tablist}
           className={classNames?.tablist}
+          aria-label={label}
           aria-orientation={orientation}
           data-orientation={orientation}
         >
