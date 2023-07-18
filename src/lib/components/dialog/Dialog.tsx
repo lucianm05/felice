@@ -197,23 +197,23 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       }
     }
 
-    const onWindowClick = (event: MouseEvent) => {
-      if (
-        !open ||
-        event.target === internalTriggerRef.current ||
-        !internalRef.current ||
-        !event.target
-      )
-        return
+    // const onWindowClick = (event: MouseEvent) => {
+    //   if (
+    //     !open ||
+    //     event.target === internalTriggerRef.current ||
+    //     !internalRef.current ||
+    //     !event.target
+    //   )
+    //     return
 
-      if (!internalRef.current.contains(event.target as Node))
-        setInternalOpenHandler(false)
-    }
+    //   if (!internalRef.current.contains(event.target as Node))
+    //     setInternalOpenHandler(false)
+    // }
 
     useEffect(() => {
       if (open) {
         window.addEventListener('keydown', onWindowKeyDown)
-        window.addEventListener('click', onWindowClick)
+        // window.addEventListener('click', onWindowClick)
 
         if (internalRef.current) {
           const { firstFocusableElement } = getFocusableElements(
@@ -227,12 +227,12 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
       if (!open) {
         window.removeEventListener('keydown', onWindowKeyDown)
-        window.removeEventListener('click', onWindowClick)
+        // window.removeEventListener('click', onWindowClick)
       }
 
       return () => {
         window.removeEventListener('keydown', onWindowKeyDown)
-        window.removeEventListener('click', onWindowClick)
+        // window.removeEventListener('click', onWindowClick)
       }
     }, [open])
 
