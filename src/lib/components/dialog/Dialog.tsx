@@ -16,7 +16,7 @@ import { useUpdateInternalOnExternalChange } from '@lib/hooks/useUpdateInternalO
 import { cn, isDefined, mergeObjects } from '@lib/utils'
 import {
   HTMLProps,
-  MouseEvent,
+  MouseEvent as ReactMouseEvent,
   MutableRefObject,
   ReactNode,
   forwardRef,
@@ -72,13 +72,16 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
     const open = isDefined(externalOpen) ? externalOpen : internalOpen
 
-    const setInternalOpenHandler = (value: boolean, event?: MouseEvent) => {
+    const setInternalOpenHandler = (
+      value: boolean,
+      event?: ReactMouseEvent
+    ) => {
       if (event?.defaultPrevented || disabled) return
 
       setInternalOpen(value)
       onOpenChange?.(value)
 
-      if (internalRef.current && !value) {
+      if (internalTriggerRef.current && !value) {
         internalTriggerRef.current?.focus()
       }
     }
@@ -102,7 +105,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
     const triggerProps = {
       ref: internalTriggerRef,
       type: 'button',
-      onClick: (event: MouseEvent<HTMLButtonElement>) =>
+      onClick: (event: ReactMouseEvent<HTMLButtonElement>) =>
         setInternalOpenHandler(true, event),
       style: styles?.trigger,
       className: classNames?.trigger,
@@ -125,7 +128,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       type: 'button',
       style: styles?.overlay,
       className: classNames?.overlay,
-      onClick: (event: MouseEvent<HTMLButtonElement>) =>
+      onClick: (event: ReactMouseEvent<HTMLButtonElement>) =>
         setInternalOpenHandler(false, event),
       'aria-hidden': true,
       'data-overlay': true,
@@ -139,7 +142,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
     const closeButtonProps = {
       type: 'button',
-      onClick: (event: MouseEvent<HTMLButtonElement>) =>
+      onClick: (event: ReactMouseEvent<HTMLButtonElement>) =>
         setInternalOpenHandler(false, event),
       style: styles?.closeButton,
       className: classNames?.closeButton,
@@ -194,9 +197,23 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       }
     }
 
+    const onWindowClick = (event: MouseEvent) => {
+      if (
+        !open ||
+        event.target === internalTriggerRef.current ||
+        !internalRef.current ||
+        !event.target
+      )
+        return
+
+      if (!internalRef.current.contains(event.target as Node))
+        setInternalOpenHandler(false)
+    }
+
     useEffect(() => {
       if (open) {
         window.addEventListener('keydown', onWindowKeyDown)
+        window.addEventListener('click', onWindowClick)
 
         if (internalRef.current) {
           const { firstFocusableElement } = getFocusableElements(
@@ -210,10 +227,12 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
       if (!open) {
         window.removeEventListener('keydown', onWindowKeyDown)
+        window.removeEventListener('click', onWindowClick)
       }
 
       return () => {
         window.removeEventListener('keydown', onWindowKeyDown)
+        window.removeEventListener('click', onWindowClick)
       }
     }, [open])
 

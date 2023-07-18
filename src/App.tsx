@@ -497,7 +497,7 @@ function App() {
           classNames={{
             root: classes['dialog'],
             header: classes['dialog__header'],
-            overlay: classes['dialog__overlay'],
+            // overlay: classes['dialog__overlay'],
             title: classes['dialog__title'],
             description: classes['dialog__description'],
             closeButton: classes['dialog__close-button'],
