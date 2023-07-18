@@ -298,6 +298,7 @@ function App() {
 
         <Tabs
           orientation='vertical'
+          label='User panels'
           data={[
             {
               element: 'Settings',

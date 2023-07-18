@@ -77,6 +77,10 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
       setInternalOpen(value)
       onOpenChange?.(value)
+
+      if (internalRef.current && !value) {
+        internalTriggerRef.current?.focus()
+      }
     }
 
     const internalTriggerRef = useRef<DialogTriggerRef>(null)
@@ -162,7 +166,6 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
     const onWindowKeyDown = (event: KeyboardEvent) => {
       if (event.key === keys.escape) {
         setInternalOpenHandler(false)
-        internalTriggerRef.current?.focus()
         return
       }
 
